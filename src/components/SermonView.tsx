@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
-import { SermonOutline, formatSermonToMarkdown } from '../utils/theology';
+import React, { useState } from "react";
+import { SermonOutline, formatSermonToMarkdown } from "../utils/theology";
 import {
   Scroll,
   BookOpen,
@@ -22,7 +22,7 @@ import {
   Flame,
   Presentation,
   RefreshCw,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface SermonViewProps {
   currentSermon: SermonOutline;
@@ -32,7 +32,7 @@ interface SermonViewProps {
   onGenerateSermon: (params: {
     biblicalText: string;
     theme: string;
-    sermonType: 'Expositivo' | 'Temático' | 'Textual';
+    sermonType: "Expositivo" | "Temático" | "Textual";
     targetAudience: string;
     specificFocus: string;
   }) => Promise<void>;
@@ -49,9 +49,13 @@ export const SermonView: React.FC<SermonViewProps> = ({
 }) => {
   const [biblicalText, setBiblicalText] = useState(currentSermon.biblicalText);
   const [theme, setTheme] = useState(currentSermon.title);
-  const [sermonType, setSermonType] = useState<'Expositivo' | 'Temático' | 'Textual'>(currentSermon.sermonType);
-  const [targetAudience, setTargetAudience] = useState(currentSermon.targetAudience);
-  const [specificFocus, setSpecificFocus] = useState('');
+  const [sermonType, setSermonType] = useState<
+    "Expositivo" | "Temático" | "Textual"
+  >(currentSermon.sermonType);
+  const [targetAudience, setTargetAudience] = useState(
+    currentSermon.targetAudience,
+  );
+  const [specificFocus, setSpecificFocus] = useState("");
   const [isCopied, setIsCopied] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
 
@@ -77,7 +81,11 @@ export const SermonView: React.FC<SermonViewProps> = ({
     });
   };
 
-  const loadPreset = (t: string, p: string, type: 'Expositivo' | 'Temático' | 'Textual') => {
+  const loadPreset = (
+    t: string,
+    p: string,
+    type: "Expositivo" | "Temático" | "Textual",
+  ) => {
     setTheme(t);
     setBiblicalText(p);
     setSermonType(type);
@@ -96,7 +104,8 @@ export const SermonView: React.FC<SermonViewProps> = ({
               Gerador de Esboços de Sermão
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
-              Estruturação homilética rigorosa: Tema, Texto Base, Introdução, 3 Tópicos com Exegese e Ilustrações Práticas, Conclusão e Apelo.
+              Estruturação homilética rigorosa: Tema, Texto Base, Introdução, 3
+              Tópicos com Exegese e Ilustrações Práticas, Conclusão e Apelo.
             </p>
           </div>
 
@@ -106,15 +115,24 @@ export const SermonView: React.FC<SermonViewProps> = ({
               className="flex items-center gap-2 px-3.5 py-2 text-xs font-medium rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>{showConfig ? 'Ocultar Parâmetros' : 'Personalizar Novo Sermão'}</span>
-              {showConfig ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              <span>
+                {showConfig ? "Ocultar Parâmetros" : "Personalizar Novo Sermão"}
+              </span>
+              {showConfig ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
             </button>
           </div>
         </div>
 
         {/* Collapsible Generator Form */}
         {showConfig && (
-          <form onSubmit={handleSubmit} className="p-4 sm:p-6 bg-slate-50 border-t border-slate-200 space-y-4">
+          <form
+            onSubmit={handleSubmit}
+            className="p-4 sm:p-6 bg-slate-50 border-t border-slate-200 space-y-4"
+          >
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
@@ -153,9 +171,15 @@ export const SermonView: React.FC<SermonViewProps> = ({
                   onChange={(e) => setSermonType(e.target.value as any)}
                   className="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                 >
-                  <option value="Expositivo">Expositivo (Versículo por versículo)</option>
-                  <option value="Temático">Temático (Assunto central com passagens)</option>
-                  <option value="Textual">Textual (Baseado nas cláusulas do texto)</option>
+                  <option value="Expositivo">
+                    Expositivo (Versículo por versículo)
+                  </option>
+                  <option value="Temático">
+                    Temático (Assunto central com passagens)
+                  </option>
+                  <option value="Textual">
+                    Textual (Baseado nas cláusulas do texto)
+                  </option>
                 </select>
               </div>
 
@@ -169,12 +193,20 @@ export const SermonView: React.FC<SermonViewProps> = ({
                   className="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                 >
                   <option value="Culto da Família">Culto da Família</option>
-                  <option value="Celebração Dominical">Celebração Dominical</option>
-                  <option value="Santa Ceia do Senhor">Santa Ceia do Senhor</option>
-                  <option value="Culto de Doutrina / Ensino">Culto de Doutrina / Ensino</option>
+                  <option value="Celebração Dominical">
+                    Celebração Dominical
+                  </option>
+                  <option value="Santa Ceia do Senhor">
+                    Santa Ceia do Senhor
+                  </option>
+                  <option value="Culto de Doutrina / Ensino">
+                    Culto de Doutrina / Ensino
+                  </option>
                   <option value="Culto de Jovens">Culto de Jovens</option>
                   <option value="Vigília e Oração">Vigília e Oração</option>
-                  <option value="Culto Fúnebre (Consolação)">Culto Fúnebre (Consolação)</option>
+                  <option value="Culto Fúnebre (Consolação)">
+                    Culto Fúnebre (Consolação)
+                  </option>
                   <option value="Evangelístico">Culto Evangelístico</option>
                 </select>
               </div>
@@ -195,31 +227,57 @@ export const SermonView: React.FC<SermonViewProps> = ({
 
             {/* Quick Presets */}
             <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-200/80 text-xs text-slate-600">
-              <span className="font-semibold text-slate-500">Sugestões Rápidas:</span>
+              <span className="font-semibold text-slate-500">
+                Sugestões Rápidas:
+              </span>
               <button
                 type="button"
-                onClick={() => loadPreset('A Esperança Inabalável na Adversidade', 'Romanos 5:3-5', 'Expositivo')}
+                onClick={() =>
+                  loadPreset(
+                    "A Esperança Inabalável na Adversidade",
+                    "Romanos 5:3-5",
+                    "Expositivo",
+                  )
+                }
                 className="px-2.5 py-1 bg-white hover:bg-amber-50 border border-slate-200 hover:border-amber-400 rounded-lg text-slate-700 transition-colors"
               >
                 Romanos 5:3-5 (Esperança)
               </button>
               <button
                 type="button"
-                onClick={() => loadPreset('O Pastor que Não Falha', 'Salmos 23:1-6', 'Expositivo')}
+                onClick={() =>
+                  loadPreset(
+                    "O Pastor que Não Falha",
+                    "Salmos 23:1-6",
+                    "Expositivo",
+                  )
+                }
                 className="px-2.5 py-1 bg-white hover:bg-amber-50 border border-slate-200 hover:border-amber-400 rounded-lg text-slate-700 transition-colors"
               >
                 Salmos 23:1-6 (Provisão)
               </button>
               <button
                 type="button"
-                onClick={() => loadPreset('Salvos pela Graça para Boas Obras', 'Efésios 2:8-10', 'Textual')}
+                onClick={() =>
+                  loadPreset(
+                    "Salvos pela Graça para Boas Obras",
+                    "Efésios 2:8-10",
+                    "Textual",
+                  )
+                }
                 className="px-2.5 py-1 bg-white hover:bg-amber-50 border border-slate-200 hover:border-amber-400 rounded-lg text-slate-700 transition-colors"
               >
                 Efésios 2:8-10 (Graça)
               </button>
               <button
                 type="button"
-                onClick={() => loadPreset('A Paz que Guarda o Coração', 'Filipenses 4:4-7', 'Expositivo')}
+                onClick={() =>
+                  loadPreset(
+                    "A Paz que Guarda o Coração",
+                    "Filipenses 4:4-7",
+                    "Expositivo",
+                  )
+                }
                 className="px-2.5 py-1 bg-white hover:bg-amber-50 border border-slate-200 hover:border-amber-400 rounded-lg text-slate-700 transition-colors"
               >
                 Filipenses 4:4-7 (Paz)
@@ -277,13 +335,15 @@ export const SermonView: React.FC<SermonViewProps> = ({
                 onClick={() => onSaveSermon(currentSermon)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all ${
                   isSaved
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                    : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-300"
+                    : "bg-white hover:bg-slate-50 text-slate-700 border-slate-200"
                 }`}
                 title="Salvar no Caderno Ministerial"
               >
-                <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-emerald-600 text-emerald-600' : 'text-slate-500'}`} />
-                <span>{isSaved ? 'Salvo' : 'Salvar'}</span>
+                <Bookmark
+                  className={`w-4 h-4 ${isSaved ? "fill-emerald-600 text-emerald-600" : "text-slate-500"}`}
+                />
+                <span>{isSaved ? "Salvo" : "Salvar"}</span>
               </button>
 
               <button
@@ -291,8 +351,12 @@ export const SermonView: React.FC<SermonViewProps> = ({
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold transition-all"
                 title="Copiar esboço completo formatado"
               >
-                {isCopied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4 text-slate-500" />}
-                <span>{isCopied ? 'Copiado!' : 'Copiar'}</span>
+                {isCopied ? (
+                  <Check className="w-4 h-4 text-emerald-600" />
+                ) : (
+                  <Copy className="w-4 h-4 text-slate-500" />
+                )}
+                <span>{isCopied ? "Copiado!" : "Copiar"}</span>
               </button>
 
               <button
@@ -355,7 +419,8 @@ export const SermonView: React.FC<SermonViewProps> = ({
 
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
                 <span className="inline-flex items-center gap-1 text-xs font-bold text-slate-700 uppercase tracking-wider">
-                  <Flame className="w-3.5 h-3.5 text-amber-600" /> Problema que o Texto Resolve
+                  <Flame className="w-3.5 h-3.5 text-amber-600" /> Problema que
+                  o Texto Resolve
                 </span>
                 <p className="text-sm text-slate-700 leading-relaxed">
                   {currentSermon.introduction.problemSolved}
@@ -405,7 +470,10 @@ export const SermonView: React.FC<SermonViewProps> = ({
                     <div className="p-4 rounded-xl bg-amber-50/80 border-l-4 border-amber-500 border-amber-200/60">
                       <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900 uppercase tracking-wider mb-1">
                         <Lightbulb className="w-4 h-4 text-amber-600" />
-                        <span>Ilustração Prática (Analogia / Metáfora para o Pregador):</span>
+                        <span>
+                          Ilustração Prática (Analogia / Metáfora para o
+                          Pregador):
+                        </span>
                       </div>
                       <p className="text-sm sm:text-base text-amber-950 font-serif italic leading-relaxed">
                         "{topic.practicalIllustration}"
@@ -413,19 +481,22 @@ export const SermonView: React.FC<SermonViewProps> = ({
                     </div>
 
                     {/* Cross References */}
-                    {topic.crossReferences && topic.crossReferences.length > 0 && (
-                      <div className="pt-2 flex flex-wrap items-center gap-2 text-xs">
-                        <span className="text-slate-500 font-semibold">Referências Cruzadas:</span>
-                        {topic.crossReferences.map((ref, idx) => (
-                          <span
-                            key={idx}
-                            className="px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-slate-700 font-medium"
-                          >
-                            {ref}
+                    {topic.crossReferences &&
+                      topic.crossReferences.length > 0 && (
+                        <div className="pt-2 flex flex-wrap items-center gap-2 text-xs">
+                          <span className="text-slate-500 font-semibold">
+                            Referências Cruzadas:
                           </span>
-                        ))}
-                      </div>
-                    )}
+                          {topic.crossReferences.map((ref, idx) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-slate-700 font-medium"
+                            >
+                              {ref}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                   </div>
                 </div>
               ))}
@@ -453,14 +524,19 @@ export const SermonView: React.FC<SermonViewProps> = ({
                   Diretrizes de Aplicação Prática:
                 </span>
                 <ul className="space-y-2">
-                  {currentSermon.conclusionAndApplication.practicalCall.map((call, idx) => (
-                    <li key={idx} className="flex items-start gap-2.5 text-sm sm:text-base text-slate-700">
-                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-amber-500/20 text-amber-700 flex items-center justify-center font-bold text-xs mt-0.5">
-                        {idx + 1}
-                      </span>
-                      <span>{call}</span>
-                    </li>
-                  ))}
+                  {currentSermon.conclusionAndApplication.practicalCall.map(
+                    (call, idx) => (
+                      <li
+                        key={idx}
+                        className="flex items-start gap-2.5 text-sm sm:text-base text-slate-700"
+                      >
+                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-amber-500/20 text-amber-700 flex items-center justify-center font-bold text-xs mt-0.5">
+                          {idx + 1}
+                        </span>
+                        <span>{call}</span>
+                      </li>
+                    ),
+                  )}
                 </ul>
               </div>
             </div>
@@ -489,7 +565,8 @@ export const SermonView: React.FC<SermonViewProps> = ({
 
               <div className="p-4 sm:p-5 rounded-xl bg-white border border-amber-300 shadow-sm">
                 <span className="block text-xs font-bold text-amber-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                  <Cross className="w-3.5 h-3.5 text-amber-600" /> Sugestão de Oração Pastoral:
+                  <Cross className="w-3.5 h-3.5 text-amber-600" /> Sugestão de
+                  Oração Pastoral:
                 </span>
                 <blockquote className="text-sm sm:text-base text-slate-900 font-serif italic leading-relaxed border-l-2 border-amber-600 pl-3">
                   "{currentSermon.altarCallAndPrayer.suggestedPrayer}"

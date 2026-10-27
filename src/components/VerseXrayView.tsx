@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
-import { VerseXray, formatVerseXrayToMarkdown } from '../utils/theology';
+import React, { useState } from "react";
+import { VerseXray, formatVerseXrayToMarkdown } from "../utils/theology";
 import {
   Microscope,
   BookOpen,
@@ -21,13 +21,16 @@ import {
   Heart,
   RefreshCw,
   Search,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface VerseXrayViewProps {
   currentXray: VerseXray;
   onSaveXray: (xray: VerseXray) => void;
   isSaved: boolean;
-  onGenerateXray: (params: { verseReference: string; translation: string }) => Promise<void>;
+  onGenerateXray: (params: {
+    verseReference: string;
+    translation: string;
+  }) => Promise<void>;
   isLoading: boolean;
 }
 
@@ -38,7 +41,9 @@ export const VerseXrayView: React.FC<VerseXrayViewProps> = ({
   onGenerateXray,
   isLoading,
 }) => {
-  const [verseReference, setVerseReference] = useState(currentXray.verseReference);
+  const [verseReference, setVerseReference] = useState(
+    currentXray.verseReference,
+  );
   const [translation, setTranslation] = useState(currentXray.translation);
   const [isCopied, setIsCopied] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
@@ -71,13 +76,16 @@ export const VerseXrayView: React.FC<VerseXrayViewProps> = ({
         <div className="p-4 sm:p-6 bg-gradient-to-r from-indigo-950 via-slate-900 to-slate-900 text-white flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-semibold uppercase tracking-wider mb-2 border border-indigo-500/30">
-              <Microscope className="w-3.5 h-3.5" /> Módulo de Raio-X do Versículo
+              <Microscope className="w-3.5 h-3.5" /> Módulo de Raio-X do
+              Versículo
             </div>
             <h1 className="text-xl sm:text-2xl font-bold font-serif text-indigo-100">
               Exegese Simplificada & Originais Bíblicos
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
-              Análise profunda nos manuscritos originais em Grego Koiné e Hebraico Bíblico: etimologia, raízes, léxico de Strong e significado para a igreja hoje.
+              Análise profunda nos manuscritos originais em Grego Koiné e
+              Hebraico Bíblico: etimologia, raízes, léxico de Strong e
+              significado para a igreja hoje.
             </p>
           </div>
 
@@ -87,15 +95,24 @@ export const VerseXrayView: React.FC<VerseXrayViewProps> = ({
               className="flex items-center gap-2 px-3.5 py-2 text-xs font-medium rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors"
             >
               <Search className="w-3.5 h-3.5 text-indigo-400" />
-              <span>{showConfig ? 'Ocultar Busca' : 'Analisar Outro Versículo'}</span>
-              {showConfig ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              <span>
+                {showConfig ? "Ocultar Busca" : "Analisar Outro Versículo"}
+              </span>
+              {showConfig ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
             </button>
           </div>
         </div>
 
         {/* Search & Config Form */}
         {showConfig && (
-          <form onSubmit={handleSubmit} className="p-4 sm:p-6 bg-slate-50 border-t border-slate-200 space-y-4">
+          <form
+            onSubmit={handleSubmit}
+            className="p-4 sm:p-6 bg-slate-50 border-t border-slate-200 space-y-4"
+          >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="md:col-span-2">
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
@@ -123,42 +140,54 @@ export const VerseXrayView: React.FC<VerseXrayViewProps> = ({
                   onChange={(e) => setTranslation(e.target.value)}
                   className="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
-                  <option value="Almeida Revista e Atualizada (ARA)">Almeida Revista e Atualizada (ARA)</option>
-                  <option value="Nova Versão Internacional (NVI)">Nova Versão Internacional (NVI)</option>
-                  <option value="Almeida Revista e Corrigida (ARC)">Almeida Revista e Corrigida (ARC)</option>
-                  <option value="Bíblia King James Atualizada (BKJ)">Bíblia King James (BKJ)</option>
-                  <option value="Nova Almeida Atualizada (NAA)">Nova Almeida Atualizada (NAA)</option>
+                  <option value="Almeida Revista e Atualizada (ARA)">
+                    Almeida Revista e Atualizada (ARA)
+                  </option>
+                  <option value="Nova Versão Internacional (NVI)">
+                    Nova Versão Internacional (NVI)
+                  </option>
+                  <option value="Almeida Revista e Corrigida (ARC)">
+                    Almeida Revista e Corrigida (ARC)
+                  </option>
+                  <option value="Bíblia King James Atualizada (BKJ)">
+                    Bíblia King James (BKJ)
+                  </option>
+                  <option value="Nova Almeida Atualizada (NAA)">
+                    Nova Almeida Atualizada (NAA)
+                  </option>
                 </select>
               </div>
             </div>
 
             {/* Presets */}
             <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-200/80 text-xs text-slate-600">
-              <span className="font-semibold text-slate-500">Versículos Sugeridos:</span>
+              <span className="font-semibold text-slate-500">
+                Versículos Sugeridos:
+              </span>
               <button
                 type="button"
-                onClick={() => loadPreset('João 3:16')}
+                onClick={() => loadPreset("João 3:16")}
                 className="px-2.5 py-1 bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-400 rounded-lg text-slate-700 transition-colors"
               >
                 João 3:16 (Amor & Vida Eterna)
               </button>
               <button
                 type="button"
-                onClick={() => loadPreset('Romanos 12:2')}
+                onClick={() => loadPreset("Romanos 12:2")}
                 className="px-2.5 py-1 bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-400 rounded-lg text-slate-700 transition-colors"
               >
                 Romanos 12:2 (Metamorphousthe & Aion)
               </button>
               <button
                 type="button"
-                onClick={() => loadPreset('Salmos 23:1')}
+                onClick={() => loadPreset("Salmos 23:1")}
                 className="px-2.5 py-1 bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-400 rounded-lg text-slate-700 transition-colors"
               >
                 Salmos 23:1 (Yahweh Rohi)
               </button>
               <button
                 type="button"
-                onClick={() => loadPreset('Efésios 2:8-9')}
+                onClick={() => loadPreset("Efésios 2:8-9")}
                 className="px-2.5 py-1 bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-400 rounded-lg text-slate-700 transition-colors"
               >
                 Efésios 2:8-9 (Charis & Dōron)
@@ -207,13 +236,15 @@ export const VerseXrayView: React.FC<VerseXrayViewProps> = ({
                 onClick={() => onSaveXray(currentXray)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all ${
                   isSaved
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                    : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-300"
+                    : "bg-white hover:bg-slate-50 text-slate-700 border-slate-200"
                 }`}
                 title="Salvar no Caderno Ministerial"
               >
-                <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-emerald-600 text-emerald-600' : 'text-slate-500'}`} />
-                <span>{isSaved ? 'Salvo' : 'Salvar'}</span>
+                <Bookmark
+                  className={`w-4 h-4 ${isSaved ? "fill-emerald-600 text-emerald-600" : "text-slate-500"}`}
+                />
+                <span>{isSaved ? "Salvo" : "Salvar"}</span>
               </button>
 
               <button
@@ -221,8 +252,12 @@ export const VerseXrayView: React.FC<VerseXrayViewProps> = ({
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold transition-all"
                 title="Copiar Raio-X formatado em Markdown"
               >
-                {isCopied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4 text-slate-500" />}
-                <span>{isCopied ? 'Copiado!' : 'Copiar'}</span>
+                {isCopied ? (
+                  <Check className="w-4 h-4 text-emerald-600" />
+                ) : (
+                  <Copy className="w-4 h-4 text-slate-500" />
+                )}
+                <span>{isCopied ? "Copiado!" : "Copiar"}</span>
               </button>
 
               <button
@@ -283,7 +318,10 @@ export const VerseXrayView: React.FC<VerseXrayViewProps> = ({
                   Contexto Literário Imediato:
                 </span>
                 <p className="text-sm sm:text-base text-slate-800 leading-relaxed">
-                  {currentXray.historicalCulturalContext.immediateLiteraryContext}
+                  {
+                    currentXray.historicalCulturalContext
+                      .immediateLiteraryContext
+                  }
                 </p>
               </div>
 
@@ -364,31 +402,35 @@ export const VerseXrayView: React.FC<VerseXrayViewProps> = ({
           </section>
 
           {/* SECTION 3: REFERÊNCIAS CRUZADAS */}
-          {currentXray.crossReferences && currentXray.crossReferences.length > 0 && (
-            <section className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b-2 border-indigo-600/40">
-                <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
-                  <Link className="w-4 h-4" />
-                </div>
-                <h3 className="text-lg sm:text-xl font-bold text-slate-900 uppercase tracking-wide">
-                  Referências Cruzadas Cruciais
-                </h3>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {currentXray.crossReferences.map((cr, idx) => (
-                  <div key={idx} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                    <span className="text-xs font-bold text-indigo-800 font-serif block">
-                      {cr.reference}
-                    </span>
-                    <p className="text-xs text-slate-700 leading-relaxed">
-                      {cr.connection}
-                    </p>
+          {currentXray.crossReferences &&
+            currentXray.crossReferences.length > 0 && (
+              <section className="space-y-4">
+                <div className="flex items-center gap-2 pb-2 border-b-2 border-indigo-600/40">
+                  <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
+                    <Link className="w-4 h-4" />
                   </div>
-                ))}
-              </div>
-            </section>
-          )}
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-900 uppercase tracking-wide">
+                    Referências Cruzadas Cruciais
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {currentXray.crossReferences.map((cr, idx) => (
+                    <div
+                      key={idx}
+                      className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1"
+                    >
+                      <span className="text-xs font-bold text-indigo-800 font-serif block">
+                        {cr.reference}
+                      </span>
+                      <p className="text-xs text-slate-700 leading-relaxed">
+                        {cr.connection}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
 
           {/* SECTION 4: O QUE O TEXTO SIGNIFICA PARA NÓS HOJE */}
           <section className="space-y-4">
@@ -416,14 +458,19 @@ export const VerseXrayView: React.FC<VerseXrayViewProps> = ({
                   Aplicações Contemporâneas:
                 </span>
                 <ul className="space-y-2">
-                  {currentXray.theologicalMeaningToday.contemporaryApplication.map((app, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-sm sm:text-base text-slate-800">
-                      <span className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
-                        {idx + 1}
-                      </span>
-                      <span>{app}</span>
-                    </li>
-                  ))}
+                  {currentXray.theologicalMeaningToday.contemporaryApplication.map(
+                    (app, idx) => (
+                      <li
+                        key={idx}
+                        className="flex items-start gap-2 text-sm sm:text-base text-slate-800"
+                      >
+                        <span className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+                          {idx + 1}
+                        </span>
+                        <span>{app}</span>
+                      </li>
+                    ),
+                  )}
                 </ul>
               </div>
 

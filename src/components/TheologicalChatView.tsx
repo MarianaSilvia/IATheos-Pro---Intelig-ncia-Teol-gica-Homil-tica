@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from "react";
+import ReactMarkdown from "react-markdown";
 import {
   MessageSquareQuote,
   Send,
@@ -15,11 +16,11 @@ import {
   RefreshCw,
   BookOpen,
   HelpCircle,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface ChatMessage {
   id: string;
-  sender: 'user' | 'assistant';
+  sender: "user" | "assistant";
   text: string;
   timestamp: string;
 }
@@ -31,51 +32,71 @@ interface TheologicalChatViewProps {
 
 export const TheologicalChatView: React.FC<TheologicalChatViewProps> = ({
   onSendMessage,
-  isLoading,
+  isLoading: parentLoading,
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
-      id: 'welcome',
-      sender: 'assistant',
+      id: "welcome",
+      sender: "assistant",
       text: `**Graça e Paz! Eu sou o IATheos Pro.**\n\nEstou à disposição para auxiliá-lo em seu ministério pastoral, preparo homilético, exegese dos originais (hebraico, grego e aramaico) e didática cristã.\n\nVocê pode me fazer perguntas sobre:\n- Interpretação de passagens difíceis (*crux interpretum*)\n- Harmonia bíblica e teologia pactual\n- Contexto histórico e arqueológico dos tempos bíblicos\n- Dúvidas doutrinárias, escatologia e história da igreja\n\nComo posso ser útil ao seu estudo hoje?`,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timestamp: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
     },
   ]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+  const inFlight = useRef(false);
+  const isLoading = parentLoading || sending;
 
   const handleSend = async (textToSend?: string) => {
     const q = textToSend || input;
-    if (!q.trim() || isLoading) return;
+    if (!q.trim() || isLoading || inFlight.current) return;
+    inFlight.current = true;
+    setSending(true);
 
     const userMsg: ChatMessage = {
       id: `user-${Date.now()}`,
-      sender: 'user',
+      sender: "user",
       text: q.trim(),
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timestamp: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
     };
 
     const newHistory = [...messages, userMsg];
     setMessages(newHistory);
-    setInput('');
+    setInput("");
 
     try {
-      const response = await onSendMessage(q.trim(), newHistory);
+      const response = await onSendMessage(q.trim(), messages);
       const assistantMsg: ChatMessage = {
         id: `assistant-${Date.now()}`,
-        sender: 'assistant',
+        sender: "assistant",
         text: response,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timestamp: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
       };
-      setMessages([...newHistory, assistantMsg]);
+      setMessages((current) => [...current, assistantMsg]);
     } catch (err: any) {
       const errorMsg: ChatMessage = {
         id: `error-${Date.now()}`,
-        sender: 'assistant',
-        text: `Ocorreu uma falha temporária ao consultar a inteligência teológica: ${err?.message || 'Tente novamente em instantes'}.`,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        sender: "assistant",
+        text: `Ocorreu uma falha temporária ao consultar a inteligência teológica: ${err?.message || "Tente novamente em instantes"}.`,
+        timestamp: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
       };
-      setMessages([...newHistory, errorMsg]);
+      setMessages((current) => [...current, errorMsg]);
+    } finally {
+      inFlight.current = false;
+      setSending(false);
     }
   };
 
@@ -87,9 +108,9 @@ export const TheologicalChatView: React.FC<TheologicalChatViewProps> = ({
 
   const suggestions = [
     'Qual o significado exegético de "espíritos em prisão" em 1 Pedro 3:19?',
-    'Como harmonizar Romanos 4 (justificação pela fé) e Tiago 2 (fé e obras)?',
-    'Explique a diferença entre Justificação, Regeneração e Santificação.',
-    'Qual a importância teológica do Yom Kippur (Dia da Expiação) em Hebreus?',
+    "Como harmonizar Romanos 4 (justificação pela fé) e Tiago 2 (fé e obras)?",
+    "Explique a diferença entre Justificação, Regeneração e Santificação.",
+    "Qual a importância teológica do Yom Kippur (Dia da Expiação) em Hebreus?",
   ];
 
   return (
@@ -105,7 +126,8 @@ export const TheologicalChatView: React.FC<TheologicalChatViewProps> = ({
               Consultor Teológico Livre
             </h2>
             <p className="text-xs text-slate-400">
-              Perguntas & Respostas com fundamentação exegética, teologia bíblica e ética pastoral.
+              Perguntas & Respostas com fundamentação exegética, teologia
+              bíblica e ética pastoral.
             </p>
           </div>
         </div>
@@ -132,9 +154,9 @@ export const TheologicalChatView: React.FC<TheologicalChatViewProps> = ({
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className={`flex gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex gap-3 ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
             >
-              {msg.sender === 'assistant' && (
+              {msg.sender === "assistant" && (
                 <div className="w-8 h-8 rounded-xl bg-slate-900 text-amber-300 flex items-center justify-center flex-shrink-0 mt-1 shadow-sm border border-amber-500/30">
                   <Bot className="w-4 h-4" />
                 </div>
@@ -142,34 +164,38 @@ export const TheologicalChatView: React.FC<TheologicalChatViewProps> = ({
 
               <div
                 className={`max-w-[85%] rounded-2xl p-4 sm:p-5 shadow-sm space-y-2 relative group ${
-                  msg.sender === 'user'
-                    ? 'bg-amber-600 text-white rounded-tr-none'
-                    : 'bg-slate-50 border border-slate-200/80 text-slate-900 rounded-tl-none font-sans'
+                  msg.sender === "user"
+                    ? "bg-amber-600 text-white rounded-tr-none"
+                    : "bg-slate-50 border border-slate-200/80 text-slate-900 rounded-tl-none font-sans"
                 }`}
               >
                 <div className="flex items-center justify-between text-[11px] opacity-75 mb-1">
                   <span className="font-semibold">
-                    {msg.sender === 'user' ? 'Você' : 'IATheos Pro'}
+                    {msg.sender === "user" ? "Você" : "IATheos Pro"}
                   </span>
                   <span>{msg.timestamp}</span>
                 </div>
 
                 <div className="text-sm sm:text-base leading-relaxed whitespace-pre-line">
-                  {msg.text}
+                  <ReactMarkdown>{msg.text}</ReactMarkdown>
                 </div>
 
-                {msg.sender === 'assistant' && (
+                {msg.sender === "assistant" && (
                   <button
                     onClick={() => handleCopy(msg.id, msg.text)}
                     className="absolute top-3 right-3 p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 opacity-0 group-hover:opacity-100 transition-opacity"
                     title="Copiar resposta"
                   >
-                    {copiedId === msg.id ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copiedId === msg.id ? (
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5" />
+                    )}
                   </button>
                 )}
               </div>
 
-              {msg.sender === 'user' && (
+              {msg.sender === "user" && (
                 <div className="w-8 h-8 rounded-xl bg-amber-700 text-white flex items-center justify-center flex-shrink-0 mt-1 shadow-sm">
                   <User className="w-4 h-4" />
                 </div>
@@ -180,7 +206,9 @@ export const TheologicalChatView: React.FC<TheologicalChatViewProps> = ({
           {isLoading && (
             <div className="flex items-center gap-3 text-slate-500 text-xs italic p-3">
               <RefreshCw className="w-4 h-4 animate-spin text-amber-600" />
-              <span>Consultando os manuscritos sagrados e a hermenêutica bíblica...</span>
+              <span>
+                Consultando os manuscritos sagrados e a hermenêutica bíblica...
+              </span>
             </div>
           )}
         </div>

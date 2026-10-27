@@ -25,22 +25,24 @@ export interface ActivitySummaryStats {
 /**
  * Generates initial 7-day ministerial activity data up to the current date.
  */
-export function generateLast7DaysActivities(baseDate: Date = new Date()): DayActivity[] {
-  const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+export function generateLast7DaysActivities(
+  baseDate: Date = new Date(),
+  events: Array<{ type: string; createdAt: string }> = [],
+): DayActivity[] {
+  const dayNames = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
   const monthNames = [
-    'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
-    'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'
-  ];
-
-  // Base realistic sample distribution for ministerial workflow
-  const sampleData = [
-    { sermoes: 2, ebd: 1, estudos: 4 }, // 6 days ago
-    { sermoes: 1, ebd: 0, estudos: 3 }, // 5 days ago
-    { sermoes: 3, ebd: 2, estudos: 5 }, // 4 days ago
-    { sermoes: 0, ebd: 3, estudos: 2 }, // 3 days ago
-    { sermoes: 2, ebd: 1, estudos: 6 }, // 2 days ago
-    { sermoes: 4, ebd: 2, estudos: 3 }, // yesterday
-    { sermoes: 2, ebd: 1, estudos: 5 }, // today
+    "Jan",
+    "Fev",
+    "Mar",
+    "Abr",
+    "Mai",
+    "Jun",
+    "Jul",
+    "Ago",
+    "Set",
+    "Out",
+    "Nov",
+    "Dez",
   ];
 
   const result: DayActivity[] = [];
@@ -50,11 +52,18 @@ export function generateLast7DaysActivities(baseDate: Date = new Date()): DayAct
     d.setDate(d.getDate() - i);
 
     const dayName = dayNames[d.getDay()];
-    const dayOfMonth = d.getDate().toString().padStart(2, '0');
-    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const dayOfMonth = d.getDate().toString().padStart(2, "0");
+    const month = (d.getMonth() + 1).toString().padStart(2, "0");
     const monthName = monthNames[d.getMonth()];
 
-    const sample = sampleData[6 - i] || { sermoes: 1, ebd: 1, estudos: 2 };
+    const sameDay = events.filter(
+      (e) => new Date(e.createdAt).toDateString() === d.toDateString(),
+    );
+    const sample = {
+      sermoes: sameDay.filter((e) => e.type === "sermon").length,
+      ebd: sameDay.filter((e) => e.type === "ebd").length,
+      estudos: sameDay.filter((e) => e.type === "xray").length,
+    };
     const total = sample.sermoes + sample.ebd + sample.estudos;
 
     result.push({
@@ -74,12 +83,14 @@ export function generateLast7DaysActivities(baseDate: Date = new Date()): DayAct
 /**
  * Calculates aggregate statistics from 7-day activity data.
  */
-export function calculateActivityStats(activities: DayActivity[]): ActivitySummaryStats {
+export function calculateActivityStats(
+  activities: DayActivity[],
+): ActivitySummaryStats {
   let totalSermoes = 0;
   let totalEbd = 0;
   let totalEstudos = 0;
   let maxTotal = -1;
-  let mostActiveDay = '';
+  let mostActiveDay = "";
 
   for (const day of activities) {
     totalSermoes += day.sermoes;

@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
-import { SermonOutline, EbdLesson, VerseXray } from '../utils/theology';
+import React, { useState } from "react";
+import { SermonOutline, EbdLesson, VerseXray } from "../utils/theology";
 import {
   Bookmark,
   Scroll,
@@ -15,11 +15,11 @@ import {
   Search,
   Download,
   BookOpen,
-} from 'lucide-react';
+} from "lucide-react";
 
 export interface SavedItem {
   id: string;
-  type: 'sermon' | 'ebd' | 'xray';
+  type: "sermon" | "ebd" | "xray";
   title: string;
   reference: string;
   savedAt: string;
@@ -39,11 +39,13 @@ export const SavedLibraryView: React.FC<SavedLibraryViewProps> = ({
   onDeleteItem,
   onExportAll,
 }) => {
-  const [filter, setFilter] = useState<'all' | 'sermon' | 'ebd' | 'xray'>('all');
-  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState<"all" | "sermon" | "ebd" | "xray">(
+    "all",
+  );
+  const [search, setSearch] = useState("");
 
   const filteredItems = savedItems.filter((item) => {
-    const matchesFilter = filter === 'all' || item.type === filter;
+    const matchesFilter = filter === "all" || item.type === filter;
     const matchesSearch =
       item.title.toLowerCase().includes(search.toLowerCase()) ||
       item.reference.toLowerCase().includes(search.toLowerCase());
@@ -63,7 +65,8 @@ export const SavedLibraryView: React.FC<SavedLibraryViewProps> = ({
               Caderno Ministerial & Estudos Salvos
             </h1>
             <p className="text-xs sm:text-sm text-slate-500">
-              Seu acervo pessoal de sermões, lições para EBD e exegeses bíblicas prontas para ministração.
+              Seu acervo pessoal de sermões, lições para EBD e exegeses bíblicas
+              prontas para ministração.
             </p>
           </div>
         </div>
@@ -94,41 +97,41 @@ export const SavedLibraryView: React.FC<SavedLibraryViewProps> = ({
 
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
           <button
-            onClick={() => setFilter('all')}
+            onClick={() => setFilter("all")}
             className={`px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors ${
-              filter === 'all'
-                ? 'bg-slate-900 text-white shadow-sm'
-                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+              filter === "all"
+                ? "bg-slate-900 text-white shadow-sm"
+                : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
             }`}
           >
             Todos ({savedItems.length})
           </button>
           <button
-            onClick={() => setFilter('sermon')}
+            onClick={() => setFilter("sermon")}
             className={`px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors flex items-center gap-1 ${
-              filter === 'sermon'
-                ? 'bg-amber-600 text-white shadow-sm'
-                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+              filter === "sermon"
+                ? "bg-amber-600 text-white shadow-sm"
+                : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
             }`}
           >
             <Scroll className="w-3.5 h-3.5" /> Sermões
           </button>
           <button
-            onClick={() => setFilter('ebd')}
+            onClick={() => setFilter("ebd")}
             className={`px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors flex items-center gap-1 ${
-              filter === 'ebd'
-                ? 'bg-emerald-600 text-white shadow-sm'
-                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+              filter === "ebd"
+                ? "bg-emerald-600 text-white shadow-sm"
+                : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
             }`}
           >
             <GraduationCap className="w-3.5 h-3.5" /> EBD
           </button>
           <button
-            onClick={() => setFilter('xray')}
+            onClick={() => setFilter("xray")}
             className={`px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors flex items-center gap-1 ${
-              filter === 'xray'
-                ? 'bg-indigo-600 text-white shadow-sm'
-                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+              filter === "xray"
+                ? "bg-indigo-600 text-white shadow-sm"
+                : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
             }`}
           >
             <Microscope className="w-3.5 h-3.5" /> Raio-X
@@ -144,7 +147,8 @@ export const SavedLibraryView: React.FC<SavedLibraryViewProps> = ({
             Nenhum estudo salvo nesta categoria
           </h3>
           <p className="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto">
-            Ao gerar novos sermões, lições para EBD ou análises de versículos, clique no botão "Salvar" para armazená-los em seu caderno.
+            Ao gerar novos sermões, lições para EBD ou análises de versículos,
+            clique no botão "Salvar" para armazená-los em seu caderno.
           </p>
         </div>
       ) : (
@@ -158,20 +162,26 @@ export const SavedLibraryView: React.FC<SavedLibraryViewProps> = ({
                 <div className="flex items-center justify-between">
                   <span
                     className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${
-                      item.type === 'sermon'
-                        ? 'bg-amber-100 text-amber-800'
-                        : item.type === 'ebd'
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : 'bg-indigo-100 text-indigo-800'
+                      item.type === "sermon"
+                        ? "bg-amber-100 text-amber-800"
+                        : item.type === "ebd"
+                          ? "bg-emerald-100 text-emerald-800"
+                          : "bg-indigo-100 text-indigo-800"
                     }`}
                   >
-                    {item.type === 'sermon' && <Scroll className="w-3 h-3" />}
-                    {item.type === 'ebd' && <GraduationCap className="w-3 h-3" />}
-                    {item.type === 'xray' && <Microscope className="w-3 h-3" />}
-                    {item.type === 'sermon' ? 'Sermão' : item.type === 'ebd' ? 'Aula EBD' : 'Raio-X'}
+                    {item.type === "sermon" && <Scroll className="w-3 h-3" />}
+                    {item.type === "ebd" && (
+                      <GraduationCap className="w-3 h-3" />
+                    )}
+                    {item.type === "xray" && <Microscope className="w-3 h-3" />}
+                    {item.type === "sermon"
+                      ? "Sermão"
+                      : item.type === "ebd"
+                        ? "Aula EBD"
+                        : "Raio-X"}
                   </span>
                   <span className="text-[11px] text-slate-400">
-                    {new Date(item.savedAt).toLocaleDateString('pt-BR')}
+                    {new Date(item.savedAt).toLocaleDateString("pt-BR")}
                   </span>
                 </div>
 

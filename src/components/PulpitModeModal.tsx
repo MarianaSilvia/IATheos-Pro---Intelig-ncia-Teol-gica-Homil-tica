@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
-import { SermonOutline } from '../utils/theology';
+import React, { useState } from "react";
+import { SermonOutline } from "../utils/theology";
 import {
   X,
   Type,
@@ -16,33 +16,38 @@ import {
   Lightbulb,
   Cross,
   ChevronRight,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface PulpitModeModalProps {
   sermon: SermonOutline;
   onClose: () => void;
 }
 
-export const PulpitModeModal: React.FC<PulpitModeModalProps> = ({ sermon, onClose }) => {
+export const PulpitModeModal: React.FC<PulpitModeModalProps> = ({
+  sermon,
+  onClose,
+}) => {
   const [fontSize, setFontSize] = useState<number>(18);
-  const [theme, setTheme] = useState<'parchment' | 'dark' | 'light'>('parchment');
+  const [theme, setTheme] = useState<"parchment" | "dark" | "light">(
+    "parchment",
+  );
 
   const themeStyles = {
-    parchment: 'bg-[#faf6ee] text-[#1e1b18] border-[#e8decb]',
-    dark: 'bg-[#0f172a] text-[#f1f5f9] border-[#1e293b]',
-    light: 'bg-[#ffffff] text-[#0f172a] border-[#e2e8f0]',
+    parchment: "bg-[#faf6ee] text-[#1e1b18] border-[#e8decb]",
+    dark: "bg-[#0f172a] text-[#f1f5f9] border-[#1e293b]",
+    light: "bg-[#ffffff] text-[#0f172a] border-[#e2e8f0]",
   };
 
   const cardStyles = {
-    parchment: 'bg-[#f4eedf] border-[#dfd4be]',
-    dark: 'bg-[#1e293b] border-[#334155]',
-    light: 'bg-[#f8fafc] border-[#e2e8f0]',
+    parchment: "bg-[#f4eedf] border-[#dfd4be]",
+    dark: "bg-[#1e293b] border-[#334155]",
+    light: "bg-[#f8fafc] border-[#e2e8f0]",
   };
 
   const accentStyles = {
-    parchment: 'text-amber-800 border-amber-600',
-    dark: 'text-amber-400 border-amber-500',
-    light: 'text-amber-700 border-amber-600',
+    parchment: "text-amber-800 border-amber-600",
+    dark: "text-amber-400 border-amber-500",
+    light: "text-amber-700 border-amber-600",
   };
 
   return (
@@ -68,7 +73,9 @@ export const PulpitModeModal: React.FC<PulpitModeModalProps> = ({ sermon, onClos
             >
               A-
             </button>
-            <span className="text-xs font-mono text-slate-400 px-1">{fontSize}px</span>
+            <span className="text-xs font-mono text-slate-400 px-1">
+              {fontSize}px
+            </span>
             <button
               onClick={() => setFontSize(Math.min(28, fontSize + 2))}
               className="px-2 py-0.5 text-xs text-slate-300 hover:text-white hover:bg-slate-700 rounded transition-colors"
@@ -81,27 +88,33 @@ export const PulpitModeModal: React.FC<PulpitModeModalProps> = ({ sermon, onClos
           {/* Theme Selector */}
           <div className="flex items-center gap-1 bg-slate-800 p-1 rounded-lg border border-slate-700">
             <button
-              onClick={() => setTheme('parchment')}
+              onClick={() => setTheme("parchment")}
               className={`px-2 py-1 text-xs rounded transition-colors ${
-                theme === 'parchment' ? 'bg-amber-900/60 text-amber-200 font-bold' : 'text-slate-400'
+                theme === "parchment"
+                  ? "bg-amber-900/60 text-amber-200 font-bold"
+                  : "text-slate-400"
               }`}
               title="Pergaminho (Ideal para leitura)"
             >
               Pergaminho
             </button>
             <button
-              onClick={() => setTheme('dark')}
+              onClick={() => setTheme("dark")}
               className={`px-2 py-1 text-xs rounded transition-colors ${
-                theme === 'dark' ? 'bg-slate-700 text-white font-bold' : 'text-slate-400'
+                theme === "dark"
+                  ? "bg-slate-700 text-white font-bold"
+                  : "text-slate-400"
               }`}
               title="Modo Escuro"
             >
               Escuro
             </button>
             <button
-              onClick={() => setTheme('light')}
+              onClick={() => setTheme("light")}
               className={`px-2 py-1 text-xs rounded transition-colors ${
-                theme === 'light' ? 'bg-slate-200 text-slate-900 font-bold' : 'text-slate-400'
+                theme === "light"
+                  ? "bg-slate-200 text-slate-900 font-bold"
+                  : "text-slate-400"
               }`}
               title="Modo Claro"
             >
@@ -121,11 +134,18 @@ export const PulpitModeModal: React.FC<PulpitModeModalProps> = ({ sermon, onClos
       </div>
 
       {/* Preaching Body */}
-      <div className={`flex-1 overflow-y-auto p-4 sm:p-8 lg:p-12 transition-colors ${themeStyles[theme]}`}>
-        <div className="max-w-4xl mx-auto space-y-8" style={{ fontSize: `${fontSize}px` }}>
+      <div
+        className={`flex-1 overflow-y-auto p-4 sm:p-8 lg:p-12 transition-colors ${themeStyles[theme]}`}
+      >
+        <div
+          className="max-w-4xl mx-auto space-y-8"
+          style={{ fontSize: `${fontSize}px` }}
+        >
           {/* Title Header */}
           <div className="border-b-2 pb-6 border-current opacity-90 space-y-2">
-            <span className={`text-xs font-bold uppercase tracking-widest block ${accentStyles[theme]}`}>
+            <span
+              className={`text-xs font-bold uppercase tracking-widest block ${accentStyles[theme]}`}
+            >
               Texto Sagrado: {sermon.biblicalText}
             </span>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-serif tracking-tight leading-tight">
@@ -145,20 +165,34 @@ export const PulpitModeModal: React.FC<PulpitModeModalProps> = ({ sermon, onClos
               Introdução
             </h2>
 
-            <div className={`p-5 rounded-2xl border ${cardStyles[theme]} space-y-3`}>
+            <div
+              className={`p-5 rounded-2xl border ${cardStyles[theme]} space-y-3`}
+            >
               <div className="space-y-1">
-                <span className="text-xs uppercase font-bold tracking-wider opacity-60">Gancho de Atenção:</span>
-                <p className="leading-relaxed font-sans">{sermon.introduction.hook}</p>
+                <span className="text-xs uppercase font-bold tracking-wider opacity-60">
+                  Gancho de Atenção:
+                </span>
+                <p className="leading-relaxed font-sans">
+                  {sermon.introduction.hook}
+                </p>
               </div>
 
               <div className="space-y-1 pt-2 border-t border-current/10">
-                <span className="text-xs uppercase font-bold tracking-wider opacity-60">Contexto Histórico:</span>
-                <p className="leading-relaxed font-sans">{sermon.introduction.historicalContext}</p>
+                <span className="text-xs uppercase font-bold tracking-wider opacity-60">
+                  Contexto Histórico:
+                </span>
+                <p className="leading-relaxed font-sans">
+                  {sermon.introduction.historicalContext}
+                </p>
               </div>
 
               <div className="space-y-1 pt-2 border-t border-current/10">
-                <span className="text-xs uppercase font-bold tracking-wider opacity-60">Problema Resolvido:</span>
-                <p className="leading-relaxed font-sans font-medium">{sermon.introduction.problemSolved}</p>
+                <span className="text-xs uppercase font-bold tracking-wider opacity-60">
+                  Problema Resolvido:
+                </span>
+                <p className="leading-relaxed font-sans font-medium">
+                  {sermon.introduction.problemSolved}
+                </p>
               </div>
             </div>
           </section>
@@ -174,7 +208,10 @@ export const PulpitModeModal: React.FC<PulpitModeModalProps> = ({ sermon, onClos
 
             <div className="space-y-6">
               {sermon.topics.map((t) => (
-                <div key={t.number} className={`p-6 rounded-2xl border ${cardStyles[theme]} space-y-4`}>
+                <div
+                  key={t.number}
+                  className={`p-6 rounded-2xl border ${cardStyles[theme]} space-y-4`}
+                >
                   <div className="flex items-center gap-3">
                     <span className="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-base shadow">
                       {t.number}
@@ -188,20 +225,27 @@ export const PulpitModeModal: React.FC<PulpitModeModalProps> = ({ sermon, onClos
                     <span className="text-xs uppercase font-bold tracking-wider opacity-60">
                       Exegese & Conteúdo:
                     </span>
-                    <p className="leading-relaxed font-sans">{t.exegeticalExplanation}</p>
+                    <p className="leading-relaxed font-sans">
+                      {t.exegeticalExplanation}
+                    </p>
                   </div>
 
                   {/* Highlighted Illustration */}
-                  <div className={`p-4 rounded-xl border-l-4 border-amber-500 bg-amber-500/10 space-y-1`}>
+                  <div
+                    className={`p-4 rounded-xl border-l-4 border-amber-500 bg-amber-500/10 space-y-1`}
+                  >
                     <span className="text-xs font-bold uppercase tracking-wider text-amber-600 flex items-center gap-1.5">
-                      <Lightbulb className="w-4 h-4" /> Ilustração Prática para o Altar:
+                      <Lightbulb className="w-4 h-4" /> Ilustração Prática para
+                      o Altar:
                     </span>
-                    <p className="font-serif italic leading-relaxed">"{t.practicalIllustration}"</p>
+                    <p className="font-serif italic leading-relaxed">
+                      "{t.practicalIllustration}"
+                    </p>
                   </div>
 
                   {t.crossReferences && t.crossReferences.length > 0 && (
                     <div className="text-xs opacity-75 font-mono pt-1">
-                      Textos: {t.crossReferences.join(' • ')}
+                      Textos: {t.crossReferences.join(" • ")}
                     </div>
                   )}
                 </div>
@@ -218,15 +262,21 @@ export const PulpitModeModal: React.FC<PulpitModeModalProps> = ({ sermon, onClos
               Conclusão & Aplicação Prática
             </h2>
 
-            <div className={`p-6 rounded-2xl border ${cardStyles[theme]} space-y-4`}>
-              <p className="leading-relaxed font-semibold">{sermon.conclusionAndApplication.summary}</p>
+            <div
+              className={`p-6 rounded-2xl border ${cardStyles[theme]} space-y-4`}
+            >
+              <p className="leading-relaxed font-semibold">
+                {sermon.conclusionAndApplication.summary}
+              </p>
               <ul className="space-y-2">
-                {sermon.conclusionAndApplication.practicalCall.map((call, idx) => (
-                  <li key={idx} className="flex items-start gap-2.5">
-                    <ChevronRight className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-                    <span>{call}</span>
-                  </li>
-                ))}
+                {sermon.conclusionAndApplication.practicalCall.map(
+                  (call, idx) => (
+                    <li key={idx} className="flex items-start gap-2.5">
+                      <ChevronRight className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                      <span>{call}</span>
+                    </li>
+                  ),
+                )}
               </ul>
             </div>
           </section>
@@ -240,17 +290,22 @@ export const PulpitModeModal: React.FC<PulpitModeModalProps> = ({ sermon, onClos
               Apelo & Oração do Altar
             </h2>
 
-            <div className={`p-6 rounded-2xl border-2 border-amber-500/60 ${cardStyles[theme]} space-y-4`}>
+            <div
+              className={`p-6 rounded-2xl border-2 border-amber-500/60 ${cardStyles[theme]} space-y-4`}
+            >
               <div>
                 <span className="text-xs uppercase font-bold tracking-wider text-amber-600 block mb-1">
                   Direcionamento Pastoral:
                 </span>
-                <p className="leading-relaxed font-sans">{sermon.altarCallAndPrayer.prayerDirection}</p>
+                <p className="leading-relaxed font-sans">
+                  {sermon.altarCallAndPrayer.prayerDirection}
+                </p>
               </div>
 
               <div className="p-4 rounded-xl border border-current/20 bg-current/5 space-y-1">
                 <span className="text-xs uppercase font-bold tracking-wider opacity-60 flex items-center gap-1.5">
-                  <Cross className="w-3.5 h-3.5 text-amber-500" /> Oração Sugerida:
+                  <Cross className="w-3.5 h-3.5 text-amber-500" /> Oração
+                  Sugerida:
                 </span>
                 <blockquote className="font-serif italic leading-relaxed">
                   "{sermon.altarCallAndPrayer.suggestedPrayer}"

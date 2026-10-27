@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React from "react";
 import {
   BookOpen,
   LayoutDashboard,
@@ -18,28 +18,26 @@ import {
   ShieldCheck,
   User,
   Music,
-} from 'lucide-react';
-import { UserRole } from '../utils/ecosystem';
+} from "lucide-react";
+import { UserRole } from "../utils/ecosystem";
 
 export type TabType =
-  | 'dashboard'
-  | 'sermons'
-  | 'ebd'
-  | 'xray'
-  | 'bible_harp'
-  | 'store'
-  | 'chat'
-  | 'library'
-  | 'admin';
+  | "dashboard"
+  | "sermons"
+  | "ebd"
+  | "xray"
+  | "bible_harp"
+  | "store"
+  | "chat"
+  | "library"
+  | "admin";
 
 interface NavbarProps {
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
   onOpenPulpitMode: () => void;
-  onQuickLoad: (type: 'sermon' | 'xray' | 'ebd') => void;
   savedCount: number;
   userRole: UserRole;
-  onToggleUserRole: () => void;
   isProSubscriber: boolean;
 }
 
@@ -47,10 +45,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
   setActiveTab,
   onOpenPulpitMode,
-  onQuickLoad,
   savedCount,
   userRole,
-  onToggleUserRole,
   isProSubscriber,
 }) => {
   return (
@@ -60,56 +56,33 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center justify-between h-16">
           {/* Logo & Identity */}
           <div
-            onClick={() => setActiveTab('dashboard')}
+            onClick={() => setActiveTab("dashboard")}
             className="flex items-center gap-3 cursor-pointer group"
           >
             <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-amber-600 via-amber-700 to-amber-900 shadow-md ring-1 ring-amber-400/30 group-hover:scale-105 transition-transform">
               <BookOpen className="w-5 h-5 text-amber-100" />
               <div
                 className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-900"
-                title="Online"
+                title="Sessão autenticada"
               />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-amber-200 via-amber-100 to-amber-400 bg-clip-text text-transparent font-serif">
-                  IATheos{' '}
+                  IATheos{" "}
                   <span className="text-amber-500 font-sans text-xs uppercase tracking-wider px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded">
                     PRO
                   </span>
                 </span>
               </div>
               <p className="text-xs text-slate-400 hidden sm:block">
-                Ecossistema SaaS Teológico, E-Commerce Cristão & Escrituras
+                Estudos teológicos e preparo ministerial
               </p>
             </div>
           </div>
 
           {/* Quick Presets, Role Switcher & Pulpit Mode */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Role Switcher Button */}
-            <button
-              onClick={onToggleUserRole}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
-                userRole === 'admin'
-                  ? 'bg-indigo-900/60 text-indigo-200 border-indigo-400/50 hover:bg-indigo-800'
-                  : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
-              }`}
-              title="Clique para alternar perfil entre Comprador/Assinante e Administrador"
-            >
-              {userRole === 'admin' ? (
-                <>
-                  <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" />
-                  <span>Perfil: Admin</span>
-                </>
-              ) : (
-                <>
-                  <User className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Perfil: Comprador / Pro</span>
-                </>
-              )}
-            </button>
-
             {/* Pulpit / Preaching Mode Button */}
             <button
               onClick={onOpenPulpitMode}
@@ -128,11 +101,11 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="max-w-7xl mx-auto flex space-x-1 sm:space-x-1.5 overflow-x-auto py-2">
           {/* Tab 0: Dashboard */}
           <button
-            onClick={() => setActiveTab('dashboard')}
+            onClick={() => setActiveTab("dashboard")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${
-              activeTab === 'dashboard'
-                ? 'bg-amber-600 text-white shadow-md'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+              activeTab === "dashboard"
+                ? "bg-amber-600 text-white shadow-md"
+                : "text-slate-300 hover:text-white hover:bg-slate-800/60"
             }`}
           >
             <LayoutDashboard className="w-4 h-4" />
@@ -141,11 +114,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Tab 1: Sermons */}
           <button
-            onClick={() => setActiveTab('sermons')}
+            onClick={() => setActiveTab("sermons")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${
-              activeTab === 'sermons'
-                ? 'bg-amber-600 text-white shadow-md'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+              activeTab === "sermons"
+                ? "bg-amber-600 text-white shadow-md"
+                : "text-slate-300 hover:text-white hover:bg-slate-800/60"
             }`}
           >
             <Scroll className="w-4 h-4" />
@@ -154,11 +127,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Tab 2: EBD */}
           <button
-            onClick={() => setActiveTab('ebd')}
+            onClick={() => setActiveTab("ebd")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${
-              activeTab === 'ebd'
-                ? 'bg-amber-600 text-white shadow-md'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+              activeTab === "ebd"
+                ? "bg-amber-600 text-white shadow-md"
+                : "text-slate-300 hover:text-white hover:bg-slate-800/60"
             }`}
           >
             <GraduationCap className="w-4 h-4" />
@@ -167,11 +140,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Tab 3: Verse X-Ray */}
           <button
-            onClick={() => setActiveTab('xray')}
+            onClick={() => setActiveTab("xray")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${
-              activeTab === 'xray'
-                ? 'bg-amber-600 text-white shadow-md'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+              activeTab === "xray"
+                ? "bg-amber-600 text-white shadow-md"
+                : "text-slate-300 hover:text-white hover:bg-slate-800/60"
             }`}
           >
             <Microscope className="w-4 h-4" />
@@ -180,11 +153,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Tab 4: Bible & Harp */}
           <button
-            onClick={() => setActiveTab('bible_harp')}
+            onClick={() => setActiveTab("bible_harp")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${
-              activeTab === 'bible_harp'
-                ? 'bg-amber-600 text-white shadow-md'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+              activeTab === "bible_harp"
+                ? "bg-amber-600 text-white shadow-md"
+                : "text-slate-300 hover:text-white hover:bg-slate-800/60"
             }`}
           >
             <BookOpen className="w-4 h-4" />
@@ -193,11 +166,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Tab 5: Store (PDFs & E-books) */}
           <button
-            onClick={() => setActiveTab('store')}
+            onClick={() => setActiveTab("store")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${
-              activeTab === 'store'
-                ? 'bg-amber-600 text-white shadow-md'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+              activeTab === "store"
+                ? "bg-amber-600 text-white shadow-md"
+                : "text-slate-300 hover:text-white hover:bg-slate-800/60"
             }`}
           >
             <ShoppingBag className="w-4 h-4" />
@@ -206,11 +179,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Tab 6: Freeform Chat */}
           <button
-            onClick={() => setActiveTab('chat')}
+            onClick={() => setActiveTab("chat")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${
-              activeTab === 'chat'
-                ? 'bg-amber-600 text-white shadow-md'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+              activeTab === "chat"
+                ? "bg-amber-600 text-white shadow-md"
+                : "text-slate-300 hover:text-white hover:bg-slate-800/60"
             }`}
           >
             <MessageSquareQuote className="w-4 h-4" />
@@ -219,11 +192,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Tab 7: Library */}
           <button
-            onClick={() => setActiveTab('library')}
+            onClick={() => setActiveTab("library")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${
-              activeTab === 'library'
-                ? 'bg-amber-600 text-white shadow-md'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+              activeTab === "library"
+                ? "bg-amber-600 text-white shadow-md"
+                : "text-slate-300 hover:text-white hover:bg-slate-800/60"
             }`}
           >
             <Bookmark className="w-4 h-4" />
@@ -236,13 +209,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           {/* Tab 8: Admin Panel (Highlighted if Admin) */}
-          {userRole === 'admin' && (
+          {userRole === "admin" && (
             <button
-              onClick={() => setActiveTab('admin')}
+              onClick={() => setActiveTab("admin")}
               className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
-                activeTab === 'admin'
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-950/40'
-                  : 'text-indigo-300 hover:text-white hover:bg-indigo-900/40 border border-indigo-500/30'
+                activeTab === "admin"
+                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-950/40"
+                  : "text-indigo-300 hover:text-white hover:bg-indigo-900/40 border border-indigo-500/30"
               }`}
             >
               <ShieldCheck className="w-4 h-4 text-indigo-400" />

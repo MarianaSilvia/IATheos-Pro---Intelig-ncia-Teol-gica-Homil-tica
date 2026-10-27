@@ -1,0 +1,17 @@
+{
+  "firestore": [
+    {
+      "database": "ai-studio-iatheosprointeli-6684e688-953f-4a8e-817e-4611e2daeff1",
+      "edition": "enterprise",
+      "location": "us-east1",
+      "rules": "firestore.rules",
+      "indexes": "firestore.remote.indexes.json"
+    }
+  ],
+  "storage": [
+    {
+      "bucket": "possible-zephyr-zxctm.firebasestorage.app",
+      "rules": "storage.rules"
+    }
+  ]
+}

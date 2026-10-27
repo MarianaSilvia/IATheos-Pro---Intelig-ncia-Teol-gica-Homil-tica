@@ -1,0 +1,30 @@
+{
+  "score": 2,
+  "summary": "Auditoria estática das regras versionadas no commit 17a08d2. Propriedade básica é verificada, mas perfis permitem alteração de campos de papel/assinatura e falta validação de integridade. Não houve teste em emulador nem verificação das regras implantadas.",
+  "findings": [
+    {
+      "check": "Authority Source",
+      "severity": "major",
+      "issue": "O titular pode criar/alterar livremente role e isProSubscriber no próprio perfil. Esses dados não elevam custom claims, mas não são uma fonte confiável de autorização.",
+      "recommendation": "Reservar campos sensíveis ao servidor; limitar os campos editáveis pelo titular e validar seu tipo."
+    },
+    {
+      "check": "Admin Bootstrapping",
+      "severity": "major",
+      "issue": "A autorização administrativa por e-mail não exige email_verified. O impacto depende dos provedores de autenticação habilitados.",
+      "recommendation": "Exigir e-mail verificado ou usar custom claim administrativa emitida pelo servidor."
+    },
+    {
+      "check": "The Update Bypass",
+      "severity": "moderate",
+      "issue": "Updates de sermões, EBD, exegeses e notas verificam o proprietário antigo, mas não preservam userId no novo documento, permitindo transferir o próprio documento a outro UID.",
+      "recommendation": "Exigir userId imutável e validar o esquema tanto no create quanto no update."
+    },
+    {
+      "check": "Type Safety and Storage Abuse",
+      "severity": "minor",
+      "issue": "Documentos pessoais não têm validação de tipos, campos permitidos ou limites específicos de strings e arrays nas regras.",
+      "recommendation": "Adicionar validação de esquema e limites coerentes com a aplicação."
+    }
+  ]
+}

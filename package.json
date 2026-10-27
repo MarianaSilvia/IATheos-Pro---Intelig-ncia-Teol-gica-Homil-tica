@@ -1,45 +1,61 @@
 {
-  "name": "react-example",
+  "name": "iatheos-pro",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=22.14"
+  },
+  "overrides": {
+    "@grpc/grpc-js": "^1.13.6",
+    "@opentelemetry/core": "^2.8.0",
+    "gaxios": {
+      "uuid": "11.1.1"
+    }
+  },
   "scripts": {
     "dev": "tsx server.ts",
     "build": "vite build",
     "start": "tsx server.ts",
-    "test": "npx --yes tsx --test src/utils/theology.test.ts",
+    "test": "tsx --test src/utils/*.test.ts tests/unit/*.test.ts",
+    "test:emulators": "node scripts/emulators.mjs test",
+    "emulators": "node scripts/emulators.mjs start",
+    "admin:grant": "tsx scripts/grant-admin.ts",
     "preview": "vite preview",
-    "clean": "rm -rf dist server.js",
-    "lint": "tsc --noEmit"
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
+    "lint": "tsc --noEmit",
+    "firebase:sync": "node scripts/sync-firebase.mjs",
+    "firebase:check": "node scripts/sync-firebase.mjs --dry-run"
   },
   "dependencies": {
-    "@google/genai": "^2.4.0",
-    "@tailwindcss/vite": "^4.3.3",
-    "@vitejs/plugin-react": "^6.1.1",
-    "dotenv": "^17.2.3",
-    "drizzle-kit": "^0.31.11",
-    "drizzle-orm": "^0.45.4",
-    "express": "^4.21.2",
-    "firebase": "^13.1.0",
-    "firebase-admin": "^14.5.0",
-    "lucide-react": "^0.546.0",
-    "motion": "^12.23.24",
-    "pg": "^8.23.1",
-    "react": "^19.0.1",
-    "react-dom": "^19.0.1",
-    "recharts": "^3.10.1",
-    "vite": "^8.3.0"
+    "@google/genai": "2.31.0",
+    "@tailwindcss/vite": "4.3.3",
+    "@vitejs/plugin-react": "6.1.2",
+    "dotenv": "17.4.2",
+    "express": "4.22.3",
+    "firebase": "13.1.0",
+    "firebase-admin": "14.5.0",
+    "lucide-react": "0.546.0",
+    "motion": "12.43.0",
+    "zod": "4.6.7",
+    "react-markdown": "10.1.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "recharts": "3.10.1",
+    "vite": "8.3.5"
   },
   "devDependencies": {
-    "@types/express": "^4.17.21",
-    "@types/node": "^22.14.0",
-    "@types/pg": "^8.23.1",
-    "@types/react": "^19.3.0",
-    "@types/react-dom": "^19.3.0",
-    "autoprefixer": "^10.4.21",
-    "esbuild": "^0.25.0",
-    "tailwindcss": "^4.3.3",
-    "tsx": "^4.21.0",
-    "typescript": "^7.0.2"
+    "prettier": "3.6.2",
+    "@types/express": "4.17.25",
+    "@types/node": "22.20.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "autoprefixer": "10.6.2",
+    "esbuild": "0.28.2",
+    "firebase-tools": "15.34.1",
+    "@firebase/rules-unit-testing": "6.0.0",
+    "tailwindcss": "4.3.3",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2"
   }
 }

@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
-import { EbdLesson, formatEbdToMarkdown } from '../utils/theology';
+import React, { useState } from "react";
+import { EbdLesson, formatEbdToMarkdown } from "../utils/theology";
 import {
   GraduationCap,
   BookOpen,
@@ -22,7 +22,7 @@ import {
   RefreshCw,
   Layers,
   MessageCircle,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface EbdViewProps {
   currentLesson: EbdLesson;
@@ -31,7 +31,13 @@ interface EbdViewProps {
   onGenerateLesson: (params: {
     biblicalText: string;
     theme: string;
-    targetAudience: 'Adultos' | 'Jovens' | 'Adolescentes' | 'Crianças' | 'Novos Convertidos' | 'Liderança';
+    targetAudience:
+      | "Adultos"
+      | "Jovens"
+      | "Adolescentes"
+      | "Crianças"
+      | "Novos Convertidos"
+      | "Liderança";
     lessonDuration: string;
     emphasis: string;
   }) => Promise<void>;
@@ -47,9 +53,11 @@ export const EbdView: React.FC<EbdViewProps> = ({
 }) => {
   const [biblicalText, setBiblicalText] = useState(currentLesson.biblicalText);
   const [theme, setTheme] = useState(currentLesson.title);
-  const [targetAudience, setTargetAudience] = useState<EbdLesson['targetAudience']>(currentLesson.targetAudience);
-  const [lessonDuration, setLessonDuration] = useState('50 minutos');
-  const [emphasis, setEmphasis] = useState('');
+  const [targetAudience, setTargetAudience] = useState<
+    EbdLesson["targetAudience"]
+  >(currentLesson.targetAudience);
+  const [lessonDuration, setLessonDuration] = useState("50 minutos");
+  const [emphasis, setEmphasis] = useState("");
   const [isCopied, setIsCopied] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
 
@@ -75,7 +83,11 @@ export const EbdView: React.FC<EbdViewProps> = ({
     });
   };
 
-  const loadPreset = (t: string, p: string, aud: EbdLesson['targetAudience']) => {
+  const loadPreset = (
+    t: string,
+    p: string,
+    aud: EbdLesson["targetAudience"],
+  ) => {
     setTheme(t);
     setBiblicalText(p);
     setTargetAudience(aud);
@@ -94,7 +106,9 @@ export const EbdView: React.FC<EbdViewProps> = ({
               Planejador Didático para Escola Bíblica
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
-              Didática cristã aplicada por faixa etária: Objetivo, Quebra-Gelo, Pontos para Quadro/Slides, Perguntas para Debate e Desafio Semanal.
+              Didática cristã aplicada por faixa etária: Objetivo, Quebra-Gelo,
+              Pontos para Quadro/Slides, Perguntas para Debate e Desafio
+              Semanal.
             </p>
           </div>
 
@@ -104,15 +118,24 @@ export const EbdView: React.FC<EbdViewProps> = ({
               className="flex items-center gap-2 px-3.5 py-2 text-xs font-medium rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors"
             >
               <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-              <span>{showConfig ? 'Ocultar Parâmetros' : 'Nova Aula para EBD'}</span>
-              {showConfig ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              <span>
+                {showConfig ? "Ocultar Parâmetros" : "Nova Aula para EBD"}
+              </span>
+              {showConfig ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
             </button>
           </div>
         </div>
 
         {/* Collapsible Form */}
         {showConfig && (
-          <form onSubmit={handleSubmit} className="p-4 sm:p-6 bg-slate-50 border-t border-slate-200 space-y-4">
+          <form
+            onSubmit={handleSubmit}
+            className="p-4 sm:p-6 bg-slate-50 border-t border-slate-200 space-y-4"
+          >
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
@@ -153,9 +176,13 @@ export const EbdView: React.FC<EbdViewProps> = ({
                 >
                   <option value="Adultos">Adultos</option>
                   <option value="Jovens">Jovens (18 a 30 anos)</option>
-                  <option value="Adolescentes">Adolescentes (12 a 17 anos)</option>
+                  <option value="Adolescentes">
+                    Adolescentes (12 a 17 anos)
+                  </option>
                   <option value="Crianças">Crianças / Infantil</option>
-                  <option value="Novos Convertidos">Novos Convertidos / Discipulado</option>
+                  <option value="Novos Convertidos">
+                    Novos Convertidos / Discipulado
+                  </option>
                   <option value="Liderança">Liderança / Obreiros</option>
                 </select>
               </div>
@@ -172,7 +199,9 @@ export const EbdView: React.FC<EbdViewProps> = ({
                   <option value="45 minutos">45 minutos</option>
                   <option value="50 minutos">50 minutos (Padrão)</option>
                   <option value="1 hora">1 hora</option>
-                  <option value="1 hora e 20 minutos">1 hora e 20 minutos</option>
+                  <option value="1 hora e 20 minutos">
+                    1 hora e 20 minutos
+                  </option>
                 </select>
               </div>
             </div>
@@ -192,24 +221,44 @@ export const EbdView: React.FC<EbdViewProps> = ({
 
             {/* Presets */}
             <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-200/80 text-xs text-slate-600">
-              <span className="font-semibold text-slate-500">Sugestões de Aulas:</span>
+              <span className="font-semibold text-slate-500">
+                Sugestões de Aulas:
+              </span>
               <button
                 type="button"
-                onClick={() => loadPreset('O Poder da Oração de Joelhos', 'Atos 12:1-17', 'Adultos')}
+                onClick={() =>
+                  loadPreset(
+                    "O Poder da Oração de Joelhos",
+                    "Atos 12:1-17",
+                    "Adultos",
+                  )
+                }
                 className="px-2.5 py-1 bg-white hover:bg-emerald-50 border border-slate-200 hover:border-emerald-400 rounded-lg text-slate-700 transition-colors"
               >
                 Atos 12 (Oração de Joelhos - Adultos)
               </button>
               <button
                 type="button"
-                onClick={() => loadPreset('Integridade na Babilônia Moderna', 'Daniel 1:1-21', 'Jovens')}
+                onClick={() =>
+                  loadPreset(
+                    "Integridade na Babilônia Moderna",
+                    "Daniel 1:1-21",
+                    "Jovens",
+                  )
+                }
                 className="px-2.5 py-1 bg-white hover:bg-emerald-50 border border-slate-200 hover:border-emerald-400 rounded-lg text-slate-700 transition-colors"
               >
                 Daniel 1 (Integridade - Jovens)
               </button>
               <button
                 type="button"
-                onClick={() => loadPreset('O Bom Samaritano: Amor em Ação', 'Lucas 10:25-37', 'Crianças')}
+                onClick={() =>
+                  loadPreset(
+                    "O Bom Samaritano: Amor em Ação",
+                    "Lucas 10:25-37",
+                    "Crianças",
+                  )
+                }
                 className="px-2.5 py-1 bg-white hover:bg-emerald-50 border border-slate-200 hover:border-emerald-400 rounded-lg text-slate-700 transition-colors"
               >
                 Lucas 10 (Amor Prático - Crianças)
@@ -258,13 +307,15 @@ export const EbdView: React.FC<EbdViewProps> = ({
                 onClick={() => onSaveLesson(currentLesson)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all ${
                   isSaved
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                    : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-300"
+                    : "bg-white hover:bg-slate-50 text-slate-700 border-slate-200"
                 }`}
                 title="Salvar no Caderno Ministerial"
               >
-                <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-emerald-600 text-emerald-600' : 'text-slate-500'}`} />
-                <span>{isSaved ? 'Salvo' : 'Salvar'}</span>
+                <Bookmark
+                  className={`w-4 h-4 ${isSaved ? "fill-emerald-600 text-emerald-600" : "text-slate-500"}`}
+                />
+                <span>{isSaved ? "Salvo" : "Salvar"}</span>
               </button>
 
               <button
@@ -272,8 +323,12 @@ export const EbdView: React.FC<EbdViewProps> = ({
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold transition-all"
                 title="Copiar plano completo formatado"
               >
-                {isCopied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4 text-slate-500" />}
-                <span>{isCopied ? 'Copiado!' : 'Copiar'}</span>
+                {isCopied ? (
+                  <Check className="w-4 h-4 text-emerald-600" />
+                ) : (
+                  <Copy className="w-4 h-4 text-slate-500" />
+                )}
+                <span>{isCopied ? "Copiado!" : "Copiar"}</span>
               </button>
 
               <button
@@ -333,7 +388,8 @@ export const EbdView: React.FC<EbdViewProps> = ({
                 {currentLesson.icebreaker.description}
               </p>
               <div className="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200 text-amber-950 font-serif italic text-sm sm:text-base">
-                <strong>Pergunta Reflexiva Inicial:</strong> "{currentLesson.icebreaker.reflectiveQuestion}"
+                <strong>Pergunta Reflexiva Inicial:</strong> "
+                {currentLesson.icebreaker.reflectiveQuestion}"
               </div>
             </div>
           </section>
@@ -443,7 +499,8 @@ export const EbdView: React.FC<EbdViewProps> = ({
 
               <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-2">
                 <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider block flex items-center gap-1.5">
-                  <Award className="w-4 h-4 text-emerald-600" /> Desafio Prático da Semana:
+                  <Award className="w-4 h-4 text-emerald-600" /> Desafio Prático
+                  da Semana:
                 </span>
                 <p className="text-sm sm:text-base text-emerald-950 leading-relaxed">
                   {currentLesson.practicalConclusion.weeklyChallenge}

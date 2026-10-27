@@ -1,91 +1,71 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import React, { useState } from 'react';
-import { Navbar } from './Navbar.tsx';
-import { HeroSection } from './HeroSection.tsx';
-import { InteractiveDemoSection } from './InteractiveDemoSection.tsx';
-import { FeaturesSection } from './FeaturesSection.tsx';
-import { PricingSection } from './PricingSection.tsx';
-import { ClientAccessSection } from './ClientAccessSection.tsx';
-import { ClientAccessModal } from './ClientAccessModal.tsx';
-import { Footer } from './Footer.tsx';
-
-interface LandingPageProps {
-  onEnterApp: () => void;
-  onLoginWithEmail: (email: string) => void;
-}
-
-export const LandingPage: React.FC<LandingPageProps> = ({
-  onEnterApp,
-  onLoginWithEmail,
-}) => {
-  const [clientLoginModalOpen, setClientLoginModalOpen] = useState(false);
-
-  const scrollToSection = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
+import React from "react";
+export function LandingPage({
+  onLogin,
+  error,
+  onRetry,
+  signingIn,
+}: {
+  onLogin: () => void;
+  error: string;
+  onRetry: () => void;
+  signingIn: boolean;
+}) {
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-amber-500 selection:text-slate-950">
-      {/* 1. Navbar */}
-      <Navbar
-        onOpenClientLogin={() => setClientLoginModalOpen(true)}
-        onGoToPricing={() => scrollToSection('precos')}
-        onEnterApp={onEnterApp}
-      />
-
-      {/* Main Content */}
-      <main className="flex-1">
-        {/* 2. Hero Section */}
-        <HeroSection
-          onGoToPricing={() => scrollToSection('precos')}
-          onGoToDemo={() => scrollToSection('demonstracao')}
-        />
-
-        {/* 3. Seção de Demonstração Interativa (Demo) */}
-        <InteractiveDemoSection />
-
-        {/* 4. Vitrine de Recursos (Os Encartes do Sistema) */}
-        <FeaturesSection />
-
-        {/* 5. Seção de Preços (Foco Exclusivo no Pacote Anual) */}
-        <PricingSection
-          onOpenClientLogin={() => setClientLoginModalOpen(true)}
-          onSuccessfulPurchase={() => {
-            onLoginWithEmail('marianabsilva1987@gmail.com');
-          }}
-        />
-
-        {/* 6. Área de Login do Cliente (Acesso por E-mail) */}
-        <ClientAccessSection
-          onLoginWithEmail={onLoginWithEmail}
-          onGoToPricing={() => scrollToSection('precos')}
-        />
+    <div className="min-h-screen bg-slate-950 text-white">
+      <header className="border-b border-amber-500/20 p-6 flex justify-between">
+        <strong className="font-serif text-amber-300 text-xl">
+          IATheos Pro
+        </strong>
+        <button disabled={signingIn} onClick={onLogin}>
+          {signingIn ? "Abrindo login…" : "Entrar com Google"}
+        </button>
+      </header>
+      <main className="max-w-5xl mx-auto px-6 py-20">
+        <span className="text-amber-400 uppercase tracking-widest text-sm">
+          Estudo bíblico e preparo ministerial
+        </span>
+        <h1 className="text-5xl font-serif font-bold mt-6 leading-tight">
+          Profundidade no estudo.
+          <br />
+          Clareza para ensinar.
+        </h1>
+        <p className="text-slate-300 my-8 max-w-2xl text-lg">
+          Prepare sermões, aulas de EBD e análises bíblicas. Organize seus
+          estudos e materiais em uma biblioteca pessoal.
+        </p>
+        <button
+          disabled={signingIn}
+          onClick={onLogin}
+          className="bg-amber-600 px-8 py-4 rounded-xl font-bold"
+        >
+          {signingIn ? "Abrindo login…" : "Entrar com Google"}
+        </button>
+        <p className="mt-4 text-sm text-slate-400">
+          Acesso concedido pelo administrador. Compras e cobranças ainda não
+          estão disponíveis.
+        </p>
+        {error && (
+          <div role="alert" className="p-4 bg-red-950 mt-6 rounded-xl">
+            {error}{" "}
+            <button className="underline" onClick={onRetry}>
+              Tentar novamente
+            </button>
+          </div>
+        )}
+        <div className="grid sm:grid-cols-3 gap-5 mt-16">
+          {["Sermões", "Aulas de EBD", "Caderno e biblioteca"].map((label) => (
+            <div
+              key={label}
+              className="border border-slate-800 p-6 rounded-2xl"
+            >
+              {label}
+            </div>
+          ))}
+        </div>
+        <p className="mt-10 text-slate-400">
+          Sua conta e seus estudos são pessoais.
+        </p>
       </main>
-
-      {/* Quiet Footer */}
-      <Footer
-        onOpenClientLogin={() => setClientLoginModalOpen(true)}
-        onGoToPricing={() => scrollToSection('precos')}
-        onEnterApp={onEnterApp}
-      />
-
-      {/* Client Access Modal (Triggered from Navbar or CTAs) */}
-      <ClientAccessModal
-        isOpen={clientLoginModalOpen}
-        onClose={() => setClientLoginModalOpen(false)}
-        onLoginWithEmail={onLoginWithEmail}
-        onGoToPricing={() => {
-          setClientLoginModalOpen(false);
-          scrollToSection('precos');
-        }}
-      />
     </div>
   );
-};
+}
