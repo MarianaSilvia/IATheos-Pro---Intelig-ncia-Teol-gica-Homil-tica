@@ -37,7 +37,7 @@ export const BibleAndHarpView: React.FC<BibleAndHarpViewProps> = ({ onSendToVers
   // Bible state
   const [selectedBook, setSelectedBook] = useState('Romanos');
   const [selectedChapter, setSelectedChapter] = useState(5);
-  const [selectedTranslation, setSelectedTranslation] = useState<'ARC' | 'NAA' | 'NVI' | 'KJF'>('ARA' as any || 'NAA');
+  const [selectedTranslation, setSelectedTranslation] = useState<'ARC' | 'NAA' | 'NVI' | 'KJF'>('NAA');
   const [fontSize, setFontSize] = useState(16);
   const [copiedVerse, setCopiedVerse] = useState<number | null>(null);
 

@@ -1,0 +1,149 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with role and subscription status",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["buyer", "admin"] },
+        "isProSubscriber": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "ReadingProgress": {
+      "title": "ReadingProgress",
+      "description": "Annual Bible reading progress and marked chapters",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "completedChapters": { "type": "array" },
+        "streakDays": { "type": "number" },
+        "currentDay": { "type": "number" },
+        "lastUpdated": { "type": "string" }
+      },
+      "required": ["userId", "completedChapters"]
+    },
+    "SavedSermon": {
+      "title": "SavedSermon",
+      "description": "Homiletic sermon outline saved by a preacher",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "theme": { "type": "string" },
+        "biblicalText": { "type": "string" },
+        "sermonType": { "type": "string" },
+        "targetAudience": { "type": "string" },
+        "specificFocus": { "type": "string" },
+        "introduction": { "type": "object" },
+        "topics": { "type": "array" },
+        "conclusion": { "type": "object" },
+        "altarCall": { "type": "object" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "title", "biblicalText", "theme"]
+    },
+    "SavedEbdLesson": {
+      "title": "SavedEbdLesson",
+      "description": "Sunday School lesson outline",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "biblicalText": { "type": "string" },
+        "targetAudience": { "type": "string" },
+        "theme": { "type": "string" },
+        "objective": { "type": "string" },
+        "icebreaker": { "type": "object" },
+        "contentPoints": { "type": "array" },
+        "discussionQuestions": { "type": "array" },
+        "practicalChallenge": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "title", "biblicalText", "theme"]
+    },
+    "SavedVerseXray": {
+      "title": "SavedVerseXray",
+      "description": "Historical, cultural and linguistic verse analysis",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "verseReference": { "type": "string" },
+        "translation": { "type": "string" },
+        "verseText": { "type": "string" },
+        "historicalContext": { "type": "object" },
+        "originalKeywords": { "type": "array" },
+        "modernApplication": { "type": "object" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "verseReference"]
+    },
+    "DigitalProduct": {
+      "title": "DigitalProduct",
+      "description": "Digital book, commentary or EBD magazine in PDF format",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "price": { "type": "number" },
+        "type": { "type": "string" },
+        "author": { "type": "string" },
+        "pages": { "type": "number" },
+        "coverColor": { "type": "string" },
+        "isFreeForPro": { "type": "boolean" },
+        "samplePreview": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["title", "price", "type"]
+    },
+    "PersonalNote": {
+      "title": "PersonalNote",
+      "description": "Personal theological reflection or verse favorite",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "biblicalReference": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "highlightColor": { "type": "string" },
+        "tags": { "type": "array" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "biblicalReference", "title", "content"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/reading_progress/{userId}": {
+      "schema": "ReadingProgress",
+      "description": "Annual Bible reading progress"
+    },
+    "/sermons/{sermonId}": {
+      "schema": "SavedSermon",
+      "description": "Homiletic sermon outlines"
+    },
+    "/ebd_lessons/{lessonId}": {
+      "schema": "SavedEbdLesson",
+      "description": "Sunday school lessons"
+    },
+    "/verse_xrays/{xrayId}": {
+      "schema": "SavedVerseXray",
+      "description": "Verse X-Ray studies"
+    },
+    "/products/{productId}": {
+      "schema": "DigitalProduct",
+      "description": "Catalog of digital books and magazines"
+    },
+    "/notes/{noteId}": {
+      "schema": "PersonalNote",
+      "description": "Personal ministerial notebook and favorite verses"
+    }
+  }
+}

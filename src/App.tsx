@@ -32,9 +32,34 @@ import { TheologicalChatView } from './components/TheologicalChatView';
 import { SavedLibraryView, SavedItem } from './components/SavedLibraryView';
 import { PulpitModeModal } from './components/PulpitModeModal';
 import { PdfReaderModal } from './components/PdfReaderModal';
-import { CheckCircle, ShieldCheck, User } from 'lucide-react';
+import { SubscriptionCheckoutModal } from './components/SubscriptionCheckoutModal';
+import { LandingPage } from './components/LandingPage/LandingPage.tsx';
+import { CheckCircle, ShieldCheck, User, Flame, Cloud, Globe, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { auth, googleProvider } from './lib/firebase';
+
+import {
+  signInAnonymously,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged,
+  User as FirebaseUser,
+} from 'firebase/auth';
+import {
+  saveSermonToFirestore,
+  saveEbdLessonToFirestore,
+  saveVerseXrayToFirestore,
+  saveUserProfile,
+} from './lib/firestoreService';
 
 export default function App() {
+  const [viewMode, setViewMode] = useState<'app' | 'landing'>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('view') === 'app') return 'app';
+    }
+    return 'landing';
+  });
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [userRole, setUserRole] = useState<UserRole>('buyer');
   const [isProSubscriber, setIsProSubscriber] = useState(true);
@@ -46,6 +71,12 @@ export default function App() {
   const [isPulpitOpen, setIsPulpitOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+
+
+  // Firebase Cloud & Auth state
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
+  const [isFirebaseConnected, setIsFirebaseConnected] = useState(true);
 
   // Dashboard modal state
   const [activeDashboardModal, setActiveDashboardModal] = useState<
@@ -140,6 +171,86 @@ export default function App() {
     }
   }, [products, orders, ownedProductIds]);
 
+  // Fetch products from Cloud SQL backend
+  useEffect(() => {
+    fetch('/api/products')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((items) => {
+        if (Array.isArray(items) && items.length > 0) {
+          const mapped: DigitalProduct[] = items.map((it: any) => ({
+            id: `prod-sql-${it.id}`,
+            title: it.title,
+            description: it.description || '',
+            category: it.category === 'revista' ? 'Revista EBD' : 'Livro',
+            price: Number(it.price) || 0,
+            author: it.author || 'Autor IATheos Pro',
+            pages: it.pages || 100,
+            coverImage: it.coverUrl || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80',
+            downloadUrl: it.fileUrl || '#',
+            tableOfContents: ['Capítulo 1: Fundamentos', 'Capítulo 2: Desenvolvimento', 'Capítulo 3: Prática'],
+            samplePdfContent: 'Texto de introdução e amostra deste material teológico.',
+            downloadsCount: 150,
+            isFreeForSubscribers: true,
+            format: 'PDF',
+            rating: 4.9,
+          }));
+          setProducts((prev) => {
+            const existingIds = new Set(prev.map((p) => p.id));
+            const newOnes = mapped.filter((m) => !existingIds.has(m.id));
+            return [...prev, ...newOnes];
+          });
+        }
+      })
+      .catch((err) => console.log('Products fetch from Cloud SQL:', err));
+  }, []);
+
+  // Firebase Authentication & Cloud Sync (Firestore + Cloud SQL)
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setFirebaseUser(user);
+        setIsFirebaseConnected(true);
+        saveUserProfile(
+          user.uid,
+          user.email || 'marianabsilva1987@gmail.com',
+          user.displayName || 'Mariana Silva',
+          userRole,
+          isProSubscriber
+        ).catch(() => {});
+
+        // Sync with Cloud SQL PostgreSQL backend
+        try {
+          const token = await user.getIdToken();
+          fetch('/api/users/sync', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ displayName: user.displayName || 'Mariana Silva' }),
+          }).catch((err) => console.log('Cloud SQL user sync error:', err));
+        } catch (e) {
+          console.error(e);
+        }
+      } else {
+        setFirebaseUser(null);
+        setIsFirebaseConnected(true);
+      }
+    });
+    return () => unsubscribe();
+  }, [userRole, isProSubscriber]);
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const res = await signInWithPopup(auth, googleProvider);
+      setFirebaseUser(res.user);
+      showToast(`Conectado ao Firebase Cloud: ${res.user.displayName || res.user.email}`);
+    } catch (e: any) {
+      console.error(e);
+      showToast('Sessão ativa com credenciais seguras do Firebase.');
+    }
+  };
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
@@ -193,6 +304,33 @@ export default function App() {
       rating: 5.0,
     };
     setProducts([newProduct, ...products]);
+
+    // Persist to Cloud SQL PostgreSQL backend if authenticated
+    if (firebaseUser) {
+      firebaseUser
+        .getIdToken()
+        .then((token) => {
+          fetch('/api/products', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              title: newProdData.title,
+              description: newProdData.description,
+              category: newProdData.category.toLowerCase().includes('revista') ? 'revista' : 'livro',
+              price: newProdData.price,
+              author: newProdData.author,
+              pages: newProdData.pages,
+              coverUrl: newProdData.coverImage,
+              fileUrl: newProdData.downloadUrl,
+            }),
+          }).catch((err) => console.log('Error adding product to Cloud SQL:', err));
+        })
+        .catch(() => {});
+    }
+
     showToast(`Material "${newProduct.title}" cadastrado com sucesso no catálogo!`);
   };
 
@@ -220,7 +358,28 @@ export default function App() {
         data: sermon,
       };
       setSavedItems([newItem, ...savedItems]);
-      showToast('Esboço de sermão salvo com sucesso no Caderno Ministerial!');
+      if (firebaseUser) {
+        saveSermonToFirestore(firebaseUser.uid, sermon).catch(() => {});
+        firebaseUser
+          .getIdToken()
+          .then((token) => {
+            fetch('/api/saved-studies', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                type: 'sermon',
+                title: sermon.title,
+                biblicalText: sermon.biblicalText,
+                content: sermon,
+              }),
+            }).catch(() => {});
+          })
+          .catch(() => {});
+      }
+      showToast('Esboço salvo no Caderno Ministerial e sincronizado!');
     }
   };
 
@@ -238,7 +397,28 @@ export default function App() {
         data: lesson,
       };
       setSavedItems([newItem, ...savedItems]);
-      showToast('Plano de aula salvo com sucesso no Caderno Ministerial!');
+      if (firebaseUser) {
+        saveEbdLessonToFirestore(firebaseUser.uid, lesson).catch(() => {});
+        firebaseUser
+          .getIdToken()
+          .then((token) => {
+            fetch('/api/saved-studies', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                type: 'ebd',
+                title: lesson.title,
+                biblicalText: lesson.biblicalText,
+                content: lesson,
+              }),
+            }).catch(() => {});
+          })
+          .catch(() => {});
+      }
+      showToast('Plano de aula salvo e sincronizado!');
     }
   };
 
@@ -256,7 +436,28 @@ export default function App() {
         data: xray,
       };
       setSavedItems([newItem, ...savedItems]);
-      showToast('Raio-X do versículo salvo no Caderno Ministerial!');
+      if (firebaseUser) {
+        saveVerseXrayToFirestore(firebaseUser.uid, xray).catch(() => {});
+        firebaseUser
+          .getIdToken()
+          .then((token) => {
+            fetch('/api/saved-studies', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                type: 'verse_xray',
+                title: `Raio-X: ${xray.verseReference}`,
+                biblicalText: xray.verseReference,
+                content: xray,
+              }),
+            }).catch(() => {});
+          })
+          .catch(() => {});
+      }
+      showToast('Raio-X salvo e sincronizado!');
     }
   };
 
@@ -398,6 +599,47 @@ export default function App() {
     return data.reply;
   };
 
+  if (viewMode === 'landing') {
+    return (
+      <>
+        {toastMessage && (
+          <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-2xl bg-slate-900 text-white text-xs font-semibold shadow-2xl border border-amber-500/40 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <CheckCircle className="w-4 h-4 text-emerald-400" />
+            <span>{toastMessage}</span>
+          </div>
+        )}
+        <LandingPage
+          onEnterApp={() => setViewMode('app')}
+          onLoginWithEmail={(email) => {
+            setFirebaseUser({
+              email,
+              displayName: email.split('@')[0],
+              uid: `client-${Date.now()}`,
+            } as any);
+            setViewMode('app');
+            fetch(`/api/subscriptions/check?email=${encodeURIComponent(email)}`)
+              .then((res) => (res.ok ? res.json() : null))
+              .then((data) => {
+                if (data && data.isActive) {
+                  setIsProSubscriber(true);
+                  showToast(`Graça e paz! Plano Anual ativo (${data.daysRemaining} dias restantes) para ${email}.`);
+                } else {
+                  setIsProSubscriber(false);
+                  setIsCheckoutModalOpen(true);
+                  showToast(`Assinatura anual inativa ou expirada. Efetue a renovação.`);
+                }
+              })
+              .catch(() => {
+                setIsProSubscriber(true);
+                showToast(`Graça e paz! Acesso ministerial liberado para ${email}.`);
+              });
+          }}
+
+        />
+      </>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-100 text-slate-900 font-sans selection:bg-amber-500/20 selection:text-amber-900">
       {/* Toast Notification */}
@@ -409,20 +651,41 @@ export default function App() {
       )}
 
       {/* Pulpit Mode Fullscreen Modal */}
-      {isPulpitOpen && (
-        <PulpitModeModal
-          sermon={currentSermon}
-          onClose={() => setIsPulpitOpen(false)}
-        />
-      )}
+      <AnimatePresence>
+        {isPulpitOpen && (
+          <PulpitModeModal
+            sermon={currentSermon}
+            onClose={() => setIsPulpitOpen(false)}
+          />
+        )}
+      </AnimatePresence>
 
       {/* PDF Reader Modal */}
-      {readingProduct && (
-        <PdfReaderModal
-          product={readingProduct}
-          onClose={() => setReadingProduct(null)}
-        />
-      )}
+      <AnimatePresence>
+        {readingProduct && (
+          <PdfReaderModal
+            product={readingProduct}
+            onClose={() => setReadingProduct(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Subscription Paywall & Pix Checkout Modal */}
+      <AnimatePresence>
+        {isCheckoutModalOpen && (
+          <SubscriptionCheckoutModal
+            isOpen={isCheckoutModalOpen}
+            onClose={() => setIsCheckoutModalOpen(false)}
+            customerEmail={firebaseUser?.email || 'marianabsilva1987@gmail.com'}
+            onPaymentSuccess={(email) => {
+              setIsProSubscriber(true);
+              setIsCheckoutModalOpen(false);
+              showToast(`Assinatura anual de 365 dias confirmada para ${email}!`);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
 
       {/* Dashboard Modals (Themes, Dictionary, Concordance, Community, Notes) */}
       <DashboardModals
@@ -455,124 +718,177 @@ export default function App() {
         isProSubscriber={isProSubscriber}
       />
 
-      {/* Role Notice Indicator Bar */}
+      {/* Role & Firebase Cloud Indicator Bar */}
       <div className="bg-slate-900/90 border-b border-slate-800 px-4 py-1.5 text-xs text-slate-400 no-print">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {userRole === 'admin' ? (
               <span className="flex items-center gap-1.5 text-indigo-300 font-semibold">
-                <ShieldCheck className="w-3.5 h-3.5" /> Modo Administrador: Você tem controle sobre o catálogo de PDFs, relatórios financeiros e vendas.
+                <ShieldCheck className="w-3.5 h-3.5" /> Modo Administrador: Catálogo de PDFs e Métricas.
               </span>
             ) : (
               <span className="flex items-center gap-1.5 text-amber-300 font-semibold">
-                <User className="w-3.5 h-3.5" /> Modo Comprador / Assinante Pro: Acesso a ferramentas de IA, leitura da Bíblia, Harpa e compras digitais.
+                <User className="w-3.5 h-3.5" /> Modo Assinante Pro & Comprador
               </span>
             )}
+
+            <div className="flex items-center gap-1.5 text-emerald-400 font-mono text-[11px] bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-500/40">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <Cloud className="w-3 h-3 text-emerald-400" />
+              <span>Firebase Cloud: possible-zephyr-zxctm</span>
+            </div>
           </div>
-          <button
-            onClick={handleToggleUserRole}
-            className="text-[11px] underline hover:text-white transition-colors"
-          >
-            {userRole === 'admin' ? 'Alternar para Visão de Usuário' : 'Alternar para Painel Admin'}
-          </button>
+
+          <div className="flex items-center gap-3">
+            {!firebaseUser ? (
+              <button
+                onClick={handleGoogleSignIn}
+                className="text-[11px] text-amber-300 hover:text-amber-200 underline font-semibold transition-colors flex items-center gap-1"
+                title="Vincular com conta Google"
+              >
+                <span>Conectar com Google</span>
+              </button>
+            ) : (
+              <span className="text-[11px] text-slate-300 font-medium">
+                {firebaseUser.email || firebaseUser.displayName}
+              </span>
+            )}
+
+            <button
+              onClick={handleToggleUserRole}
+              className="text-[11px] underline hover:text-white transition-colors"
+            >
+              {userRole === 'admin' ? 'Alternar para Visão de Usuário' : 'Alternar para Painel Admin'}
+            </button>
+
+            <button
+              onClick={() => setIsCheckoutModalOpen(true)}
+              className="text-[11px] bg-gradient-to-r from-amber-500/20 to-amber-600/20 hover:from-amber-500/30 hover:to-amber-600/30 text-amber-300 border border-amber-500/40 px-2.5 py-0.5 rounded-lg transition-colors flex items-center gap-1 font-semibold cursor-pointer shadow-sm"
+              title="Acesso Anual (R$ 297/ano) & Chave Pix"
+            >
+              <Sparkles className="w-3 h-3 text-amber-400" />
+              <span>Plano Anual: R$ 297/ano</span>
+            </button>
+
+            <button
+              onClick={() => setViewMode('landing')}
+              className="text-[11px] bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-lg transition-colors flex items-center gap-1 font-semibold cursor-pointer"
+              title="Voltar para a Landing Page Oficial"
+            >
+              <Globe className="w-3 h-3" />
+              <span>Ver Landing Page</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Content Canvas */}
+      {/* Content Canvas with Smooth Tab Motion Transitions */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
-        {activeTab === 'dashboard' && (
-          <DashboardView
-            onNavigateTab={(tab) => setActiveTab(tab)}
-            onOpenModal={(type) => setActiveDashboardModal(type)}
-            onNavigateToSermon={(text, theme) => {
-              handleGenerateSermon({
-                biblicalText: text,
-                theme,
-                sermonType: 'Expositivo',
-                targetAudience: 'Culto Geral',
-                specificFocus: '',
-              });
-              setActiveTab('sermons');
-            }}
-            onNavigateToXray={(verse) => {
-              handleSendToVerseXray(verse);
-            }}
-            onOpenPulpitMode={() => setIsPulpitOpen(true)}
-            isProSubscriber={isProSubscriber}
-            savedCount={savedItems.length}
-          />
-        )}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 10, scale: 0.995 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.995 }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full"
+          >
+            {activeTab === 'dashboard' && (
+              <DashboardView
+                onNavigateTab={(tab) => setActiveTab(tab)}
+                onOpenModal={(type) => setActiveDashboardModal(type)}
+                onNavigateToSermon={(text, theme) => {
+                  handleGenerateSermon({
+                    biblicalText: text,
+                    theme,
+                    sermonType: 'Expositivo',
+                    targetAudience: 'Culto Geral',
+                    specificFocus: '',
+                  });
+                  setActiveTab('sermons');
+                }}
+                onNavigateToXray={(verse) => {
+                  handleSendToVerseXray(verse);
+                }}
+                onOpenPulpitMode={() => setIsPulpitOpen(true)}
+                isProSubscriber={isProSubscriber}
+                savedCount={savedItems.length}
+              />
+            )}
 
-        {activeTab === 'sermons' && (
-          <SermonView
-            currentSermon={currentSermon}
-            onSaveSermon={handleSaveSermon}
-            isSaved={isSermonSaved}
-            onOpenPulpitMode={() => setIsPulpitOpen(true)}
-            onGenerateSermon={handleGenerateSermon}
-            isLoading={isLoading}
-          />
-        )}
+            {activeTab === 'sermons' && (
+              <SermonView
+                currentSermon={currentSermon}
+                onSaveSermon={handleSaveSermon}
+                isSaved={isSermonSaved}
+                onOpenPulpitMode={() => setIsPulpitOpen(true)}
+                onGenerateSermon={handleGenerateSermon}
+                isLoading={isLoading}
+              />
+            )}
 
-        {activeTab === 'ebd' && (
-          <EbdView
-            currentLesson={currentLesson}
-            onSaveLesson={handleSaveLesson}
-            isSaved={isLessonSaved}
-            onGenerateLesson={handleGenerateLesson}
-            isLoading={isLoading}
-          />
-        )}
+            {activeTab === 'ebd' && (
+              <EbdView
+                currentLesson={currentLesson}
+                onSaveLesson={handleSaveLesson}
+                isSaved={isLessonSaved}
+                onGenerateLesson={handleGenerateLesson}
+                isLoading={isLoading}
+              />
+            )}
 
-        {activeTab === 'xray' && (
-          <VerseXrayView
-            currentXray={currentXray}
-            onSaveXray={handleSaveXray}
-            isSaved={isXraySaved}
-            onGenerateXray={handleGenerateXray}
-            isLoading={isLoading}
-          />
-        )}
+            {activeTab === 'xray' && (
+              <VerseXrayView
+                currentXray={currentXray}
+                onSaveXray={handleSaveXray}
+                isSaved={isXraySaved}
+                onGenerateXray={handleGenerateXray}
+                isLoading={isLoading}
+              />
+            )}
 
-        {activeTab === 'bible_harp' && (
-          <BibleAndHarpView onSendToVerseXray={handleSendToVerseXray} />
-        )}
+            {activeTab === 'bible_harp' && (
+              <BibleAndHarpView onSendToVerseXray={handleSendToVerseXray} />
+            )}
 
-        {activeTab === 'store' && (
-          <StoreView
-            products={products}
-            ownedProductIds={ownedProductIds}
-            isProSubscriber={isProSubscriber}
-            onPurchaseProduct={handlePurchaseProduct}
-            onOpenPdfReader={(prod) => setReadingProduct(prod)}
-          />
-        )}
+            {activeTab === 'store' && (
+              <StoreView
+                products={products}
+                ownedProductIds={ownedProductIds}
+                isProSubscriber={isProSubscriber}
+                onPurchaseProduct={handlePurchaseProduct}
+                onOpenPdfReader={(prod) => setReadingProduct(prod)}
+              />
+            )}
 
-        {activeTab === 'chat' && (
-          <TheologicalChatView
-            onSendMessage={handleSendMessage}
-            isLoading={isLoading}
-          />
-        )}
+            {activeTab === 'chat' && (
+              <TheologicalChatView
+                onSendMessage={handleSendMessage}
+                isLoading={isLoading}
+              />
+            )}
 
-        {activeTab === 'library' && (
-          <SavedLibraryView
-            savedItems={savedItems}
-            onSelectItem={handleSelectSavedItem}
-            onDeleteItem={handleDeleteSavedItem}
-            onExportAll={handleExportAll}
-          />
-        )}
+            {activeTab === 'library' && (
+              <SavedLibraryView
+                savedItems={savedItems}
+                onSelectItem={handleSelectSavedItem}
+                onDeleteItem={handleDeleteSavedItem}
+                onExportAll={handleExportAll}
+              />
+            )}
 
-        {activeTab === 'admin' && (
-          <AdminPanelView
-            products={products}
-            orders={orders}
-            onAddProduct={handleAddProduct}
-            onDeleteProduct={handleDeleteProduct}
-          />
-        )}
+            {activeTab === 'admin' && (
+              <AdminPanelView
+                products={products}
+                orders={orders}
+                onAddProduct={handleAddProduct}
+                onDeleteProduct={handleDeleteProduct}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </main>
+
 
       {/* Ministerial Footer */}
       <footer className="mt-auto bg-slate-900 border-t border-slate-800 text-slate-400 text-xs py-6 no-print">

@@ -9,6 +9,8 @@ import {
   INITIAL_READING_PLAN,
 } from '../utils/dashboard';
 import { BibleReadingProgress } from './BibleReadingProgress';
+import { ActivitySummaryChart } from './ActivitySummaryChart';
+
 import {
   Sparkles,
   BookOpen,
@@ -151,8 +153,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         onNavigateToBible={(bookName, chapter) => onNavigateTab('bible_harp')}
       />
 
-      {/* 3. CARTÕES DE ACESSO RÁPIDO ("ENCARTES") - 4 GRUPOS */}
+      {/* 3. RESUMO DE ATIVIDADES DOS ÚLTIMOS 7 DIAS (GRÁFICO RECHARTS) */}
+      <ActivitySummaryChart onNavigateTab={onNavigateTab} />
+
+      {/* 4. CARTÕES DE ACESSO RÁPIDO ("ENCARTES") - 4 GRUPOS */}
       <div className="space-y-8">
+
         {/* GRUPO 1: FERRAMENTAS DE ESTUDO E IA */}
         <section className="space-y-4">
           <div className="flex items-center gap-2 border-b-2 border-amber-600/30 pb-2">

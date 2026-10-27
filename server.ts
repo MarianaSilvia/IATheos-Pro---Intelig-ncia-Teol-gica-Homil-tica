@@ -8,6 +8,19 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { GoogleGenAI, Type } from '@google/genai';
+import { requireAuth, AuthRequest } from './src/middleware/auth.ts';
+import { getOrCreateUser, getUsers } from './src/db/users.ts';
+import { getProducts, insertProduct } from './src/db/products.ts';
+import { getSavedStudiesForUser, insertSavedStudy } from './src/db/studies.ts';
+import {
+  ensureSubscriptionsTable,
+  getAllSubscriptions,
+  getSubscriptionByEmail,
+  createOrRenewSubscription,
+  updateSubscriptionStatus,
+  renewSubscriptionForOneYear,
+} from './src/db/subscriptions.ts';
+
 
 dotenv.config();
 
@@ -515,10 +528,240 @@ app.get('/api/theology/health', (req, res) => {
 });
 
 /**
+ * Cloud SQL Endpoints (PostgreSQL + Drizzle)
+ */
+// Sync user profile upon sign-in
+app.post('/api/users/sync', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const uid = req.user?.uid;
+    const email = req.user?.email || `${uid}@iatheos.internal`;
+    const displayName = req.body?.displayName;
+    if (!uid) {
+      return res.status(401).json({ error: 'User UID missing from token' });
+    }
+    const user = await getOrCreateUser(uid, email, displayName);
+    res.json(user);
+  } catch (error: any) {
+    console.error('Failed to sync user to Cloud SQL:', error);
+    res.status(500).json({ error: 'Failed to sync user' });
+  }
+});
+
+// List users (Admin / internal)
+app.get('/api/users', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const usersList = await getUsers();
+    res.json(usersList);
+  } catch (error: any) {
+    console.error('Failed to fetch users:', error);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
+// Get digital products (e-books, magazines, PDFs)
+app.get('/api/products', async (req, res) => {
+  try {
+    const items = await getProducts();
+    res.json(items);
+  } catch (error: any) {
+    console.error('Failed to fetch products:', error);
+    res.status(500).json({ error: 'Failed to fetch products' });
+  }
+});
+
+// Add new product (Admin)
+app.post('/api/products', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const { title, description, category, price, author, pages, coverUrl, fileUrl } = req.body;
+    if (!title || !price) {
+      return res.status(400).json({ error: 'Title and price are required' });
+    }
+    const created = await insertProduct({
+      title,
+      description,
+      category,
+      price: String(price),
+      author,
+      pages: pages ? Number(pages) : undefined,
+      coverUrl,
+      fileUrl,
+    });
+    res.status(201).json(created);
+  } catch (error: any) {
+    console.error('Failed to create product:', error);
+    res.status(500).json({ error: 'Failed to create product' });
+  }
+});
+
+// Get saved theological studies for authenticated user
+app.get('/api/saved-studies', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const uid = req.user?.uid;
+    if (!uid) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const studies = await getSavedStudiesForUser(uid);
+    res.json(studies);
+  } catch (error: any) {
+    console.error('Failed to fetch saved studies:', error);
+    res.status(500).json({ error: 'Failed to fetch saved studies' });
+  }
+});
+
+// Save sermon outline, EBD lesson, or verse X-ray
+app.post('/api/saved-studies', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const uid = req.user?.uid;
+    const email = req.user?.email || `${uid}@iatheos.internal`;
+    if (!uid) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    await getOrCreateUser(uid, email, req.user?.name);
+
+    const { type, title, biblicalText, content } = req.body;
+    if (!type || !title || !content) {
+      return res.status(400).json({ error: 'Type, title, and content are required' });
+    }
+    const saved = await insertSavedStudy({
+      userUid: uid,
+      type,
+      title,
+      biblicalText,
+      content,
+    });
+    res.status(201).json(saved);
+  } catch (error: any) {
+    console.error('Failed to save study:', error);
+    res.status(500).json({ error: 'Failed to save study' });
+  }
+});
+
+/**
+ * Subscription Management & Checkout Endpoints (Exclusive Annual Plan)
+ */
+
+// Check customer annual subscription status by email
+app.get('/api/subscriptions/check', async (req, res) => {
+  try {
+    const email = req.query.email as string;
+    if (!email) {
+      return res.status(400).json({ error: 'E-mail do cliente é obrigatório.' });
+    }
+    const result = await getSubscriptionByEmail(email);
+    return res.json(result);
+  } catch (error: any) {
+    console.error('Error checking subscription:', error);
+    return res.status(500).json({ error: 'Erro ao consultar status da assinatura.' });
+  }
+});
+
+// List all customer subscriptions (Admin)
+app.get('/api/admin/subscriptions', async (req, res) => {
+  try {
+    const list = await getAllSubscriptions();
+    return res.json(list);
+  } catch (error: any) {
+    console.error('Error fetching admin subscriptions:', error);
+    return res.status(500).json({ error: 'Erro ao listar assinaturas.' });
+  }
+});
+
+// Add new customer subscription manually (Admin)
+app.post('/api/admin/subscriptions', async (req, res) => {
+  try {
+    const { email, customerName, paymentMethod, transactionId, pricePaid } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'E-mail é obrigatório.' });
+    }
+    const created = await createOrRenewSubscription({
+      email,
+      customerName,
+      paymentMethod: paymentMethod || 'Manual (Admin)',
+      transactionId: transactionId || `MANUAL-${Date.now()}`,
+      pricePaid: pricePaid || 297.0,
+    });
+    return res.status(201).json(created);
+  } catch (error: any) {
+    console.error('Error creating subscription:', error);
+    return res.status(500).json({ error: 'Erro ao cadastrar assinatura.' });
+  }
+});
+
+// Update customer subscription status or renew (Admin)
+app.patch('/api/admin/subscriptions/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const { action, status } = req.body;
+
+    if (isNaN(id)) {
+      return res.status(400).json({ error: 'ID inválido.' });
+    }
+
+    if (action === 'renew') {
+      const renewed = await renewSubscriptionForOneYear(id);
+      return res.json({ message: 'Assinatura renovada por +365 dias com sucesso.', subscription: renewed });
+    }
+
+    if (status) {
+      const updated = await updateSubscriptionStatus(id, status);
+      return res.json({ message: `Status alterado para ${status}.`, subscription: updated });
+    }
+
+    return res.status(400).json({ error: 'Ação ou status não especificado.' });
+  } catch (error: any) {
+    console.error('Error updating subscription:', error);
+    return res.status(500).json({ error: 'Erro ao atualizar assinatura.' });
+  }
+});
+
+// Webhook endpoint for automated payment confirmation (Pix / InfinitePay / Mercado Pago)
+app.post('/api/webhooks/payment', async (req, res) => {
+  try {
+    const payload = req.body || {};
+    console.log('Received payment webhook:', payload);
+
+    // Support multiple webhook payload formats
+    const email = payload.email || payload.customer_email || payload.payer?.email || payload.data?.customer?.email;
+    const customerName = payload.customer_name || payload.name || payload.payer?.name || payload.data?.customer?.name;
+    const transactionId = payload.transaction_id || payload.id || payload.data?.id || `TX-WH-${Date.now()}`;
+    const paymentMethod = payload.payment_method || payload.method || 'PIX';
+    const amount = Number(payload.amount || payload.total || 297.0);
+
+    if (!email) {
+      return res.status(400).json({
+        error: 'Webhook recebido, mas nenhum campo de e-mail do cliente foi identificado.',
+        receivedPayload: payload,
+      });
+    }
+
+    const activated = await createOrRenewSubscription({
+      email,
+      customerName,
+      paymentMethod,
+      transactionId,
+      pricePaid: amount,
+    });
+
+    return res.status(200).json({
+      success: true,
+      event: 'subscription.activated',
+      message: `Assinatura anual de 365 dias ativada com sucesso para ${email}!`,
+      subscription: activated,
+    });
+  } catch (error: any) {
+    console.error('Webhook processing error:', error);
+    return res.status(500).json({ error: 'Falha no processamento do webhook de pagamento.' });
+  }
+});
+
+/**
  * Mount Vite in development or serve static in production
  */
 async function startServer() {
+  await ensureSubscriptionsTable();
+
   if (process.env.NODE_ENV !== 'production') {
+
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },

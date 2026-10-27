@@ -15,6 +15,11 @@ import {
   saveCompletedChapters,
   TOTAL_BIBLE_CHAPTERS,
 } from '../utils/bibleProgress';
+import { auth } from '../lib/firebase';
+import {
+  saveReadingProgressToFirestore,
+  loadReadingProgressFromFirestore,
+} from '../lib/firestoreService';
 import {
   BookOpen,
   CheckCircle2,
@@ -57,10 +62,26 @@ export const BibleReadingProgress: React.FC<BibleReadingProgressProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [notification, setNotification] = useState<string | null>(null);
 
-  // Save to localStorage on change
+  // Save to localStorage and Firestore on change
   useEffect(() => {
     saveCompletedChapters(completedChapters);
+    if (auth.currentUser) {
+      saveReadingProgressToFirestore(auth.currentUser.uid, completedChapters, 7, 42).catch(() => {});
+    }
   }, [completedChapters]);
+
+  // Load from Firestore on initial mount if available
+  useEffect(() => {
+    if (auth.currentUser) {
+      loadReadingProgressFromFirestore(auth.currentUser.uid)
+        .then((cloudData) => {
+          if (cloudData && cloudData.length > 0) {
+            setCompletedChapters(cloudData);
+          }
+        })
+        .catch(() => {});
+    }
+  }, []);
 
   const stats = calculateBibleYearProgress(completedChapters);
   const completedSet = new Set(completedChapters);
