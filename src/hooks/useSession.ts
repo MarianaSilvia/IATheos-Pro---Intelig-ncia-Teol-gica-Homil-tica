@@ -26,9 +26,16 @@ export function useSession(){
   return()=>{version.current++;data.subscription.unsubscribe();};
  },[]);
  const runAuth=async (work:()=>Promise<{error:any}>)=>{if(loginInFlight.current)return false;loginInFlight.current=true;setSigningIn(true);setError("");try{const {error}=await work();if(error)throw error;return true;}catch(e){const message=(e as Error).message;setError(message);throw new Error(message);}finally{loginInFlight.current=false;setSigningIn(false);}};
+ const magicLinkRedirect = () => {
+  // In production always return to the origin that issued the request. This
+  // prevents a stale VITE_PUBLIC_APP_URL (for example localhost) from making
+  // the confirmation link land outside the deployed application.
+  if (import.meta.env.PROD) return window.location.origin;
+  return import.meta.env.VITE_PUBLIC_APP_URL || window.location.origin;
+ };
  return {session,loading,error,signingIn,refresh,
   loginAdmin:async(email:string,password:string)=>runAuth(()=>authClient().auth.signInWithPassword({email,password})),
-  requestMagicLink:async(email:string)=>runAuth(()=>authClient().auth.signInWithOtp({email,options:{shouldCreateUser:false,emailRedirectTo:import.meta.env.VITE_PUBLIC_APP_URL||(import.meta.env.PROD?"https://ia-theos-pro-intelig-ncia-teol-gica.vercel.app":window.location.origin)}})),
+  requestMagicLink:async(email:string)=>runAuth(()=>authClient().auth.signInWithOtp({email,options:{shouldCreateUser:false,emailRedirectTo:magicLinkRedirect()}})),
   logout:async()=>{version.current++;setSession(null);identity.current=null;try{const {error}=await authClient().auth.signOut();if(error)throw error;}catch(e){setError((e as Error).message);}}
  };
 }
