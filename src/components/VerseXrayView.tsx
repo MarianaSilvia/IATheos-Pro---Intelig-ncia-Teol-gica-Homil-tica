@@ -218,7 +218,7 @@ export const VerseXrayView: React.FC<VerseXrayViewProps> = ({
       </div>
 
       {/* Main Display Document */}
-      <article className="bg-white rounded-3xl border border-slate-200/90 shadow-lg overflow-hidden transition-all">
+      <article className="print-document bg-white rounded-3xl border border-slate-200/90 shadow-lg overflow-hidden transition-all">
         {/* Header with Verse & Reference */}
         <div className="p-6 sm:p-8 bg-gradient-to-b from-indigo-50/70 via-white to-white border-b border-indigo-100">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-4 no-print">
@@ -282,7 +282,7 @@ export const VerseXrayView: React.FC<VerseXrayViewProps> = ({
           </div>
         </div>
 
-        <div className="p-6 sm:p-8 space-y-8">
+        <div className="print-content p-6 sm:p-8 space-y-8">
           {/* SECTION 1: CONTEXTO HISTÓRICO-CULTURAL */}
           <section className="space-y-4">
             <div className="flex items-center gap-2 pb-2 border-b-2 border-indigo-600/40">
