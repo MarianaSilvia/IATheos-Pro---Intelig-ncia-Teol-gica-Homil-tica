@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { api } from "../lib/api";
 import { useResource } from "../hooks/useResource";
 import type { DigitalProduct } from "../utils/ecosystem";
@@ -26,6 +26,8 @@ export function AdminPanelView({
     { users: [], pageToken: null },
   );
   const audit = useResource<any[]>("/admin/audit", []);
+  const orders = useResource<any[]>("/admin/orders", []);
+  const [adminTab, setAdminTab] = useState<"overview" | "subscribers" | "materials" | "audit">("overview");
   const [uid, setUid] = useState("");
   const [reason, setReason] = useState("");
   const [productId, setProductId] = useState("");
@@ -35,6 +37,19 @@ export function AdminPanelView({
   const [busy, setBusy] = useState(false);
   const [coverUploading, setCoverUploading] = useState(false);
   const [message, setMessage] = useState("");
+  const metrics = useMemo(() => {
+    const paid = orders.data.filter((order) => ["paid", "settled"].includes(String(order.status).toLowerCase()));
+    const active = users.data.users.filter((user) => user.subscription?.status === "active").length;
+    return {
+      totalUsers: users.data.users.length,
+      active,
+      paid: paid.length,
+      pending: orders.data.filter((order) => String(order.status).toLowerCase() === "pending").length,
+      monthly: paid.filter((order) => order.plan_id === "monthly").length,
+      annual: paid.filter((order) => order.plan_id === "annual").length,
+      revenue: paid.reduce((total, order) => total + Number(order.amount_cents || 0), 0) / 100,
+    };
+  }, [orders.data, users.data.users]);
   const run = async (fn: () => Promise<void>) => {
     if (busy) return;
     setBusy(true);
@@ -90,20 +105,60 @@ export function AdminPanelView({
           {message}
         </p>
       )}
-      {(users.error || audit.error) && (
+      {(users.error || audit.error || orders.error) && (
         <p role="alert">
-          {users.error || audit.error}{" "}
+          {users.error || audit.error || orders.error}{" "}
           <button
             onClick={() => {
               void users.reload();
-              void audit.reload();
+               void audit.reload();
+               void orders.reload();
             }}
           >
             Tentar novamente
           </button>
         </p>
       )}
-      <section className="bg-white border rounded-2xl p-6 space-y-4">
+      <nav aria-label="Seções administrativas" className="flex flex-wrap gap-2">
+        {([
+          ["overview", "Visão geral"],
+          ["subscribers", "Assinantes"],
+          ["materials", "Materiais da loja"],
+          ["audit", "Auditoria"],
+        ] as const).map(([value, label]) => (
+          <button key={value} type="button" onClick={() => setAdminTab(value)} className={`rounded-xl px-4 py-2 text-sm font-semibold ${adminTab === value ? "bg-indigo-700 text-white" : "bg-white text-slate-700 border"}`}>
+            {label}
+          </button>
+        ))}
+      </nav>
+      {adminTab === "overview" && (
+        <section className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[
+            ["Assinantes ativos", metrics.active, "text-emerald-700"],
+            ["Pagamentos confirmados", metrics.paid, "text-indigo-700"],
+            ["Pagamentos pendentes", metrics.pending, "text-amber-700"],
+            ["Plano mensal", metrics.monthly, "text-slate-800"],
+            ["Plano anual", metrics.annual, "text-slate-800"],
+            ["Receita confirmada", `R$ ${metrics.revenue.toFixed(2).replace(".", ",")}`, "text-slate-800"],
+          ].map(([label, value, tone]) => (
+            <article key={String(label)} className="bg-white border rounded-2xl p-5 shadow-sm">
+              <p className="text-sm text-slate-500">{label}</p>
+              <strong className={`text-2xl font-bold ${tone}`}>{value}</strong>
+            </article>
+          ))}
+          <article className="sm:col-span-2 lg:col-span-3 bg-indigo-50 border border-indigo-100 rounded-2xl p-5">
+            <h2 className="font-bold text-indigo-950">Acompanhamento comercial</h2>
+            <p className="text-sm text-indigo-900 mt-1">Há {metrics.totalUsers} contas cadastradas. Os números acima consideram apenas pedidos confirmados pela InfinitePay; pedidos pendentes não liberam acesso.</p>
+          </article>
+        </section>
+      )}
+      {adminTab === "subscribers" && (
+        <section className="bg-white border rounded-2xl p-6 space-y-4">
+          <div className="flex items-center justify-between gap-3"><div><h2 className="text-xl font-bold">Assinantes e clientes</h2><p className="text-sm text-slate-500">Visualização segura dos e-mails, situação e validade.</p></div><button type="button" className="text-sm underline" onClick={() => void users.reload()}>Atualizar</button></div>
+          <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="border-b text-left"><th className="py-3 pr-4">E-mail</th><th className="py-3 pr-4">Situação</th><th className="py-3 pr-4">Validade</th><th className="py-3">Contato</th></tr></thead><tbody>{users.data.users.map((user) => { const subscription = user.subscription; const active = subscription?.status === "active"; return <tr key={user.uid} className="border-b last:border-0"><td className="py-3 pr-4 font-medium">{user.email || user.uid}</td><td className="py-3 pr-4"><span className={`rounded-full px-2 py-1 text-xs ${active ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-700"}`}>{subscription?.status || "sem acesso"}</span></td><td className="py-3 pr-4">{subscription?.expiresAt ? new Date(subscription.expiresAt).toLocaleDateString("pt-BR") : "—"}</td><td className="py-3"><button type="button" className="text-indigo-700 underline" onClick={() => void navigator.clipboard?.writeText(user.email || "")}>Copiar e-mail</button></td></tr>; })}</tbody></table></div>
+        </section>
+      )}
+      {adminTab !== "materials" && adminTab !== "audit" && <section className="bg-white border rounded-2xl p-6 space-y-4">
         <h2 className="text-xl font-bold">Acesso de usuários cadastrados</h2>
         <label className="block">
           Usuário
@@ -209,8 +264,8 @@ export function AdminPanelView({
         >
           Conceder material ao usuário
         </button>
-      </section>
-      <form
+      </section>}
+      {adminTab === "materials" && <><form
         className="bg-white border rounded-2xl p-6 grid sm:grid-cols-2 gap-4"
         onSubmit={(e) => {
           e.preventDefault();
@@ -385,8 +440,8 @@ export function AdminPanelView({
             </div>
           </article>
         ))}
-      </section>
-      <section className="bg-white border rounded-2xl p-6">
+      </section></>}
+      {adminTab === "audit" && <section className="bg-white border rounded-2xl p-6">
         <h2 className="text-xl font-bold">Histórico administrativo</h2>
         {audit.data.map((a) => (
           <p key={a.id} className="border-b py-3 text-sm">
@@ -394,7 +449,7 @@ export function AdminPanelView({
             {a.targetUid} · {a.reason} · responsável: {a.actorUid}
           </p>
         ))}
-      </section>
+      </section>}
     </div>
   );
 }

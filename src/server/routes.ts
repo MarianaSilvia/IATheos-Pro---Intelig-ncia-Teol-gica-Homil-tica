@@ -143,7 +143,7 @@ router.get("/admin/users",requireAdmin,asyncRoute(async(req,res)=>{
  const subs=checked(await req.db.from("subscriptions").select("*"));res.json({users:rows.map(u=>({uid:u.user_id,email:u.email,displayName:u.display_name,subscription:subscriptionData(subs.find(s=>s.user_id===u.user_id))})),pageToken:rows.length===100?String(page+100):null});
 }));
 router.get("/admin/orders",requireAdmin,asyncRoute(async(req,res)=>{
- const orders=checked(await req.db.from("payment_orders").select("id,user_id,product_id,amount_cents,currency,status,provider,provider_payment_id,created_at,paid_at,refunded_at,lead_id").order("created_at",{ascending:false}).limit(200));
+ const orders=checked(await req.db.from("payment_orders").select("id,user_id,product_id,plan_id,order_kind,amount_cents,currency,status,provider,provider_payment_id,created_at,paid_at,refunded_at,lead_id").order("created_at",{ascending:false}).limit(200));
  const leadIds=orders.map((o:any)=>o.lead_id).filter(Boolean); const leads=leadIds.length?checked(await req.db.from("interest_leads").select("id,email").in("id",leadIds)):[];
  const emails=new Map((leads as any[]).map((l)=>[l.id,l.email])); res.json((orders as any[]).map((o)=>({...o,email:emails.get(o.lead_id)||null})));
 }));
