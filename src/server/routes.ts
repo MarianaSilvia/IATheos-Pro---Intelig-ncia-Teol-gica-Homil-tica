@@ -67,6 +67,19 @@ router.post("/products",requireAdmin,asyncRoute(async(req,res)=>{
 router.get("/admin/products/:id/link",requireAdmin,asyncRoute(async(req,res)=>{
  const url=checked(await req.db.rpc("redeem_material",{p_product_id:idSchema.parse(req.params.id)}));res.set("Cache-Control","private, no-store").json({url});
 }));
+router.post("/admin/product-cover",requireAdmin,asyncRoute(async(req,res)=>{
+ const data=z.object({filename:z.string().trim().min(1).max(120),mimeType:z.enum(["image/png","image/jpeg","image/webp"]),data:z.string().regex(/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/)}).strict().parse(req.body);
+ const [,encoded]=data.data.split(",",2); const buffer=Buffer.from(encoded,"base64");
+ if(buffer.length===0||buffer.length>2*1024*1024) throw new HttpError(400,"A capa deve ter no máximo 2 MB.");
+ const valid=(data.mimeType==="image/png"&&buffer.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])))||(data.mimeType==="image/jpeg"&&buffer.subarray(0,3).equals(Buffer.from([255,216,255])))||(data.mimeType==="image/webp"&&buffer.subarray(0,4).toString()==="RIFF"&&buffer.subarray(8,12).toString()==="WEBP");
+ if(!valid) throw new HttpError(400,"Arquivo de imagem inválido.");
+ const extension=data.mimeType==="image/png"?"png":data.mimeType==="image/webp"?"webp":"jpg";
+ const path=`${req.user.uid}/${crypto.randomUUID()}.${extension}`;
+ const db=serviceDatabase(); const uploaded=await db.storage.from("product-covers").upload(path,buffer,{contentType:data.mimeType,cacheControl:"31536000",upsert:false});
+ if(uploaded.error) throw new HttpError(502,"Não foi possível armazenar a capa.");
+ const publicUrl=db.storage.from("product-covers").getPublicUrl(path).data.publicUrl;
+ res.status(201).json({url:publicUrl});
+}));
 router.patch("/products/:id",requireAdmin,asyncRoute(async(req,res)=>{
  const {downloadUrl,...details}=productSchema.partial().extend({downloadUrl:externalLinkSchema.optional()}).strict().parse(req.body);
  checked(await req.db.rpc("save_product",{p_id:idSchema.parse(req.params.id),p_details:details,p_url:downloadUrl??null}));res.json({ok:true});

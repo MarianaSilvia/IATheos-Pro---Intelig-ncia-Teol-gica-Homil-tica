@@ -33,6 +33,7 @@ export function AdminPanelView({
   const [editId, setEditId] = useState("");
   const [downloadUrl, setDownloadUrl] = useState("");
   const [busy, setBusy] = useState(false);
+  const [coverUploading, setCoverUploading] = useState(false);
   const [message, setMessage] = useState("");
   const run = async (fn: () => Promise<void>) => {
     if (busy) return;
@@ -223,7 +224,6 @@ export function AdminPanelView({
           ["title", "Título"],
           ["author", "Autor"],
           ["description", "Descrição"],
-          ["coverImage", "URL HTTPS da capa (opcional)"],
         ].map(([key, label]) => (
           <label key={key}>
             {label}
@@ -236,6 +236,34 @@ export function AdminPanelView({
             />
           </label>
         ))}
+        <label>
+          Capa do material (PNG, JPG ou WebP; até 2 MB)
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            disabled={busy || coverUploading}
+            className="block border rounded-xl p-3 w-full"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              if (file.size > 2 * 1024 * 1024) { setMessage("A capa deve ter no máximo 2 MB."); e.currentTarget.value = ""; return; }
+              setCoverUploading(true);
+              const reader = new FileReader();
+              reader.onload = async () => {
+                try {
+                  const result = await api<{url:string}>("/admin/product-cover", { method: "POST", body: JSON.stringify({ filename: file.name, mimeType: file.type, data: String(reader.result) }) });
+                  setForm((current) => ({ ...current, coverImage: result.url }));
+                  setMessage("Capa enviada. Salve o material para confirmar o cadastro.");
+                } catch (error) { setMessage((error as Error).message); }
+                finally { setCoverUploading(false); }
+              };
+              reader.onerror = () => { setMessage("Não foi possível ler a imagem."); setCoverUploading(false); };
+              reader.readAsDataURL(file);
+            }}
+          />
+          {coverUploading && <span className="text-sm text-slate-600">Enviando capa…</span>}
+          {form.coverImage && <img src={form.coverImage} alt="Prévia da capa" className="mt-2 h-36 w-24 rounded object-cover border" />}
+        </label>
         <label>
           Categoria
           <select
