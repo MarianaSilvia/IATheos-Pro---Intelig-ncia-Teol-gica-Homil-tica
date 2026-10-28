@@ -289,7 +289,7 @@ export const EbdView: React.FC<EbdViewProps> = ({
       </div>
 
       {/* Lesson Document Display Area */}
-      <article className="bg-white rounded-3xl border border-slate-200/90 shadow-lg overflow-hidden transition-all">
+      <article className="print-document bg-white rounded-3xl border border-slate-200/90 shadow-lg overflow-hidden transition-all">
         {/* Document Header */}
         <div className="p-6 sm:p-8 bg-gradient-to-b from-emerald-50/70 via-white to-white border-b border-emerald-100">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-4 no-print">
@@ -352,7 +352,7 @@ export const EbdView: React.FC<EbdViewProps> = ({
           </div>
         </div>
 
-        <div className="p-6 sm:p-8 space-y-8">
+        <div className="print-content p-6 sm:p-8 space-y-8">
           {/* OBJETIVO DA AULA */}
           <section className="p-5 sm:p-6 rounded-2xl bg-emerald-50/70 border border-emerald-200 flex items-start gap-4">
             <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5">
