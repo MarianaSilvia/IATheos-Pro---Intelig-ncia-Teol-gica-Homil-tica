@@ -8,7 +8,7 @@ test("public endpoints report Supabase and no request can simulate a purchase",a
  const server=createApp().listen(0,"127.0.0.1");await new Promise<void>(r=>server.once("listening",r));
  const address=server.address() as {port:number};const url=`http://127.0.0.1:${address.port}`;
  try{
-  const health=await fetch(url+"/api/health").then(r=>r.json());assert.equal(health.backend,"supabase");assert.equal(health.paymentsEnabled,false);assert.equal(health.delivery,"external-link");
+  const health=await fetch(url+"/api/health").then(r=>r.json());assert.equal(health.backend,"supabase");assert.equal(typeof health.paymentsEnabled,"boolean");assert.equal(health.delivery,"external-link");
   for(const path of ["/session","/notes","/studies","/reading","/products","/products/example/link","/admin/users"]){assert.equal((await fetch(url+"/api"+path)).status,401,path);}
   assert.equal((await fetch(url+"/api/webhooks/payment",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({status:"paid",uid:"attacker",productId:"anything"})})).status,410);
  }finally{await new Promise<void>((r,j)=>server.close(e=>e?j(e):r()));}

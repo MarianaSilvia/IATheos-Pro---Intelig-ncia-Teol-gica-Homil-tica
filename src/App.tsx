@@ -240,8 +240,8 @@ function Workspace({
       </div>
       {!access.isProSubscriber && (
         <p className="bg-amber-100 p-4">
-          Solicite ao administrador a concessão de acesso. A cobrança está
-          desativada nesta etapa.
+          Solicite ao administrador a confirmação da assinatura ou a concessão
+          de acesso. O acesso só é liberado após uma confirmação válida.
         </p>
       )}
       {message && (

@@ -15,8 +15,8 @@ export function StoreView({
     <div className="space-y-6">
       <h1 className="text-3xl font-serif font-bold">Biblioteca de materiais</h1>
       <p>
-        Os arquivos ficam em uma nuvem externa. A cobrança está desativada; o acesso pode ser concedido pelo
-        administrador.
+        Os arquivos ficam em uma nuvem externa. O acesso é liberado após a
+        confirmação da assinatura ou por concessão administrativa.
       </p>
       <label className="block">
         Buscar material
