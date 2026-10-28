@@ -71,7 +71,7 @@ export default function App() {
         products={publicProducts}
         plans={subscriptionPlans}
         onInterest={async (email, productId) => { const response = await fetch("/api/purchase-interest", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, productId, consent: true }) }); const body = await response.json().catch(() => ({})); if (!response.ok) throw new Error(body.error || "Não foi possível iniciar o pedido."); if (body.checkoutUrl) window.location.assign(body.checkoutUrl); }}
-        onSubscriptionInterest={async (email, planId) => { const response = await fetch("/api/subscription-interest", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, planId, consent: true }) }); const body = await response.json().catch(() => ({})); if (!response.ok) throw new Error(body.error || "Não foi possível iniciar a assinatura."); if (body.checkoutUrl) window.location.assign(body.checkoutUrl); }}
+        onSubscriptionInterest={async (email, phone, planId) => { const response = await fetch("/api/subscription-interest", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, phone, planId, consent: true }) }); const body = await response.json().catch(() => ({})); if (!response.ok) throw new Error(body.error || "Não foi possível iniciar a assinatura."); if (body.checkoutUrl) window.location.assign(body.checkoutUrl); }}
         onLoginWithEmail={async (email) => { await requestMagicLink(email); }}
         onAdminLogin={async (email, password) => { await loginAdmin(email, password); }}
         error={error}

@@ -17,7 +17,7 @@ interface LandingPageProps {
   products: Array<{ id: string; title: string; price: number }>;
   plans: Array<{ id: string; name: string; price: number; durationDays: number }>;
   onInterest: (email: string, productId: string) => Promise<void>;
-  onSubscriptionInterest: (email: string, planId: string) => Promise<void>;
+  onSubscriptionInterest: (email: string, phone: string, planId: string) => Promise<void>;
   onLoginWithEmail: (email: string) => Promise<void>;
   onAdminLogin: (email: string, password: string) => Promise<void>;
   error: string;
@@ -67,8 +67,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         {/* 5. Seção de Preços (Foco Exclusivo no Pacote Anual) */}
         <PricingSectionRestored
           plans={plans}
-          onSubscribe={(email, planId) => {
-            return onSubscriptionInterest(email, planId);
+          onSubscribe={(email, phone, planId) => {
+            return onSubscriptionInterest(email, phone, planId);
           }}
           onOpenClientLogin={() => setClientLoginModalOpen(true)}
         />

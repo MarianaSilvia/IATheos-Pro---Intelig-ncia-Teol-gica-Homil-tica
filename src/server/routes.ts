@@ -8,6 +8,7 @@ import { serviceDatabase } from "./supabase.ts";
 import { config } from "./config.ts";
 import crypto from "node:crypto";
 const router=Router();
+const phoneSchema=z.string().trim().transform((value)=>value.replace(/\D/g,"")).refine((value)=>/^(?:55)?[1-9][0-9]{9,10}$/.test(value),"Informe um celular válido com DDD.").transform((value)=>value.startsWith("55")?value:`55${value}`);
 router.post("/webhooks/payment",(_req,res)=>{res.status(410).json({error:"Use o webhook oficial da InfinitePay."});});
 router.get("/health",(_req,res)=>{res.json({status:"ok",backend:"supabase",paymentsEnabled:Boolean(config.infinitePayApiKey),delivery:"external-link"});});
 router.get("/public/products",asyncRoute(async(_req,res)=>{
@@ -36,13 +37,13 @@ router.post("/purchase-interest",asyncRoute(async(req,res)=>{
  res.status(201).json({orderId:order.id,checkoutUrl});
 }));
 router.post("/subscription-interest",asyncRoute(async(req,res)=>{
- const data=z.object({email:z.string().trim().toLowerCase().email().max(320),planId:idSchema,consent:z.literal(true)}).strict().parse(req.body);
+ const data=z.object({email:z.string().trim().toLowerCase().email().max(320),phone:phoneSchema,planId:idSchema,consent:z.literal(true)}).strict().parse(req.body);
  const db=serviceDatabase();
  const plan=checked(await db.from("subscription_plans").select("id,name,amount_cents,duration_days,checkout_url").eq("id",data.planId).eq("active",true).maybeSingle());
  if(!plan) throw new HttpError(404,"Plano indisponível.");
  const apiKey=config.infinitePayApiKey; const handle=config.infinitePayHandle;
  if(!plan.checkout_url && (!apiKey || !handle)) throw new HttpError(503,"Checkout ainda não configurado. Tente novamente mais tarde.");
- const lead=checked(await db.from("interest_leads").insert({email:data.email,plan_id:data.planId,consent:true}).select("id").single());
+ const lead=checked(await db.from("interest_leads").insert({email:data.email,phone_e164:data.phone,plan_id:data.planId,consent:true}).select("id").single());
  const order=checked(await db.from("payment_orders").insert({lead_id:lead.id,plan_id:data.planId,order_kind:"subscription",amount_cents:plan.amount_cents,currency:"BRL",provider:"infinitepay"}).select("id").single());
  let checkoutUrl=String(plan.checkout_url||"");
  if(!checkoutUrl){
@@ -144,8 +145,8 @@ router.get("/admin/users",requireAdmin,asyncRoute(async(req,res)=>{
 }));
 router.get("/admin/orders",requireAdmin,asyncRoute(async(req,res)=>{
  const orders=checked(await req.db.from("payment_orders").select("id,user_id,product_id,plan_id,order_kind,amount_cents,currency,status,provider,provider_payment_id,created_at,paid_at,refunded_at,lead_id").order("created_at",{ascending:false}).limit(200));
- const leadIds=orders.map((o:any)=>o.lead_id).filter(Boolean); const leads=leadIds.length?checked(await req.db.from("interest_leads").select("id,email").in("id",leadIds)):[];
- const emails=new Map((leads as any[]).map((l)=>[l.id,l.email])); res.json((orders as any[]).map((o)=>({...o,email:emails.get(o.lead_id)||null})));
+ const leadIds=orders.map((o:any)=>o.lead_id).filter(Boolean); const leads=leadIds.length?checked(await req.db.from("interest_leads").select("id,email,phone_e164").in("id",leadIds)):[];
+ const leadMap=new Map((leads as any[]).map((l)=>[l.id,l])); res.json((orders as any[]).map((o)=>({...o,email:leadMap.get(o.lead_id)?.email||null,phone:leadMap.get(o.lead_id)?.phone_e164||null})));
 }));
 router.post("/admin/subscriptions/:uid",requireAdmin,asyncRoute(async(req,res)=>{
  const data=subscriptionActionSchema.parse(req.body);checked(await req.db.rpc("change_subscription",{p_user_id:z.uuid().parse(req.params.uid),p_action:data.action,p_reason:data.reason}));res.json({ok:true});
