@@ -190,7 +190,8 @@ function Workspace({
     <InitialGenerator
       title={title}
       busy={busy}
-      onGenerate={(value) =>
+      allowReferenceUpload={type === "ebd"}
+      onGenerate={(value, source) =>
         generate(
           type,
           type === "xray"
@@ -198,6 +199,7 @@ function Workspace({
             : {
                 biblicalText: value,
                 targetAudience: type === "ebd" ? "Adultos" : "Culto Geral",
+                ...(type === "ebd" && source ? { source } : {}),
                 ...(type === "sermon" ? { sermonType: "Expositivo" } : {}),
               },
         )
@@ -409,18 +411,32 @@ function InitialGenerator({
   title,
   busy,
   onGenerate,
+  allowReferenceUpload = false,
 }: {
   title: string;
   busy: boolean;
-  onGenerate: (text: string) => Promise<unknown>;
+  allowReferenceUpload?: boolean;
+  onGenerate: (
+    text: string,
+    source?: {
+      mimeType: "application/pdf" | "image/jpeg" | "image/png" | "image/webp";
+      data: string;
+    },
+  ) => Promise<unknown>;
 }) {
   const [text, setText] = useState("");
+  const [source, setSource] = useState<{
+    mimeType: "application/pdf" | "image/jpeg" | "image/png" | "image/webp";
+    data: string;
+    name: string;
+  } | null>(null);
+  const [fileError, setFileError] = useState("");
   return (
     <form
       className="bg-white p-8 rounded-3xl border space-y-5"
       onSubmit={(e) => {
         e.preventDefault();
-        if (text.trim()) void onGenerate(text.trim());
+        if (text.trim()) void onGenerate(text.trim(), source ?? undefined);
       }}
     >
       <h1 className="text-2xl font-serif font-bold">{title}</h1>
@@ -435,6 +451,48 @@ function InitialGenerator({
           placeholder="Ex.: Romanos 5:3-5"
         />
       </label>
+      {allowReferenceUpload && (
+        <div className="rounded-xl border border-dashed border-emerald-300 bg-emerald-50/60 p-4">
+          <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+            Revista ou material de apoio (opcional)
+          </label>
+          <input
+            type="file"
+            accept="application/pdf,image/jpeg,image/png,image/webp"
+            capture="environment"
+            className="block w-full text-sm"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              setFileError("");
+              setSource(null);
+              if (!file) return;
+              if (file.size > 3 * 1024 * 1024) {
+                setFileError("O arquivo deve ter no máximo 3 MB.");
+                event.currentTarget.value = "";
+                return;
+              }
+              const reader = new FileReader();
+              reader.onload = () => {
+                const value = String(reader.result);
+                const comma = value.indexOf(",");
+                if (comma > 0) {
+                  setSource({
+                    mimeType: file.type as "application/pdf" | "image/jpeg" | "image/png" | "image/webp",
+                    data: value.slice(comma + 1),
+                    name: file.name,
+                  });
+                }
+              };
+              reader.readAsDataURL(file);
+            }}
+          />
+          <p className="text-xs text-slate-500 mt-1">
+            PDF ou imagem até 3 MB. O conteúdo é usado somente nesta geração e não fica público.
+          </p>
+          {source && <p className="text-xs text-emerald-700 mt-1">Material selecionado: {source.name}</p>}
+          {fileError && <p className="text-xs text-red-600 mt-1">{fileError}</p>}
+        </div>
+      )}
       <button
         disabled={busy}
         className="bg-amber-600 text-white px-6 py-3 rounded-xl disabled:opacity-50"
