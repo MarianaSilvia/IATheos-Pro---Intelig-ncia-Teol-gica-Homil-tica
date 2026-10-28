@@ -288,7 +288,7 @@ export function AdminPanelView({
         </label>
         <label>
           Link HTTPS de download (nuvem externa)
-          <input className="block border p-3 w-full" type="url" required maxLength={4096} value={downloadUrl} onChange={e=>setDownloadUrl(e.target.value)} />
+          <input aria-label="Link direto do material no Google Drive" className="block border p-3 w-full" type="url" required maxLength={4096} value={downloadUrl} onChange={e=>setDownloadUrl(e.target.value)} />
         </label>
         <label>
           <input
