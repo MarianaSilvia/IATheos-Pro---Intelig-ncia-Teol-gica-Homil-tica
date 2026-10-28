@@ -6,7 +6,6 @@ create table if not exists public.interest_leads(
  created_at timestamptz not null default now()
 );
 create index if not exists interest_leads_email on public.interest_leads(lower(email));
-create index if not exists interest_leads_product on public.interest_leads(product_id);
 alter table public.interest_leads enable row level security;
 revoke all on public.interest_leads from anon, authenticated;
 grant select on public.interest_leads to authenticated;
@@ -33,16 +32,3 @@ begin
  update public.payment_orders set status='paid',provider=p_provider,provider_payment_id=p_payment_id,paid_at=now() where id=p_order_id;
  if o.user_id is not null then insert into public.entitlements(user_id,product_id,source) values(o.user_id,o.product_id,'payment') on conflict do nothing; end if;
 end; $$;
-create or replace function private.mark_payment_refunded(p_provider text,p_payment_id text) returns void language plpgsql security definer set search_path='' as $$
-declare o public.payment_orders;
-begin
- select * into o from public.payment_orders where provider=p_provider and provider_payment_id=p_payment_id for update;
- if not found then raise no_data_found using message='Pedido do estorno não encontrado.'; end if;
- update public.payment_orders set status='refunded',refunded_at=now() where id=o.id;
- if o.user_id is not null then delete from public.entitlements where user_id=o.user_id and product_id=o.product_id; end if;
-end; $$;
-revoke all on function private.mark_payment_refunded(text,text) from public,anon,authenticated;
-grant execute on function private.mark_payment_refunded(text,text) to service_role;
-create or replace function public.mark_payment_refunded(p_provider text,p_payment_id text) returns void language sql security invoker set search_path='' as $$ select private.mark_payment_refunded(p_provider,p_payment_id); $$;
-revoke all on function public.mark_payment_refunded(text,text) from public,anon,authenticated;
-grant execute on function public.mark_payment_refunded(text,text) to service_role;
