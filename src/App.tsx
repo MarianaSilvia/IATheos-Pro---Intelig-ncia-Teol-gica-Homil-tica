@@ -24,8 +24,8 @@ const VerseXrayView = lazy(() =>
   })),
 );
 const BibleAndHarpView = lazy(() =>
-  import("./components/BibleAndHarpView").then((m) => ({
-    default: m.BibleAndHarpView,
+  import("./components/BibleAndHarpViewRestored").then((m) => ({
+    default: m.BibleAndHarpViewRestored,
   })),
 );
 import { StoreViewRestored } from "./components/StoreViewRestored";
