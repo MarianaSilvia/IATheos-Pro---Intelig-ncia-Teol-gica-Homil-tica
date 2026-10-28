@@ -9,6 +9,19 @@ import { config } from "./config.ts";
 import crypto from "node:crypto";
 const router=Router();
 const phoneSchema=z.string().trim().transform((value)=>value.replace(/\D/g,"")).refine((value)=>/^(?:55)?[1-9][0-9]{9,10}$/.test(value),"Informe um celular válido com DDD.").transform((value)=>value.startsWith("55")?value:`55${value}`);
+async function ensureBuyerAccount(db: ReturnType<typeof serviceDatabase>, orderId: string) {
+ const order=checked(await db.from("payment_orders").select("id,lead_id").eq("id",orderId).maybeSingle()) as any;
+ if(!order) throw new HttpError(404,"Pedido não encontrado.");
+ const lead=order.lead_id?checked(await db.from("interest_leads").select("email,phone_e164").eq("id",order.lead_id).maybeSingle()) as any:null;
+ const email=String(lead?.email||"").trim().toLowerCase();
+ if(!email) throw new HttpError(400,"O pedido não possui um e-mail de acesso.");
+ const result=await db.auth.admin.createUser({email,email_confirm:true,user_metadata:{phone_e164:lead?.phone_e164||null}});
+ if(result.error&&!/already registered|already exists|duplicate/i.test(result.error.message||"")) {
+   console.error("Buyer account creation failed",result.error);
+   throw new HttpError(503,"Não foi possível preparar o acesso do comprador.");
+ }
+ return email;
+}
 router.post("/webhooks/payment",(_req,res)=>{res.status(410).json({error:"Use o webhook oficial da InfinitePay."});});
 router.get("/health",(_req,res)=>{res.json({status:"ok",backend:"supabase",paymentsEnabled:Boolean(config.infinitePayApiKey),delivery:"external-link"});});
 router.get("/public/products",asyncRoute(async(_req,res)=>{
@@ -66,6 +79,8 @@ router.post("/webhooks/infinitepay",asyncRoute(async(req,res)=>{
  if(data.status&&!["paid","settled"].includes(data.status)){res.status(200).json({ok:true,ignored:true});return;}
  const db=serviceDatabase();
  checked(await db.rpc("complete_verified_payment",{p_order_id:data.order_nsu,p_provider:"infinitepay",p_payment_id:data.transaction_nsu,p_amount_cents:data.paid_amount??data.amount}));
+ await ensureBuyerAccount(db,data.order_nsu);
+ checked(await db.rpc("reconcile_paid_order",{p_order_id:data.order_nsu}));
  res.status(200).json({ok:true});
 }));
 router.use(requireAuth);
