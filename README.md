@@ -32,6 +32,36 @@ npm run build
 
 Aplicação: http://127.0.0.1:3000. O teste SQL executa uma transação com `ROLLBACK`, sem deixar usuários ou materiais de demonstração. Os testes HTTP não dependem de conta ou cobrança real.
 
+### Vercel (backend serverless)
+
+O arquivo `api/[...path].ts` adapta o Express para uma Vercel Function Node.js. O
+frontend continua sendo o build Vite em `dist`, enquanto `/api/*` é atendido
+pela função. Não use `npm run dev` como servidor de produção na Vercel.
+
+No projeto Vercel, cadastre as variáveis abaixo em **Settings → Environment
+Variables**. Use **Production** e **Preview** conforme o ambiente; as variáveis
+secretas devem ser do tipo **Secret** e nunca devem ser prefixadas com `VITE_`.
+
+| Variável | Tipo | Uso |
+| --- | --- | --- |
+| `SUPABASE_URL` | Secret/config | URL do projeto QI Store Pro |
+| `SUPABASE_PUBLISHABLE_KEY` | Secret/config | Chave publicável usada pelo servidor |
+| `SUPABASE_SECRET_KEY` | Secret | Chave privada somente do backend |
+| `ALLOW_REMOTE_SUPABASE` | Config | `true` na Vercel |
+| `GEMINI_API_KEY` | Secret | Chave do Gemini |
+| `GEMINI_MODEL` | Config | `gemini-2.5-flash` (ou modelo escolhido) |
+| `INFINITEPAY_API_KEY` | Secret | Chave do Checkout Integrado |
+| `INFINITEPAY_HANDLE` | Config | Handle da conta InfinitePay |
+| `INFINITEPAY_WEBHOOK_SECRET` | Secret | Segredo HMAC do webhook, quando habilitado |
+| `PUBLIC_URL` | Config | `https://ia-theos-pro-intelig-ncia-teol-gica.vercel.app` |
+| `VITE_SUPABASE_URL` | Config | URL usada pelo cliente React durante o build |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Config | Chave publicável usada pelo cliente React |
+
+`HOST` e `PORT` não são necessários em Vercel Functions. Nunca copie o arquivo
+`.env` para o GitHub ou para o bundle do frontend. Depois de salvar as
+variáveis, faça um novo deploy para que o build e a função recebam a
+configuração.
+
 Para usar o projeto remoto, configurar `SUPABASE_URL` e `VITE_SUPABASE_URL` com `https://idrumlpdobiackcnhdas.supabase.co`, suas chaves publicáveis e `ALLOW_REMOTE_SUPABASE=true`. O servidor recusa outros destinos remotos. `.env` é ignorado pelo Git.
 
 ## Autenticação e primeiro administrador
