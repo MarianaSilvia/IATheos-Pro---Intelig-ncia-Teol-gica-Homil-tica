@@ -56,6 +56,7 @@ secretas devem ser do tipo **Secret** e nunca devem ser prefixadas com `VITE_`.
 | `PUBLIC_URL` | Config | `https://ia-theos-pro-intelig-ncia-teol-gica.vercel.app` |
 | `VITE_SUPABASE_URL` | Config | URL usada pelo cliente React durante o build |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | Config | Chave publicável usada pelo cliente React |
+| `VITE_PUBLIC_APP_URL` | Config | URL usada no retorno do link mágico; em produção, use o domínio público da Vercel |
 
 `HOST` e `PORT` não são necessários em Vercel Functions. Nunca copie o arquivo
 `.env` para o GitHub ou para o bundle do frontend. Depois de salvar as
