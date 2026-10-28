@@ -20,7 +20,7 @@ import {
 interface DemoItem {
   id: string;
   label: string;
-  category: 'Sermão' | 'Raio-X' | 'EBD';
+  category: 'Pregação' | 'Raio-X' | 'EBD';
   title: string;
   verseRef: string;
   badge: string;
@@ -38,7 +38,7 @@ const DEMO_PRESETS: DemoItem[] = [
   {
     id: 'sermon-hope',
     label: 'Gerar Esboço sobre Fé & Esperança',
-    category: 'Sermão',
+    category: 'Pregação',
     title: 'A Esperança Inabalável na Adversidade',
     verseRef: 'Romanos 5:3-5',
     badge: 'Homilética Expositiva',
@@ -208,7 +208,7 @@ Gerado pelo IATheos Pro`;
           </h2>
 
           <p className="text-slate-300 text-base sm:text-lg">
-            Clique nos botões abaixo para simular em tempo real a elaboração instantânea de sermões, análises exegéticas e planos de aula para a EBD.
+            Clique nos botões abaixo para simular em tempo real a elaboração instantânea de pregações, análises exegéticas e planos de aula para a EBD.
           </p>
         </div>
 
@@ -224,7 +224,7 @@ Gerado pelo IATheos Pro`;
                   : 'bg-slate-950 text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700/80'
               }`}
             >
-              {preset.category === 'Sermão' && <Mic className="w-4 h-4 text-slate-950" />}
+              {preset.category === 'Pregação' && <Mic className="w-4 h-4 text-slate-950" />}
               {preset.category === 'Raio-X' && <Languages className="w-4 h-4 text-slate-950" />}
               {preset.category === 'EBD' && <BookOpen className="w-4 h-4 text-slate-950" />}
               <span>{preset.label}</span>

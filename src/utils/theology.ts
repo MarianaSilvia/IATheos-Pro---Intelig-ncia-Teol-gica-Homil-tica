@@ -213,7 +213,7 @@ export function validateVerseXrayStructure(xray: Partial<VerseXray>): {
 export function formatSermonToMarkdown(s: SermonOutline): string {
   return `# ${s.title}
 **Texto Base:** ${s.biblicalText}
-**Tipo de Sermão:** ${s.sermonType} | **Ocasião/Público:** ${s.targetAudience}
+**Tipo de Pregação:** ${s.sermonType} | **Ocasião/Público:** ${s.targetAudience}
 
 ---
 

@@ -112,7 +112,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>Início (Painel)</span>
           </button>
 
-          {/* Tab 1: Sermons */}
+          {/* Tab 1: Pregações */}
           <button
             onClick={() => setActiveTab("sermons")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${
@@ -122,7 +122,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <Scroll className="w-4 h-4" />
-            <span>Esboços de Sermão</span>
+            <span>Esboço de Pregação</span>
           </button>
 
           {/* Tab 2: EBD */}

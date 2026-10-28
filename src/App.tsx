@@ -214,7 +214,7 @@ function Workspace({
         onOpenPulpitMode={() =>
           sermon
             ? setPulpit(true)
-            : setMessage("Gere ou abra um sermão primeiro.")
+            : setMessage("Gere ou abra uma pregação primeiro.")
         }
         savedCount={library.data.length}
         userRole={access.isAdmin ? "admin" : "buyer"}
@@ -292,7 +292,7 @@ function Workspace({
                 isLoading={busy}
               />
             ) : (
-              formOnly("Criar esboço de sermão", "sermon")
+              formOnly("Criar esboço de pregação", "sermon")
             ))}
           {tab === "ebd" &&
             (lesson ? (

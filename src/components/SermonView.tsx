@@ -101,7 +101,7 @@ export const SermonView: React.FC<SermonViewProps> = ({
               <Scroll className="w-3.5 h-3.5" /> Módulo de Homilética
             </div>
             <h1 className="text-xl sm:text-2xl font-bold font-serif text-amber-100">
-              Gerador de Esboços de Sermão
+              Gerador de Esboço de Pregação
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
               Estruturação homilética rigorosa: Tema, Texto Base, Introdução, 3
@@ -116,7 +116,7 @@ export const SermonView: React.FC<SermonViewProps> = ({
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
               <span>
-                {showConfig ? "Ocultar Parâmetros" : "Personalizar Novo Sermão"}
+                {showConfig ? "Ocultar Parâmetros" : "Personalizar Nova Pregação"}
               </span>
               {showConfig ? (
                 <ChevronUp className="w-4 h-4" />
@@ -164,7 +164,7 @@ export const SermonView: React.FC<SermonViewProps> = ({
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                  Tipo de Sermão
+                  Tipo de Pregação
                 </label>
                 <select
                   value={sermonType}

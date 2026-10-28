@@ -44,7 +44,7 @@ export function ActivitySummaryChart() {
                 <XAxis dataKey="dayLabel" />
                 <YAxis allowDecimals={false} />
                 <Tooltip />
-                <Bar name="Sermões" dataKey="sermoes" fill="#d97706" />
+                <Bar name="Pregações" dataKey="sermoes" fill="#d97706" />
                 <Bar name="EBD" dataKey="ebd" fill="#6366f1" />
                 <Bar name="Exegeses" dataKey="estudos" fill="#059669" />
               </BarChart>

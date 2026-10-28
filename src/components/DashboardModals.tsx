@@ -62,7 +62,7 @@ export function DashboardModals({
                       onNavigateToSermon(t.primaryVerses[0].reference, t.name)
                     }
                   >
-                    Preparar sermão
+                    Preparar pregação
                   </button>
                 </article>
               ))}

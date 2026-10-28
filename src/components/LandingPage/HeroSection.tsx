@@ -48,7 +48,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
           {/* Subtitle */}
           <p className="text-lg sm:text-xl text-slate-300 font-normal leading-relaxed max-w-2xl text-balance">
-            Revolucione seus esboços de sermões, aulas de EBD e estudos bíblicos com a tecnologia teológica mais avançada do mercado. Exegese dos originais em segundos.
+            Revolucione seus esboços de pregação, aulas de EBD e estudos bíblicos com a tecnologia teológica mais avançada do mercado. Exegese dos originais em segundos.
           </p>
 
           {/* Dual CTAs */}

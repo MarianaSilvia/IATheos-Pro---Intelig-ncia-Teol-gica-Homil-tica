@@ -65,7 +65,7 @@ export const SavedLibraryView: React.FC<SavedLibraryViewProps> = ({
               Caderno Ministerial & Estudos Salvos
             </h1>
             <p className="text-xs sm:text-sm text-slate-500">
-              Seu acervo pessoal de sermões, lições para EBD e exegeses bíblicas
+              Seu acervo pessoal de pregações, lições para EBD e exegeses bíblicas
               prontas para ministração.
             </p>
           </div>
@@ -114,7 +114,7 @@ export const SavedLibraryView: React.FC<SavedLibraryViewProps> = ({
                 : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
             }`}
           >
-            <Scroll className="w-3.5 h-3.5" /> Sermões
+            <Scroll className="w-3.5 h-3.5" /> Pregações
           </button>
           <button
             onClick={() => setFilter("ebd")}
@@ -147,7 +147,7 @@ export const SavedLibraryView: React.FC<SavedLibraryViewProps> = ({
             Nenhum estudo salvo nesta categoria
           </h3>
           <p className="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto">
-            Ao gerar novos sermões, lições para EBD ou análises de versículos,
+            Ao gerar novas pregações, lições para EBD ou análises de versículos,
             clique no botão "Salvar" para armazená-los em seu caderno.
           </p>
         </div>
@@ -175,7 +175,7 @@ export const SavedLibraryView: React.FC<SavedLibraryViewProps> = ({
                     )}
                     {item.type === "xray" && <Microscope className="w-3 h-3" />}
                     {item.type === "sermon"
-                      ? "Sermão"
+                      ? "Pregação"
                       : item.type === "ebd"
                         ? "Aula EBD"
                         : "Raio-X"}
