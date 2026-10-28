@@ -83,7 +83,7 @@ export function AdminPanelView({
   return (
     <div className="space-y-7">
       <h1 className="text-3xl font-serif font-bold">Administração</h1>
-      <p>Concessões manuais de acesso. Cobranças desativadas.</p>
+      <p>Gestão de assinaturas, pedidos e concessões manuais de acesso.</p>
       <p>Últimas {audit.data.length} operações administrativas registradas.</p>
       {message && (
         <p role="status" className="bg-amber-50 p-3">

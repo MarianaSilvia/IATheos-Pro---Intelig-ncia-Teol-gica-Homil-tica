@@ -28,9 +28,9 @@ export const FeaturesSection: React.FC<FeaturesSectionProps> = ({ onSelectFeatur
       title: 'Bíblia & Harpa Cristã Integradas',
       kicker: 'Escrituras & Louvor Tradicional',
       description:
-        'Leitor bíblico moderno com suporte a múltiplas traduções (ARC, NAA, NVI, KJF), controle de tamanho de fonte, cópia rápida e os 640 hinos históricos da Harpa Cristã com busca por número e estrofes.',
+        'Leitor bíblico moderno com suporte às traduções disponíveis, controle de tamanho de fonte, cópia rápida e acervo parcial da Harpa Cristã com busca por número e título.',
       icon: BookOpen,
-      highlights: ['ARC, NAA, NVI e King James Fiel', 'Todos os 640 Hinos com refrão e estrofes', 'Cópia rápida de versículos para estudo'],
+      highlights: ['ARC, NAA, NVI e KJF quando disponíveis', 'Acervo parcial identificado na tela', 'Cópia rápida de versículos para estudo'],
     },
     {
       id: 'sermons',
@@ -38,19 +38,19 @@ export const FeaturesSection: React.FC<FeaturesSectionProps> = ({ onSelectFeatur
       title: 'Criador de Esboços & Modo Púlpito',
       kicker: 'Excelência em Homilética',
       description:
-        'Estruturação expositiva completa com tema central, contexto histórico, 3 tópicos exegéticos com ilustrações do cotidiano e apelo. Acompanha o revolucionário Modo Púlpito com teleprompter em tela cheia.',
+        'Estruturação expositiva completa com tema central, contexto histórico, 3 tópicos exegéticos com ilustrações do cotidiano e apelo. Acompanha o Modo Púlpito com leitura ampliada e fonte ajustável.',
       icon: Mic,
-      highlights: ['3 Tópicos com ilustrações práticas', 'Cronômetro ministerial em tempo real', 'Exportação direta para PDF e Word'],
+      highlights: ['3 Tópicos com ilustrações práticas', 'Leitura ampliada no Modo Púlpito', 'Impressão A4 do esboço'],
     },
     {
       id: 'store',
       tabKey: 'store',
-      title: 'Biblioteca de PDFs & E-books',
+      title: 'Biblioteca de materiais',
       kicker: 'Acervo Ministerial Exclusivo',
       description:
-        'Livraria digital integrada com revistas de EBD, comentários bíblicos e manuais de pastoral adicionados periodicamente. Assinantes Pro contam com acesso liberado a todo o acervo.',
+        'Livraria digital integrada com materiais adicionados periodicamente. Os arquivos ficam em nuvem externa e o link só aparece após a verificação do acesso.',
       icon: FileText,
-      highlights: ['Leitor de PDF integrado sem sair da plataforma', 'Downloads instantâneos para computador e celular', 'Títulos inclusos no Pacote Anual'],
+      highlights: ['Capas e detalhes dos materiais', 'Links externos protegidos por autorização', 'Materiais incluídos na assinatura quando marcados'],
     },
     {
       id: 'ebd',
@@ -64,13 +64,13 @@ export const FeaturesSection: React.FC<FeaturesSectionProps> = ({ onSelectFeatur
     },
     {
       id: 'community',
-      tabKey: 'community',
-      title: 'Comunidade & Caderno Ministerial',
-      kicker: 'Compartilhamento & Nuvem Segura',
+      tabKey: 'library',
+      title: 'Caderno Ministerial',
+      kicker: 'Organização pessoal',
       description:
-        'Caderno pessoal de anotações sincronizado na nuvem (Cloud SQL e Firestore). Troque experiências e recomendações com irmãos de ministério com segurança e privacidade.',
+        'Guarde seus estudos e notas pessoais sincronizados com segurança. A comunidade compartilhada permanece fora desta versão.',
       icon: Users,
-      highlights: ['Sincronização instantânea na nuvem', 'Caderno de anotações pessoal', 'Troca sadia de insights teológicos'],
+      highlights: ['Sincronização instantânea na nuvem', 'Caderno de anotações pessoal', 'Dados isolados por usuário'],
     },
     {
       id: 'verse-xray',
