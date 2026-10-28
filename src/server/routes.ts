@@ -37,10 +37,10 @@ router.post("/purchase-interest",asyncRoute(async(req,res)=>{
 }));
 router.post("/subscription-interest",asyncRoute(async(req,res)=>{
  const data=z.object({email:z.string().trim().toLowerCase().email().max(320),planId:idSchema,consent:z.literal(true)}).strict().parse(req.body);
- if(!config.infinitePayApiKey||!config.infinitePayHandle) throw new HttpError(503,"Checkout ainda não configurado. Tente novamente mais tarde.");
  const db=serviceDatabase();
  const plan=checked(await db.from("subscription_plans").select("id,name,amount_cents,duration_days,checkout_url").eq("id",data.planId).eq("active",true).maybeSingle());
  if(!plan) throw new HttpError(404,"Plano indisponível.");
+ if(!plan.checkout_url && (!config.infinitePayApiKey || !config.infinitePayHandle)) throw new HttpError(503,"Checkout ainda não configurado. Tente novamente mais tarde.");
  const lead=checked(await db.from("interest_leads").insert({email:data.email,plan_id:data.planId,consent:true}).select("id").single());
  const order=checked(await db.from("payment_orders").insert({lead_id:lead.id,plan_id:data.planId,order_kind:"subscription",amount_cents:plan.amount_cents,currency:"BRL",provider:"infinitepay"}).select("id").single());
  let checkoutUrl=String(plan.checkout_url||"");
