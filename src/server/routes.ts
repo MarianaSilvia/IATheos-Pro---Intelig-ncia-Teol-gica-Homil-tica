@@ -75,7 +75,6 @@ router.post("/webhooks/infinitepay",asyncRoute(async(req,res)=>{
  const expected=crypto.createHmac("sha256",config.infinitePayWebhookSecret||"").update((req as any).rawBody||"").digest("hex");
  if(supplied&&config.infinitePayWebhookSecret&&(supplied.length!==expected.length||!crypto.timingSafeEqual(Buffer.from(supplied),Buffer.from(expected)))){res.status(401).json({error:"Webhook não autorizado."});return;}
  const data=z.object({order_nsu:z.string().uuid(),transaction_nsu:z.string().min(1).max(200),amount:z.coerce.number().int().nonnegative().optional(),paid_amount:z.coerce.number().int().nonnegative().optional(),invoice_slug:z.string().min(1).max(200).optional(),slug:z.string().min(1).max(200).optional(),status:z.string().optional()}).passthrough().parse(req.body);
- if(data.status === "refunded") { const db=serviceDatabase(); checked(await db.rpc("mark_payment_refunded",{p_provider:"infinitepay",p_payment_id:data.transaction_nsu})); res.status(200).json({ok:true}); return; }
  if(data.status&&!["paid","settled"].includes(data.status)){res.status(200).json({ok:true,ignored:true});return;}
  const db=serviceDatabase();
  const verification=await fetch("https://api.checkout.infinitepay.io/payment_check",{method:"POST",headers:{"X-Api-Key":config.infinitePayApiKey,"Content-Type":"application/json"},body:JSON.stringify({handle:config.infinitePayHandle,order_nsu:data.order_nsu,transaction_nsu:data.transaction_nsu,slug:data.invoice_slug||data.slug})});
