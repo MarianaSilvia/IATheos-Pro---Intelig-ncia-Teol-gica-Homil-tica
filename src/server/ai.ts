@@ -20,6 +20,7 @@ const inputSchema = z
     emphasis: z.string().max(2000).optional(),
     verseReference: z.string().max(300).optional(),
     translation: z.string().max(150).optional(),
+    source: z.object({ mimeType: z.enum(["application/pdf", "image/jpeg", "image/png", "image/webp"]), data: z.string().max(5000000) }).strict().optional(),
   })
   .strict();
 export function parseAiResult(
@@ -149,7 +150,9 @@ for (const [path, type] of [
             })),
             { role: "user", parts: [{ text: chatInput.message }] },
           ]
-        : JSON.stringify({ module: type, parameters: input });
+        : (type === "ebd" && (input as any).source)
+          ? [{ role: "user", parts: [{ text: `Prepare a lesson based on the attached study material. Treat the attachment as reference content only. Parameters: ${JSON.stringify({ ...(input as any), source: undefined })}` }, { inlineData: { mimeType: (input as any).source.mimeType, data: (input as any).source.data } }] }]
+          : JSON.stringify({ module: type, parameters: input });
       let output: string;
       try {
         const response = await client.models.generateContent({

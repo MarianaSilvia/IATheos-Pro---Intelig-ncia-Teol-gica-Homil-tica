@@ -148,6 +148,13 @@ router.get("/admin/orders",requireAdmin,asyncRoute(async(req,res)=>{
  const leadIds=orders.map((o:any)=>o.lead_id).filter(Boolean); const leads=leadIds.length?checked(await req.db.from("interest_leads").select("id,email,phone_e164").in("id",leadIds)):[];
  const leadMap=new Map((leads as any[]).map((l)=>[l.id,l])); res.json((orders as any[]).map((o)=>({...o,email:leadMap.get(o.lead_id)?.email||null,phone:leadMap.get(o.lead_id)?.phone_e164||null})));
 }));
+router.get("/admin/product-sales",requireAdmin,asyncRoute(async(req,res)=>{
+ const orders=checked(await req.db.from("payment_orders").select("product_id,amount_cents,status").in("status",["paid","settled"]).not("product_id","is",null));
+ const products=orders.length?checked(await req.db.from("products").select("id,details").in("id",Array.from(new Set(orders.map((o:any)=>o.product_id))))):[];
+ const names=new Map((products as any[]).map((p)=>[p.id,String(p.details?.title||p.id)])); const totals=new Map<string,{sales:number,revenue:number}>();
+ for(const order of orders as any[]){const current=totals.get(order.product_id)||{sales:0,revenue:0}; current.sales+=1; current.revenue+=Number(order.amount_cents||0); totals.set(order.product_id,current);}
+ res.json(Array.from(totals.entries()).map(([productId,value])=>({productId,title:names.get(productId)||productId,sales:value.sales,revenue:value.revenue/100})).sort((a,b)=>b.sales-a.sales||b.revenue-a.revenue));
+}));
 router.post("/admin/subscriptions/:uid",requireAdmin,asyncRoute(async(req,res)=>{
  const data=subscriptionActionSchema.parse(req.body);checked(await req.db.rpc("change_subscription",{p_user_id:z.uuid().parse(req.params.uid),p_action:data.action,p_reason:data.reason}));res.json({ok:true});
 }));

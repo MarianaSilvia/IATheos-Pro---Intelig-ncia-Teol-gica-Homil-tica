@@ -40,6 +40,7 @@ interface EbdViewProps {
       | "Liderança";
     lessonDuration: string;
     emphasis: string;
+    source?: { mimeType: "application/pdf" | "image/jpeg" | "image/png" | "image/webp"; data: string };
   }) => Promise<void>;
   isLoading: boolean;
 }
@@ -60,6 +61,7 @@ export const EbdView: React.FC<EbdViewProps> = ({
   const [emphasis, setEmphasis] = useState("");
   const [isCopied, setIsCopied] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
+  const [source, setSource] = useState<{ mimeType: "application/pdf" | "image/jpeg" | "image/png" | "image/webp"; data: string; name: string } | null>(null);
 
   const handleCopy = async () => {
     const md = formatEbdToMarkdown(currentLesson);
@@ -80,6 +82,7 @@ export const EbdView: React.FC<EbdViewProps> = ({
       targetAudience,
       lessonDuration,
       emphasis,
+      ...(source ? { source: { mimeType: source.mimeType, data: source.data } } : {}),
     });
   };
 
@@ -217,6 +220,13 @@ export const EbdView: React.FC<EbdViewProps> = ({
                 placeholder="Ex: Foco em aplicação prática no ambiente de trabalho ou escola..."
                 className="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
+            </div>
+
+            <div className="md:col-span-2 lg:col-span-4 rounded-xl border border-dashed border-emerald-300 bg-emerald-50/60 p-4">
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Revista ou material de apoio (opcional)</label>
+              <input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" className="block w-full text-sm" onChange={(event) => { const file = event.target.files?.[0]; if (!file) return; if (file.size > 3 * 1024 * 1024) { setSource(null); event.currentTarget.value = ""; return; } const reader = new FileReader(); reader.onload = () => { const value = String(reader.result); const comma = value.indexOf(","); if (comma > 0) setSource({ mimeType: file.type as any, data: value.slice(comma + 1), name: file.name }); }; reader.readAsDataURL(file); }} />
+              <p className="text-xs text-slate-500 mt-1">PDF ou imagem até 3 MB. O conteúdo é usado somente nesta geração e não fica público.</p>
+              {source && <p className="text-xs text-emerald-700 mt-1">Material selecionado: {source.name}</p>}
             </div>
 
             {/* Presets */}

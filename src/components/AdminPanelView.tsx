@@ -27,6 +27,7 @@ export function AdminPanelView({
   );
   const audit = useResource<any[]>("/admin/audit", []);
   const orders = useResource<any[]>("/admin/orders", []);
+  const productSales = useResource<Array<{productId:string;title:string;sales:number;revenue:number}>>("/admin/product-sales", []);
   const [adminTab, setAdminTab] = useState<"overview" | "subscribers" | "materials" | "audit">("overview");
   const [uid, setUid] = useState("");
   const [reason, setReason] = useState("");
@@ -119,7 +120,7 @@ export function AdminPanelView({
           {message}
         </p>
       )}
-      {(users.error || audit.error || orders.error) && (
+      {(users.error || audit.error || orders.error || productSales.error) && (
         <p role="alert">
           {users.error || audit.error || orders.error}{" "}
           <button
@@ -127,6 +128,7 @@ export function AdminPanelView({
               void users.reload();
                void audit.reload();
                void orders.reload();
+               void productSales.reload();
             }}
           >
             Tentar novamente
@@ -280,7 +282,7 @@ export function AdminPanelView({
           Conceder material ao usuário
         </button>
       </section>}
-      {adminTab === "materials" && <><form
+      {adminTab === "materials" && <><section className="bg-white border rounded-2xl p-6 space-y-4"><div className="flex items-center justify-between"><div><h2 className="text-xl font-bold">Desempenho dos materiais</h2><p className="text-sm text-slate-500">Vendas confirmadas pela InfinitePay, ordenadas do mais vendido para o menos vendido.</p></div><button type="button" className="text-sm underline" onClick={() => void productSales.reload()}>Atualizar</button></div>{productSales.data.length === 0 ? <p className="text-sm text-slate-500">Ainda não há vendas de materiais confirmadas.</p> : <div className="space-y-3">{productSales.data.map((item,index) => <div key={item.productId} className="flex items-center gap-3"><span className="w-8 text-center font-bold text-amber-700">{index + 1}</span><div className="flex-1"><div className="flex justify-between gap-3 text-sm"><strong>{item.title}</strong><span>{item.sales} venda{item.sales === 1 ? "" : "s"} · R$ {item.revenue.toFixed(2).replace(".", ",")}</span></div><div className="h-2 rounded-full bg-slate-100 mt-1"><div className="h-2 rounded-full bg-amber-500" style={{width:`${Math.max(8,Math.round(item.sales/(productSales.data[0]?.sales||1)*100))}%`}} /></div></div></div>)}</div>}</section><form
         className="bg-white border rounded-2xl p-6 grid sm:grid-cols-2 gap-4"
         onSubmit={(e) => {
           e.preventDefault();
