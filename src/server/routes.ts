@@ -14,6 +14,10 @@ router.get("/public/products",asyncRoute(async(_req,res)=>{
  const db=serviceDatabase(); const rows=checked(await db.from("products").select("id,details,archived,has_link").eq("archived",false).eq("has_link",true));
  res.json(rows.map((p:any)=>({id:p.id,...p.details,archived:false,hasLink:true})));
 }));
+router.get("/public/subscription-plans",asyncRoute(async(_req,res)=>{
+ const db=serviceDatabase(); const rows=checked(await db.from("subscription_plans").select("id,name,amount_cents,duration_days").eq("active",true).order("duration_days"));
+ res.json(rows.map((p:any)=>({id:p.id,name:p.name,price:p.amount_cents/100,durationDays:p.duration_days})));
+}));
 router.post("/purchase-interest",asyncRoute(async(req,res)=>{
  const data=z.object({email:z.string().trim().toLowerCase().email().max(320),productId:idSchema,consent:z.literal(true)}).strict().parse(req.body);
  if(!config.infinitePayApiKey||!config.infinitePayHandle) throw new HttpError(503,"Checkout ainda não configurado. Tente novamente mais tarde.");
@@ -24,6 +28,22 @@ router.post("/purchase-interest",asyncRoute(async(req,res)=>{
  const lead=checked(await db.from("interest_leads").insert({email:data.email,product_id:data.productId,consent:true}).select("id").single());
  const order=checked(await db.from("payment_orders").insert({product_id:data.productId,lead_id:lead.id,amount_cents:Math.round(price*100),currency:"BRL",provider:"infinitepay"}).select("id").single());
  const payload={handle:config.infinitePayHandle,order_nsu:order.id,items:[{description:String(product.details?.title||"Material IATheos Pro"),quantity:1,price:Math.round(price*100)}],webhook_url:`${config.publicUrl}/api/webhooks/infinitepay`,redirect_url:`${config.publicUrl}/?order=${order.id}`};
+ const response=await fetch("https://api.checkout.infinitepay.io/links",{method:"POST",headers:{"X-Api-Key":config.infinitePayApiKey,"Content-Type":"application/json"},body:JSON.stringify(payload)});
+ if(!response.ok) throw new HttpError(503,"Não foi possível criar o checkout.");
+ const result:any=await response.json(); const checkoutUrl=String(result.url||result.link||result.checkout_url||"");
+ if(!checkoutUrl.startsWith("https://")) throw new HttpError(503,"Resposta inválida do checkout.");
+ checked(await db.from("payment_orders").update({checkout_url:checkoutUrl}).eq("id",order.id));
+ res.status(201).json({orderId:order.id,checkoutUrl});
+}));
+router.post("/subscription-interest",asyncRoute(async(req,res)=>{
+ const data=z.object({email:z.string().trim().toLowerCase().email().max(320),planId:idSchema,consent:z.literal(true)}).strict().parse(req.body);
+ if(!config.infinitePayApiKey||!config.infinitePayHandle) throw new HttpError(503,"Checkout ainda não configurado. Tente novamente mais tarde.");
+ const db=serviceDatabase();
+ const plan=checked(await db.from("subscription_plans").select("id,name,amount_cents,duration_days").eq("id",data.planId).eq("active",true).maybeSingle());
+ if(!plan) throw new HttpError(404,"Plano indisponível.");
+ const lead=checked(await db.from("interest_leads").insert({email:data.email,plan_id:data.planId,consent:true}).select("id").single());
+ const order=checked(await db.from("payment_orders").insert({lead_id:lead.id,plan_id:data.planId,order_kind:"subscription",amount_cents:plan.amount_cents,currency:"BRL",provider:"infinitepay"}).select("id").single());
+ const payload={handle:config.infinitePayHandle,order_nsu:order.id,items:[{description:String(plan.name),quantity:1,price:plan.amount_cents}],webhook_url:`${config.publicUrl}/api/webhooks/infinitepay`,redirect_url:`${config.publicUrl}/?order=${order.id}`};
  const response=await fetch("https://api.checkout.infinitepay.io/links",{method:"POST",headers:{"X-Api-Key":config.infinitePayApiKey,"Content-Type":"application/json"},body:JSON.stringify(payload)});
  if(!response.ok) throw new HttpError(503,"Não foi possível criar o checkout.");
  const result:any=await response.json(); const checkoutUrl=String(result.url||result.link||result.checkout_url||"");

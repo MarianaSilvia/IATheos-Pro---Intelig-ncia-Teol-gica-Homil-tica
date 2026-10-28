@@ -51,7 +51,13 @@ export default function App() {
   const { session, loading, error, signingIn, loginAdmin, requestMagicLink, logout, refresh } =
     useSession();
   const [publicProducts, setPublicProducts] = useState<Array<{id:string;title:string;price:number}>>([]);
-  useEffect(() => { fetch("/api/public/products").then((r) => r.ok ? r.json() : []).then((items) => setPublicProducts(items)).catch(() => undefined); }, []);
+  const [subscriptionPlans, setSubscriptionPlans] = useState<Array<{id:string;name:string;price:number;durationDays:number}>>([]);
+  useEffect(() => {
+    void Promise.all([
+      fetch("/api/public/products").then((r) => r.ok ? r.json() : []),
+      fetch("/api/public/subscription-plans").then((r) => r.ok ? r.json() : []),
+    ]).then(([products, plans]) => { setPublicProducts(products); setSubscriptionPlans(plans); }).catch(() => undefined);
+  }, []);
   if (loading)
     return (
       <div role="status" className="p-12 text-center">
@@ -63,7 +69,9 @@ export default function App() {
       <LandingPage
         signingIn={signingIn}
         products={publicProducts}
+        plans={subscriptionPlans}
         onInterest={async (email, productId) => { const response = await fetch("/api/purchase-interest", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, productId, consent: true }) }); const body = await response.json().catch(() => ({})); if (!response.ok) throw new Error(body.error || "Não foi possível iniciar o pedido."); if (body.checkoutUrl) window.location.assign(body.checkoutUrl); }}
+        onSubscriptionInterest={async (email, planId) => { const response = await fetch("/api/subscription-interest", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, planId, consent: true }) }); const body = await response.json().catch(() => ({})); if (!response.ok) throw new Error(body.error || "Não foi possível iniciar a assinatura."); if (body.checkoutUrl) window.location.assign(body.checkoutUrl); }}
         onLogin={async (email, password, mode) => { if (mode === "admin") await loginAdmin(email, password); else await requestMagicLink(email); }}
         error={error}
         onRetry={() => void refresh()}

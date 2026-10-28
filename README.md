@@ -6,7 +6,7 @@ Aplicação React/Express de estudo bíblico. Código no GitHub; autenticação 
 
 Os arquivos ficam em uma nuvem externa. O administrador cadastra um **link HTTPS**; nenhum PDF é enviado ou armazenado no Supabase. O catálogo não contém o endereço. A API confere sessão, concessão individual ou benefício de assinatura e só então libera o link. Arquivamento impede novas concessões e preserva direitos anteriores.
 
-**Pagamentos:** o fluxo está preparado para o Checkout Integrado da InfinitePay. As chaves são somente de servidor e o webhook exige HMAC, valida o pedido/valor e é idempotente. A aprovação administrativa continua necessária antes da liberação do link do Google Drive.
+**Pagamentos:** o fluxo usa o Checkout Integrado da InfinitePay. Os planos iniciais são **mensal por R$ 10,00 (30 dias)** e **anual por R$ 100,00 (365 dias)**. Após um webhook válido (`paid`/`settled`), o pagamento é confirmado de forma idempotente e a assinatura é ativada automaticamente para o e-mail cadastrado. As chaves ficam somente no servidor; o valor nunca é aceito do navegador.
 
 Um link externo estático pode ser compartilhado depois de revelado. Expiração e proteção do arquivo dependem da nuvem externa: quando ela for escolhida, integrar URLs temporárias ou sua API de acesso. Não cadastrar URLs assinadas que expirem como links permanentes de produtos. O sistema não consegue garantir disponibilidade nem forçar download de arquivos controlados por terceiros.
 
