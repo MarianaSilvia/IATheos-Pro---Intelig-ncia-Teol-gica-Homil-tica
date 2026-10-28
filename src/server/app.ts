@@ -5,7 +5,7 @@ import { handleError } from "./http.ts";
 export function createApp() {
   const app = express();
   app.disable("x-powered-by");
-  app.use(express.json({ limit: "256kb" }));
+  app.use(express.json({ limit: "256kb", verify: (req, _res, buffer) => { (req as any).rawBody = Buffer.from(buffer); } }));
   app.use("/api/theology", aiRoutes);
   app.use("/api", routes);
   app.use("/api", (_req, res) => {

@@ -1,7 +1,7 @@
 import { authClient } from "./supabase";
 export async function api<T=any>(path:string,options:RequestInit={}):Promise<T>{
  const client=authClient();const {data,error}=await client.auth.getSession();
- if(error||!data.session)throw new Error("Entre com sua conta Google.");
+ if(error||!data.session)throw new Error("Entre com seu e-mail para continuar.");
  const uid=data.session.user.id;
  const headers=new Headers(options.headers);headers.set("Authorization",`Bearer ${data.session.access_token}`);
  if(options.body&&!headers.has("Content-Type"))headers.set("Content-Type","application/json");

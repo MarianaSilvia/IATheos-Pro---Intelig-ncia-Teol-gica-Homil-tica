@@ -4,9 +4,45 @@ import { asyncRoute, requireAuth, requireAdmin, HttpError, checked } from "./htt
 import { sessionFor, subscriptionData } from "./services.ts";
 import { generatedSchemas, idSchema, noteSchema, productSchema, studyType, subscriptionActionSchema, externalLinkSchema } from "../shared/contracts.ts";
 import { BIBLE_BOOKS } from "../utils/bibleProgress.ts";
+import { serviceDatabase } from "./supabase.ts";
+import { config } from "./config.ts";
+import crypto from "node:crypto";
 const router=Router();
-router.post("/webhooks/payment",(_req,res)=>{res.status(410).json({error:"Cobrança desativada. Nenhum acesso foi concedido."});});
-router.get("/health",(_req,res)=>{res.json({status:"ok",backend:"supabase",paymentsEnabled:false,delivery:"external-link"});});
+router.post("/webhooks/payment",(_req,res)=>{res.status(410).json({error:"Use o webhook oficial da InfinitePay."});});
+router.get("/health",(_req,res)=>{res.json({status:"ok",backend:"supabase",paymentsEnabled:Boolean(config.infinitePayApiKey),delivery:"external-link"});});
+router.get("/public/products",asyncRoute(async(_req,res)=>{
+ const db=serviceDatabase(); const rows=checked(await db.from("products").select("id,details,archived,has_link").eq("archived",false).eq("has_link",true));
+ res.json(rows.map((p:any)=>({id:p.id,...p.details,archived:false,hasLink:true})));
+}));
+router.post("/purchase-interest",asyncRoute(async(req,res)=>{
+ const data=z.object({email:z.string().trim().toLowerCase().email().max(320),productId:idSchema,consent:z.literal(true)}).strict().parse(req.body);
+ if(!config.infinitePayApiKey||!config.infinitePayHandle) throw new HttpError(503,"Checkout ainda não configurado. Tente novamente mais tarde.");
+ const db=serviceDatabase();
+ const product=checked(await db.from("products").select("id,details,archived,has_link").eq("id",data.productId).maybeSingle());
+ if(!product||product.archived||!product.has_link) throw new HttpError(404,"Material indisponível.");
+ const price=Number(product.details?.price); if(!Number.isFinite(price)||price<=0) throw new HttpError(400,"Este material não requer pagamento.");
+ const lead=checked(await db.from("interest_leads").insert({email:data.email,product_id:data.productId,consent:true}).select("id").single());
+ const order=checked(await db.from("payment_orders").insert({product_id:data.productId,lead_id:lead.id,amount_cents:Math.round(price*100),currency:"BRL",provider:"infinitepay"}).select("id").single());
+ const payload={handle:config.infinitePayHandle,order_nsu:order.id,items:[{description:String(product.details?.title||"Material IATheos Pro"),quantity:1,price:Math.round(price*100)}],webhook_url:`${config.publicUrl}/api/webhooks/infinitepay`,redirect_url:`${config.publicUrl}/?order=${order.id}`};
+ const response=await fetch("https://api.checkout.infinitepay.io/links",{method:"POST",headers:{"X-Api-Key":config.infinitePayApiKey,"Content-Type":"application/json"},body:JSON.stringify(payload)});
+ if(!response.ok) throw new HttpError(503,"Não foi possível criar o checkout.");
+ const result:any=await response.json(); const checkoutUrl=String(result.url||result.link||result.checkout_url||"");
+ if(!checkoutUrl.startsWith("https://")) throw new HttpError(503,"Resposta inválida do checkout.");
+ checked(await db.from("payment_orders").update({checkout_url:checkoutUrl}).eq("id",order.id));
+ res.status(201).json({orderId:order.id,checkoutUrl});
+}));
+router.post("/webhooks/infinitepay",asyncRoute(async(req,res)=>{
+ if(!config.infinitePayWebhookSecret){res.status(503).json({error:"Webhook não configurado."});return;}
+ const supplied=String(req.header("x-infinitepay-signature")||"");
+ const expected=crypto.createHmac("sha256",config.infinitePayWebhookSecret).update((req as any).rawBody||"").digest("hex");
+ if(!supplied||supplied.length!==expected.length||!crypto.timingSafeEqual(Buffer.from(supplied),Buffer.from(expected))){res.status(401).json({error:"Webhook não autorizado."});return;}
+ const data=z.object({order_nsu:z.string().uuid(),transaction_nsu:z.string().min(1).max(200),amount:z.coerce.number().int().nonnegative(),paid_amount:z.coerce.number().int().nonnegative().optional(),status:z.string().optional()}).passthrough().parse(req.body);
+ if(data.status === "refunded") { const db=serviceDatabase(); checked(await db.rpc("mark_payment_refunded",{p_provider:"infinitepay",p_payment_id:data.transaction_nsu})); res.status(200).json({ok:true}); return; }
+ if(data.status&&!["paid","settled"].includes(data.status)){res.status(200).json({ok:true,ignored:true});return;}
+ const db=serviceDatabase();
+ checked(await db.rpc("complete_verified_payment",{p_order_id:data.order_nsu,p_provider:"infinitepay",p_payment_id:data.transaction_nsu,p_amount_cents:data.paid_amount??data.amount}));
+ res.status(200).json({ok:true});
+}));
 router.use(requireAuth);
 router.get("/session",asyncRoute(async(req,res)=>{res.json(await sessionFor(req.db,req.user));}));
 router.post("/users/sync",asyncRoute(async(req,res)=>{checked(await req.db.rpc("sync_profile"));res.json(await sessionFor(req.db,req.user));}));
@@ -68,6 +104,11 @@ router.get("/admin/users",requireAdmin,asyncRoute(async(req,res)=>{
  const page=z.coerce.number().int().min(0).max(100000).parse(req.query.pageToken||0);
  const rows=checked(await req.db.from("profiles").select("user_id,email,display_name").order("user_id").range(page,page+99));
  const subs=checked(await req.db.from("subscriptions").select("*"));res.json({users:rows.map(u=>({uid:u.user_id,email:u.email,displayName:u.display_name,subscription:subscriptionData(subs.find(s=>s.user_id===u.user_id))})),pageToken:rows.length===100?String(page+100):null});
+}));
+router.get("/admin/orders",requireAdmin,asyncRoute(async(req,res)=>{
+ const orders=checked(await req.db.from("payment_orders").select("id,user_id,product_id,amount_cents,currency,status,provider,provider_payment_id,created_at,paid_at,refunded_at,lead_id").order("created_at",{ascending:false}).limit(200));
+ const leadIds=orders.map((o:any)=>o.lead_id).filter(Boolean); const leads=leadIds.length?checked(await req.db.from("interest_leads").select("id,email").in("id",leadIds)):[];
+ const emails=new Map((leads as any[]).map((l)=>[l.id,l.email])); res.json((orders as any[]).map((o)=>({...o,email:emails.get(o.lead_id)||null})));
 }));
 router.post("/admin/subscriptions/:uid",requireAdmin,asyncRoute(async(req,res)=>{
  const data=subscriptionActionSchema.parse(req.body);checked(await req.db.rpc("change_subscription",{p_user_id:z.uuid().parse(req.params.uid),p_action:data.action,p_reason:data.reason}));res.json({ok:true});

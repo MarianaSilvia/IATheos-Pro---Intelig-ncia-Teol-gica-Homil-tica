@@ -6,7 +6,7 @@ Aplicação React/Express de estudo bíblico. Código no GitHub; autenticação 
 
 Os arquivos ficam em uma nuvem externa. O administrador cadastra um **link HTTPS**; nenhum PDF é enviado ou armazenado no Supabase. O catálogo não contém o endereço. A API confere sessão, concessão individual ou benefício de assinatura e só então libera o link. Arquivamento impede novas concessões e preserva direitos anteriores.
 
-**Cobrança desativada:** o provedor ainda não foi escolhido. O webhook antigo retorna 410 e não concede acesso. `complete_verified_payment` é uma rotina exclusiva de servidor, preparada para um futuro adaptador que confira o pagamento no provedor. Nenhum valor informado pelo navegador confirma pagamento. A rotina confere o valor do pedido, vincula o pagamento uma única vez e concede o material na mesma transação. Não há checkout real nem promessa de liberação por pagamento nesta fase.
+**Pagamentos:** o fluxo está preparado para o Checkout Integrado da InfinitePay. As chaves são somente de servidor e o webhook exige HMAC, valida o pedido/valor e é idempotente. A aprovação administrativa continua necessária antes da liberação do link do Google Drive.
 
 Um link externo estático pode ser compartilhado depois de revelado. Expiração e proteção do arquivo dependem da nuvem externa: quando ela for escolhida, integrar URLs temporárias ou sua API de acesso. Não cadastrar URLs assinadas que expirem como links permanentes de produtos. O sistema não consegue garantir disponibilidade nem forçar download de arquivos controlados por terceiros.
 
@@ -34,9 +34,9 @@ Aplicação: http://127.0.0.1:3000. O teste SQL executa uma transação com `ROL
 
 Para usar o projeto remoto, configurar `SUPABASE_URL` e `VITE_SUPABASE_URL` com `https://idrumlpdobiackcnhdas.supabase.co`, suas chaves publicáveis e `ALLOW_REMOTE_SUPABASE=true`. O servidor recusa outros destinos remotos. `.env` é ignorado pelo Git.
 
-## Login Google e primeiro administrador
+## Autenticação e primeiro administrador
 
-No painel Supabase, ativar Google em Authentication → Sign In / Providers, com Client ID e Client Secret do Google Cloud. O callback a autorizar no Google é `https://idrumlpdobiackcnhdas.supabase.co/auth/v1/callback`. Em URL Configuration, cadastrar `http://127.0.0.1:3000` e `http://localhost:3000` como redirects locais. O cliente usa OAuth com PKCE. Nunca enviar segredos pelo chat ou ao GitHub.
+O administrador usa e-mail e senha. Compradores usam link mágico e só conseguem solicitar o link depois de aprovados. No Supabase, configure SMTP próprio e cadastre a URL pública e os redirects exatos. O Google OAuth permanece desativado.
 
 Após um usuário entrar, o perfil é criado por `sync_profile`. Para conceder a primeira administração, configurar uma chave privada Supabase apenas em `SUPABASE_SECRET_KEY` e executar:
 

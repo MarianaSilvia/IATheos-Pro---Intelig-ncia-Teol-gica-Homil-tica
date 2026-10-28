@@ -164,7 +164,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>Bíblia & Harpa Cristã</span>
           </button>
 
-          {/* Tab 5: Store (PDFs & E-books) */}
+          {/* Tab 5: Store (materiais digitais) */}
           <button
             onClick={() => setActiveTab("store")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${
@@ -174,7 +174,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <ShoppingBag className="w-4 h-4" />
-            <span>Loja de PDFs & Livros</span>
+            <span>Loja de materiais</span>
           </button>
 
           {/* Tab 6: Freeform Chat */}

@@ -25,10 +25,10 @@ export function useSession(){
   });
   return()=>{version.current++;data.subscription.unsubscribe();};
  },[]);
+ const runAuth=async (work:()=>Promise<{error:any}>)=>{if(loginInFlight.current)return false;loginInFlight.current=true;setSigningIn(true);setError("");try{const {error}=await work();if(error)throw error;return true;}catch(e){setError((e as Error).message);return false;}finally{loginInFlight.current=false;setSigningIn(false);}};
  return {session,loading,error,signingIn,refresh,
-  login:async()=>{if(loginInFlight.current)return;loginInFlight.current=true;setSigningIn(true);setError("");try{
-   const {error}=await authClient().auth.signInWithOAuth({provider:"google",options:{redirectTo:window.location.origin}});if(error)throw error;
-  }catch(e){setError((e as Error).message);}finally{loginInFlight.current=false;setSigningIn(false);}},
+  loginAdmin:async(email:string,password:string)=>runAuth(()=>authClient().auth.signInWithPassword({email,password})),
+  requestMagicLink:async(email:string)=>runAuth(()=>authClient().auth.signInWithOtp({email,options:{shouldCreateUser:false,emailRedirectTo:window.location.origin}})),
   logout:async()=>{version.current++;setSession(null);identity.current=null;try{const {error}=await authClient().auth.signOut();if(error)throw error;}catch(e){setError((e as Error).message);}}
  };
 }

@@ -14,9 +14,9 @@ if (process.env.NODE_ENV !== "production") {
   app.use(express.static(path.resolve("dist")));
   app.get("*", (_req, res) => res.sendFile(path.resolve("dist/index.html")));
 }
-const server = app.listen(config.port, "127.0.0.1", () =>
+const server = app.listen(config.port, config.host, () =>
   console.log(
-    `QI Store Pro: http://localhost:${config.port} (Supabase ${config.local ? "local" : "remoto"})`,
+    `QI Store Pro: http://${config.host}:${config.port} (Supabase ${config.local ? "local" : "remoto"})`,
   ),
 );
 process.on("SIGTERM", () => server.close());
