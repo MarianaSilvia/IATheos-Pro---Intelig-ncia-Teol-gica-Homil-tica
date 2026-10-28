@@ -25,7 +25,7 @@ export function useSession(){
   });
   return()=>{version.current++;data.subscription.unsubscribe();};
  },[]);
- const runAuth=async (work:()=>Promise<{error:any}>)=>{if(loginInFlight.current)return false;loginInFlight.current=true;setSigningIn(true);setError("");try{const {error}=await work();if(error)throw error;return true;}catch(e){setError((e as Error).message);return false;}finally{loginInFlight.current=false;setSigningIn(false);}};
+ const runAuth=async (work:()=>Promise<{error:any}>)=>{if(loginInFlight.current)return false;loginInFlight.current=true;setSigningIn(true);setError("");try{const {error}=await work();if(error)throw error;return true;}catch(e){const message=(e as Error).message;setError(message);throw new Error(message);}finally{loginInFlight.current=false;setSigningIn(false);}};
  return {session,loading,error,signingIn,refresh,
   loginAdmin:async(email:string,password:string)=>runAuth(()=>authClient().auth.signInWithPassword({email,password})),
   requestMagicLink:async(email:string)=>runAuth(()=>authClient().auth.signInWithOtp({email,options:{shouldCreateUser:false,emailRedirectTo:window.location.origin}})),
