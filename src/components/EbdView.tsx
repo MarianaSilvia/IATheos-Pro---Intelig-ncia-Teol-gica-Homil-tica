@@ -378,6 +378,9 @@ export const EbdView: React.FC<EbdViewProps> = ({
             </div>
           </section>
 
+          {currentLesson.teachingSummary && <section className="p-5 rounded-2xl bg-sky-50 border border-sky-200"><h3 className="font-bold text-sky-900 uppercase tracking-wide text-sm mb-2">Resumo do material</h3><p className="text-sm text-slate-700 leading-relaxed">{currentLesson.teachingSummary}</p></section>}
+          {currentLesson.mindMap && <section className="p-5 rounded-2xl bg-violet-50 border border-violet-200"><h3 className="font-bold text-violet-900 uppercase tracking-wide text-sm mb-3">Mapa mental da aula</h3><p className="font-bold text-violet-950 mb-3">{currentLesson.mindMap.root}</p><div className="grid sm:grid-cols-2 gap-3">{currentLesson.mindMap.branches.map((branch) => <div key={branch.title} className="bg-white/70 rounded-xl p-3"><strong className="text-sm text-violet-900">{branch.title}</strong><ul className="list-disc pl-5 mt-1 text-sm text-slate-700">{branch.points.map((point) => <li key={point}>{point}</li>)}</ul></div>)}</div></section>}
+
           {/* INTRODUÇÃO / QUEBRA-GELO */}
           <section className="space-y-4">
             <div className="flex items-center gap-2 pb-2 border-b-2 border-emerald-600/40">

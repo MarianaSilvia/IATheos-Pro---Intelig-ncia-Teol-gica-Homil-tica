@@ -64,6 +64,8 @@ export interface EbdLesson {
     coreTakeaway: string;
     weeklyChallenge: string;
   };
+  teachingSummary?: string;
+  mindMap?: { root: string; branches: Array<{ title: string; points: string[] }> };
   createdAt: string;
 }
 
@@ -258,6 +260,8 @@ export function formatEbdToMarkdown(l: EbdLesson): string {
 ## 🎯 OBJETIVO DA AULA
 ${l.lessonObjective}
 
+${l.teachingSummary ? `---\n\n## RESUMO DA REVISTA\n${l.teachingSummary}\n` : ""}
+
 ---
 
 ## 🧊 INTRODUÇÃO / QUEBRA-GELO
@@ -286,6 +290,8 @@ ${l.discussionQuestions.map((q, idx) => `${idx + 1}. ${q}`).join("\n")}
 ## 💡 CONCLUSÃO PRÁTICA
 - **Ponto Central:** ${l.practicalConclusion.coreTakeaway}
 - **Desafio Semanal:** ${l.practicalConclusion.weeklyChallenge}
+
+${l.mindMap ? `---\n\n## MAPA MENTAL\n**${l.mindMap.root}**\n${l.mindMap.branches.map((branch) => `- ${branch.title}\n${branch.points.map((point) => `  - ${point}`).join("\\n")}`).join("\\n")}` : ""}
 `;
 }
 

@@ -66,6 +66,11 @@ export const ebdSchema = section({
     coreTakeaway: text(),
     weeklyChallenge: text(),
   }),
+  teachingSummary: text().optional(),
+  mindMap: section({
+    root: text(300),
+    branches: z.array(section({ title: text(300), points: z.array(text(500)).min(1).max(12) })).min(1).max(12),
+  }).optional(),
 });
 export const xraySchema = section({
   verseReference: text(300),
