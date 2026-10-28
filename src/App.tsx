@@ -28,7 +28,7 @@ const BibleAndHarpView = lazy(() =>
     default: m.BibleAndHarpView,
   })),
 );
-import { StoreView } from "./components/StoreView";
+import { StoreViewRestored } from "./components/StoreViewRestored";
 const AdminPanelView = lazy(() =>
   import("./components/AdminPanelView").then((m) => ({
     default: m.AdminPanelView,
@@ -325,7 +325,7 @@ function Workspace({
             />
           )}
           {tab === "store" && (
-            <StoreView
+            <StoreViewRestored
               products={catalog.data}
               isProSubscriber={access.isProSubscriber}
               onOpenPdfReader={setReader}
