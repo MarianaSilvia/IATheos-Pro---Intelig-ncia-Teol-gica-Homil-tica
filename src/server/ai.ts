@@ -4,8 +4,8 @@ import { z } from "zod";
 import { randomUUID } from "node:crypto";
 import { config } from "./config.ts";
 import { requireAuth, asyncRoute, HttpError } from "./http.ts";
-import { requirePro, takeAiSlot, stamp } from "./services.ts";
-import { firestore } from "./firebase.ts";
+import { requirePro, takeAiSlot } from "./services.ts";
+import { checked } from "./http.ts";
 import { generatedSchemas } from "../shared/contracts.ts";
 const router = Router();
 router.use(requireAuth);
@@ -46,7 +46,7 @@ for (const [path, type] of [
   router.post(
     `/${path}`,
     asyncRoute(async (req, res) => {
-      await requirePro(req.user);
+      await requirePro(req.db, req.user);
       if (!config.apiKey || config.apiKey === "MY_GEMINI_API_KEY")
         throw new HttpError(
           503,
@@ -82,7 +82,8 @@ for (const [path, type] of [
           400,
           "Informe um texto bíblico, tema ou versículo.",
         );
-      await takeAiSlot(req.user.uid);
+      if (!config.secretKey) throw new HttpError(503, "Configure a chave privada do servidor para registrar gerações reais.");
+      await takeAiSlot(req.db);
       const client = new GoogleGenAI({ apiKey: config.apiKey });
       const chatInput = input as any;
       const contents = chat
@@ -131,9 +132,7 @@ for (const [path, type] of [
             id: randomUUID(),
             createdAt: new Date().toISOString(),
           };
-      await firestore
-        .collection(`users/${req.user.uid}/events`)
-        .add({ type: chat ? "chat" : type, createdAt: stamp() });
+      checked(await req.db.from("generation_events").insert({user_id:req.user.uid,type:chat?"chat":type}));
       res.json(result);
     }),
   );

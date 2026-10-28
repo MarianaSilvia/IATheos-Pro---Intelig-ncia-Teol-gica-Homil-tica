@@ -104,6 +104,10 @@ export const generatedSchemas = {
   ebd: ebdSchema,
   xray: xraySchema,
 };
+export const externalLinkSchema = z.url().max(4096).refine((value) => {
+  const url = new URL(value);
+  return url.protocol === "https:" && !url.username && !url.password && !["localhost","127.0.0.1","[::1]"].includes(url.hostname);
+}, "Use um link HTTPS externo, sem usuário ou senha.");
 export const idSchema = z.string().regex(/^[A-Za-z0-9_-]{1,128}$/);
 export const productSchema = section({
   title: text(300),

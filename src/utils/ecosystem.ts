@@ -7,7 +7,7 @@ export type UserRole = "buyer" | "admin";
 
 export interface DigitalProduct {
   archived?: boolean;
-  hasFile?: boolean;
+  hasLink?: boolean;
   owned?: boolean;
   id: string;
   title: string;

@@ -14,7 +14,7 @@ export function StoreView({
     <div className="space-y-6">
       <h1 className="text-3xl font-serif font-bold">Biblioteca de materiais</h1>
       <p>
-        A cobrança está desativada. Materiais pagos podem ser concedidos pelo
+        Os arquivos ficam em uma nuvem externa. A cobrança está desativada; o acesso pode ser concedido pelo
         administrador.
       </p>
       <label className="block">
@@ -56,12 +56,12 @@ export function StoreView({
                 <p className="text-sm text-slate-600">{p.description}</p>
                 {p.archived && <p>Arquivado · acesso previamente concedido</p>}
                 <button
-                  disabled={!allowed || !p.hasFile}
+                  disabled={!allowed || !p.hasLink}
                   className="bg-amber-600 text-white p-3 rounded-xl disabled:bg-slate-300"
                   onClick={() => onOpenPdfReader(p)}
                 >
                   {allowed
-                    ? "Ler / baixar PDF"
+                    ? "Acessar download"
                     : "Solicitar acesso ao administrador"}
                 </button>
               </article>

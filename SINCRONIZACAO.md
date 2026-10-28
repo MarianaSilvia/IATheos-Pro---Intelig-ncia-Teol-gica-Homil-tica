@@ -1,39 +1,13 @@
-# Sincronização — IATheos Pro
+# Sincronização
 
-Data: 27/10/2026. Base do levantamento: 17a08d216ae8b696ffedb7f1c405885f332635d3.
+GitHub continua sendo a fonte do código. Supabase QI Store Pro (`idrumlpdobiackcnhdas`) é o único destino atual das migrações.
 
-## Código
+1. Verificar branch e alterações remotas, sem force-push.
+2. Executar TypeScript, testes relevantes e build.
+3. Conferir alvo Supabase e criar migrações pela CLI. Não editar uma migração já aplicada.
+4. Aplicar migrações e verificar resultados, políticas RLS e advisors. Não enviar fixtures permanentes.
+5. Salvar código, SQL e documentação no GitHub. Não enviar `.env`, chaves privadas, tokens ou cache local.
 
-Repositório de destino: https://github.com/MarianaSilvia/IATheos-Pro---Intelig-ncia-Teol-gica-Homil-tica, branch main.
+A CLI pode ser vinculada com `supabase link --project-ref idrumlpdobiackcnhdas`, após login próprio. Conferir as opções com `--help` antes de sincronizar. Não usar reset remoto. Arquivos de migração têm versões alinhadas ao histórico real do projeto; sincronização não deve reaplicar essas versões.
 
-Esta entrega reúne a reestruturação Firebase, testes, documentação, relatório de análise inicial e inventário dos arquivos. O commit desta entrega é o registro da sincronização de código. Não inclui segredos, dados dos emuladores, binários, node_modules ou o build gerado.
-
-## Firestore — atualizado e conferido
-
-- Projeto: possible-zephyr-zxctm (número 616747257260).
-- Banco: ai-studio-iatheosprointeli-6684e688-953f-4a8e-817e-4611e2daeff1.
-- Edição: ENTERPRISE; modo: FIRESTORE_NATIVE; região: us-east1.
-- Regras publicadas: projects/possible-zephyr-zxctm/rulesets/925b6055-e4c2-4e54-a45a-c129f6a095d1.
-- Versão anterior preservada: projects/possible-zephyr-zxctm/rulesets/42b7c193-8ea7-4f48-9ebc-cec2e386a769.
-- Cinco índices densos confirmados em estado READY: studies(updatedAt DESC), studies(type ASC, updatedAt DESC), notes(updatedAt DESC), events(createdAt ASC) e adminAudit(createdAt DESC).
-- Validação remota: regras idênticas ao arquivo local, cinco índices existentes e zero índices pendentes de criação.
-- O banco do Ecclesia foi preservado. Nenhum documento de usuário foi migrado, criado ou excluído na sincronização.
-
-Os arquivos de regras foram validados pelo serviço Firebase Rules antes da publicação. Há cópia local da configuração anterior em .emulator-data/cloud-backups/, ignorada pelo Git.
-
-## Storage — pendência externa
-
-O bucket possible-zephyr-zxctm.firebasestorage.app ainda não existe. O Console do Firebase confirmou que Storage não está disponível no projeto nível Starter do AI Studio e exige upgrade. O bucket Cloud Run de código-fonte já existente não foi alterado.
-
-storage.rules permanece versionado e testado nos emuladores. Sua aplicação e a criação do bucket dependem da liberação do produto no projeto. Não foi alterado faturamento, contratado plano ou criado bucket alternativo.
-
-## Verificações e limites
-
-- Etapa local: instalação limpa, TypeScript, build, 23 testes unitários e 8 testes/subtestes de integração aprovados; npm audit sem vulnerabilidades reportadas.
-- Sincronização: banco e edição conferidos, regras compiladas e versão ativa confirmada, cinco índices READY, execução de firebase:check reconhecendo zero mudanças Firestore pendentes.
-- Não foi publicado site ou backend em hospedagem. O código fica no GitHub; os arquivos React/Express não são armazenados como documentos Firestore.
-- OAuth Google real, Gemini real e execução remota do backend continuam fora da validação de runtime desta fase.
-
-## Próximas alterações
-
-Concluir a implementação, executar as verificações pertinentes, verificar concorrência no GitHub e sincronizar o código. Aplicar somente configurações Firebase afetadas, com o destino explícito e sem remover recursos de outras aplicações. Informar impedimentos reais em vez de declarar uma sincronização completa quando houver pendência.
+As ferramentas conectadas foram usadas para criar o projeto e aplicar/validar as migrações desta entrega. Não há credencial da conta Supabase embutida em scripts. O Firebase anterior é histórico e não recebe as novas atualizações. Não publicar frontend/backend, modificar faturamento ou excluir projetos ao sincronizar.

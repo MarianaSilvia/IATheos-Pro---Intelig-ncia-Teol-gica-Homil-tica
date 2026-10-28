@@ -16,7 +16,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 const server = app.listen(config.port, "127.0.0.1", () =>
   console.log(
-    `IATheos Pro: http://localhost:${config.port} (Firebase ${config.local ? "emulators" : "remote"})`,
+    `QI Store Pro: http://localhost:${config.port} (Supabase ${config.local ? "local" : "remoto"})`,
   ),
 );
 process.on("SIGTERM", () => server.close());

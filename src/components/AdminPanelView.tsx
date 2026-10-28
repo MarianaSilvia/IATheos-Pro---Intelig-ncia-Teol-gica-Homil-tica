@@ -31,7 +31,7 @@ export function AdminPanelView({
   const [productId, setProductId] = useState("");
   const [form, setForm] = useState<ProductInput>(blank);
   const [editId, setEditId] = useState("");
-  const [file, setFile] = useState<File | null>(null);
+  const [downloadUrl, setDownloadUrl] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const run = async (fn: () => Promise<void>) => {
@@ -57,9 +57,9 @@ export function AdminPanelView({
       });
       await Promise.all([users.reload(), audit.reload()]);
     });
-  const edit = (p: DigitalProduct) => {
+  const edit = (p: DigitalProduct) => void run(async () => {
     setEditId(p.id);
-    setFile(null);
+    setDownloadUrl("");
     setForm({
       title: p.title,
       author: p.author,
@@ -71,44 +71,13 @@ export function AdminPanelView({
       coverImage: p.coverImage,
       archived: !!p.archived,
     });
-  };
+    const data=await api<{url:string}>("/admin/products/"+p.id+"/link");
+    setDownloadUrl(data.url);
+  });
   const save = async () => {
-    let id = editId;
-    if (
-      file &&
-      (file.type !== "application/pdf" || file.size > 25 * 1024 * 1024)
-    )
-      throw new Error("Escolha um PDF de até 25 MB.");
-    if (!id) {
-      if (!file) throw new Error("Anexe o PDF do novo material.");
-      const created = await api<{ id: string }>("/products", {
-        method: "POST",
-        body: JSON.stringify(form),
-      });
-      id = created.id;
-      setEditId(id);
-    } else
-      await api("/products/" + id, {
-        method: "PATCH",
-        body: JSON.stringify({
-          ...form,
-          archived: file ? true : form.archived,
-        }),
-      });
-    if (file)
-      await api("/products/" + id + "/pdf", {
-        method: "PUT",
-        headers: { "Content-Type": "application/pdf" },
-        body: file,
-      });
-    await api("/products/" + id, {
-      method: "PATCH",
-      body: JSON.stringify({ archived: form.archived }),
-    });
-    await onRefresh();
-    setEditId("");
-    setForm(blank);
-    setFile(null);
+    const payload={...form,downloadUrl};
+    await api(editId?"/products/"+editId:"/products",{method:editId?"PATCH":"POST",body:JSON.stringify(payload)});
+    await onRefresh();setEditId("");setForm(blank);setDownloadUrl("");
   };
   return (
     <div className="space-y-7">
@@ -214,7 +183,7 @@ export function AdminPanelView({
           >
             <option value="">Selecione</option>
             {products
-              .filter((p) => !p.archived && p.hasFile)
+              .filter((p) => !p.archived && p.hasLink)
               .map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.title}
@@ -318,14 +287,8 @@ export function AdminPanelView({
           />
         </label>
         <label>
-          PDF (até 25 MB)
-          <input
-            key={editId || "new"}
-            className="block"
-            type="file"
-            accept="application/pdf"
-            onChange={(e) => setFile(e.target.files?.[0] || null)}
-          />
+          Link HTTPS de download (nuvem externa)
+          <input className="block border p-3 w-full" type="url" required maxLength={4096} value={downloadUrl} onChange={e=>setDownloadUrl(e.target.value)} />
         </label>
         <label>
           <input
@@ -356,7 +319,7 @@ export function AdminPanelView({
           onClick={() => {
             setEditId("");
             setForm(blank);
-            setFile(null);
+            setDownloadUrl("");
           }}
         >
           Novo cadastro
@@ -371,7 +334,7 @@ export function AdminPanelView({
           >
             <span>
               {p.title} · {p.archived ? "Arquivado" : "Disponível"} ·{" "}
-              {p.hasFile ? "PDF anexado" : "Sem PDF"}
+              {p.hasLink ? "Link cadastrado" : "Sem link"}
             </span>
             <div className="flex gap-4">
               <button className="underline" onClick={() => edit(p)}>

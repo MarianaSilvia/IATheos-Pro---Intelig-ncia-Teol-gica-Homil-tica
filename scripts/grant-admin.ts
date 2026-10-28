@@ -1,12 +1,9 @@
 import { config } from "../src/server/config.ts";
-import { adminAuth } from "../src/server/firebase.ts";
-const uid = process.argv[2];
-if (!uid || !/^[A-Za-z0-9_-]{1,128}$/.test(uid))
-  throw new Error("Usage: npm run admin:grant -- <UID>");
-if (!config.local)
-  throw new Error("Este comando está restrito ao emulador nesta etapa.");
-const user = await adminAuth.getUser(uid);
-await adminAuth.setCustomUserClaims(uid, { ...user.customClaims, admin: true });
-console.log(
-  `Permissão administrativa concedida no emulador para ${uid}. Saia e entre novamente.`,
-);
+import { serviceDatabase } from "../src/server/supabase.ts";
+import { z } from "zod";
+const uid=z.uuid().parse(process.argv[2]);
+if(!config.local&&!process.argv.includes("--remote"))throw new Error("Use --remote explicitamente para QI Store Pro após conferir o UID.");
+const db=serviceDatabase();const {data,error}=await db.auth.admin.getUserById(uid);
+if(error||!data.user)throw new Error("Usuário não cadastrado.");
+const result=await db.from("app_admins").upsert({user_id:uid});if(result.error)throw result.error;
+console.log(`Permissão administrativa concedida a ${uid}.`);

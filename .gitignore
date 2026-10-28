@@ -11,3 +11,6 @@ coverage/
 *.local
 .emulator-data/
 .java/
+
+supabase/.temp/
+supabase/.branches/
