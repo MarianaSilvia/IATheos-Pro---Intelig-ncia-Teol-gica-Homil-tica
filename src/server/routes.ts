@@ -40,13 +40,14 @@ router.post("/subscription-interest",asyncRoute(async(req,res)=>{
  const db=serviceDatabase();
  const plan=checked(await db.from("subscription_plans").select("id,name,amount_cents,duration_days,checkout_url").eq("id",data.planId).eq("active",true).maybeSingle());
  if(!plan) throw new HttpError(404,"Plano indisponível.");
- if(!plan.checkout_url && (!config.infinitePayApiKey || !config.infinitePayHandle)) throw new HttpError(503,"Checkout ainda não configurado. Tente novamente mais tarde.");
+ const apiKey=config.infinitePayApiKey; const handle=config.infinitePayHandle;
+ if(!plan.checkout_url && (!apiKey || !handle)) throw new HttpError(503,"Checkout ainda não configurado. Tente novamente mais tarde.");
  const lead=checked(await db.from("interest_leads").insert({email:data.email,plan_id:data.planId,consent:true}).select("id").single());
  const order=checked(await db.from("payment_orders").insert({lead_id:lead.id,plan_id:data.planId,order_kind:"subscription",amount_cents:plan.amount_cents,currency:"BRL",provider:"infinitepay"}).select("id").single());
  let checkoutUrl=String(plan.checkout_url||"");
  if(!checkoutUrl){
-  const payload={handle:config.infinitePayHandle,order_nsu:order.id,items:[{description:String(plan.name),quantity:1,price:plan.amount_cents}],webhook_url:`${config.publicUrl}/api/webhooks/infinitepay`,redirect_url:`${config.publicUrl}/?order=${order.id}`};
-  const response=await fetch("https://api.checkout.infinitepay.io/links",{method:"POST",headers:{"X-Api-Key":config.infinitePayApiKey,"Content-Type":"application/json"},body:JSON.stringify(payload)});
+  const payload={handle:handle!,order_nsu:order.id,items:[{description:String(plan.name),quantity:1,price:plan.amount_cents}],webhook_url:`${config.publicUrl}/api/webhooks/infinitepay`,redirect_url:`${config.publicUrl}/?order=${order.id}`};
+  const response=await fetch("https://api.checkout.infinitepay.io/links",{method:"POST",headers:{"X-Api-Key":apiKey!,"Content-Type":"application/json"},body:JSON.stringify(payload)});
   if(!response.ok) throw new HttpError(503,"Não foi possível criar o checkout.");
   const result:any=await response.json(); checkoutUrl=String(result.url||result.link||result.checkout_url||"");
  }
