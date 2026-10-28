@@ -34,13 +34,100 @@
 }
 
 @media print {
+  @page {
+    size: A4;
+    margin: 14mm 13mm 16mm;
+  }
+
+  html,
   body {
     background: white !important;
     color: black !important;
+    width: auto !important;
+    min-width: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+    font-size: 10.5pt;
+    line-height: 1.42;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
+
+  /* The application shell and controls must not consume printable space. */
   .no-print {
     display: none !important;
   }
+
+  /* Keep the document inside the printable A4 area. Long sermons flow onto
+     additional pages instead of being clipped by the rounded screen card. */
+  .print-document {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    background: white !important;
+  }
+
+  .print-document > div {
+    overflow: visible !important;
+  }
+
+  .print-content {
+    padding: 7mm 0 0 !important;
+  }
+
+  .print-section,
+  .print-card,
+  .print-document h2,
+  .print-document h3,
+  .print-document h4,
+  .print-document blockquote,
+  .print-document li {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .print-document h2,
+  .print-document h3,
+  .print-document h4 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .print-document .print-card {
+    overflow: visible !important;
+    box-shadow: none !important;
+  }
+
+  .print-document * {
+    max-width: 100% !important;
+  }
+
+  .print-document p,
+  .print-document li,
+  .print-document span,
+  .print-document h2,
+  .print-document h3,
+  .print-document h4 {
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  .print-document svg {
+    flex-shrink: 0;
+  }
+
+  .print-document a {
+    color: black !important;
+    text-decoration: none !important;
+  }
+
   .print-only {
     display: block !important;
   }

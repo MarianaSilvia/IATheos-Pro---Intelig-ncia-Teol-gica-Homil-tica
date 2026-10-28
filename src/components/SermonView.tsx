@@ -308,7 +308,7 @@ export const SermonView: React.FC<SermonViewProps> = ({
       </div>
 
       {/* Sermon Document Display Area */}
-      <article className="bg-white rounded-3xl border border-slate-200/90 shadow-lg overflow-hidden transition-all">
+      <article className="print-document bg-white rounded-3xl border border-slate-200/90 shadow-lg overflow-hidden transition-all">
         {/* Document Header & Ministerial Actions */}
         <div className="p-6 sm:p-8 bg-gradient-to-b from-amber-50/70 via-white to-white border-b border-amber-100">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-4 no-print">
@@ -386,9 +386,9 @@ export const SermonView: React.FC<SermonViewProps> = ({
           )}
         </div>
 
-        <div className="p-6 sm:p-8 space-y-8">
+        <div className="print-content p-6 sm:p-8 space-y-8">
           {/* SECTION 1: INTRODUÇÃO */}
-          <section className="space-y-4">
+          <section className="print-section space-y-4">
             <div className="flex items-center gap-2 pb-2 border-b-2 border-amber-600/40">
               <div className="w-7 h-7 rounded-lg bg-amber-600 text-white flex items-center justify-center font-bold text-xs">
                 I
@@ -430,7 +430,7 @@ export const SermonView: React.FC<SermonViewProps> = ({
           </section>
 
           {/* SECTION 2: DESENVOLVIMENTO (3 TÓPICOS COM ILUSTRAÇÃO PRÁTICA) */}
-          <section className="space-y-6">
+          <section className="print-section space-y-6">
             <div className="flex items-center gap-2 pb-2 border-b-2 border-amber-600/40">
               <div className="w-7 h-7 rounded-lg bg-amber-600 text-white flex items-center justify-center font-bold text-xs">
                 II
@@ -444,7 +444,7 @@ export const SermonView: React.FC<SermonViewProps> = ({
               {currentSermon.topics.map((topic) => (
                 <div
                   key={topic.number}
-                  className="rounded-2xl border border-slate-200/90 shadow-sm bg-white overflow-hidden transition-all hover:border-amber-300"
+                  className="print-card rounded-2xl border border-slate-200/90 shadow-sm bg-white overflow-hidden transition-all hover:border-amber-300"
                 >
                   <div className="p-4 sm:p-5 bg-gradient-to-r from-slate-900 to-slate-800 text-white flex items-center gap-3">
                     <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-amber-500 font-extrabold text-slate-950 text-sm shadow">
@@ -504,7 +504,7 @@ export const SermonView: React.FC<SermonViewProps> = ({
           </section>
 
           {/* SECTION 3: CONCLUSÃO E APLICAÇÃO PRÁTICA */}
-          <section className="space-y-4">
+          <section className="print-section space-y-4">
             <div className="flex items-center gap-2 pb-2 border-b-2 border-amber-600/40">
               <div className="w-7 h-7 rounded-lg bg-amber-600 text-white flex items-center justify-center font-bold text-xs">
                 III
@@ -543,7 +543,7 @@ export const SermonView: React.FC<SermonViewProps> = ({
           </section>
 
           {/* SECTION 4: APELO E ORAÇÃO FINAL */}
-          <section className="space-y-4">
+          <section className="print-section space-y-4">
             <div className="flex items-center gap-2 pb-2 border-b-2 border-amber-600/40">
               <div className="w-7 h-7 rounded-lg bg-amber-600 text-white flex items-center justify-center font-bold text-xs">
                 IV
