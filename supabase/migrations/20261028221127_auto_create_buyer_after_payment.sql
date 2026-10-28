@@ -21,6 +21,9 @@ begin
   if not found or o.status not in ('paid','settled') then
     raise no_data_found using message='Pagamento não confirmado.';
   end if;
+  if o.access_applied_at is not null then
+    return;
+  end if;
 
   select * into l from public.interest_leads where id=o.lead_id;
   if l.email is null then
