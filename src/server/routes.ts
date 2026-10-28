@@ -55,11 +55,11 @@ router.post("/subscription-interest",asyncRoute(async(req,res)=>{
  const plan=checked(await db.from("subscription_plans").select("id,name,amount_cents,duration_days,checkout_url").eq("id",data.planId).eq("active",true).maybeSingle());
  if(!plan) throw new HttpError(404,"Plano indisponível.");
  const apiKey=config.infinitePayApiKey; const handle=config.infinitePayHandle;
- if(!plan.checkout_url && (!apiKey || !handle)) throw new HttpError(503,"Checkout ainda não configurado. Tente novamente mais tarde.");
+ if((!apiKey || !handle) && !plan.checkout_url) throw new HttpError(503,"Checkout ainda não configurado. Tente novamente mais tarde.");
  const lead=checked(await db.from("interest_leads").insert({email:data.email,phone_e164:data.phone,plan_id:data.planId,consent:true}).select("id").single());
  const order=checked(await db.from("payment_orders").insert({lead_id:lead.id,plan_id:data.planId,order_kind:"subscription",amount_cents:plan.amount_cents,currency:"BRL",provider:"infinitepay"}).select("id").single());
- let checkoutUrl=String(plan.checkout_url||"");
- if(!checkoutUrl){
+ let checkoutUrl="";
+ if(apiKey && handle){
   const payload={handle:handle!,order_nsu:order.id,items:[{description:String(plan.name),quantity:1,price:plan.amount_cents}],webhook_url:`${config.publicUrl}/api/webhooks/infinitepay`,redirect_url:`${config.publicUrl}/?order=${order.id}`};
   const response=await fetch("https://api.checkout.infinitepay.io/links",{method:"POST",headers:{"X-Api-Key":apiKey!,"Content-Type":"application/json"},body:JSON.stringify(payload)});
   if(!response.ok) throw new HttpError(503,"Não foi possível criar o checkout.");
@@ -70,15 +70,21 @@ router.post("/subscription-interest",asyncRoute(async(req,res)=>{
  res.status(201).json({orderId:order.id,checkoutUrl});
 }));
 router.post("/webhooks/infinitepay",asyncRoute(async(req,res)=>{
- if(!config.infinitePayWebhookSecret){res.status(503).json({error:"Webhook não configurado."});return;}
+ if(!config.infinitePayApiKey||!config.infinitePayHandle){res.status(503).json({error:"InfinitePay não configurada."});return;}
  const supplied=String(req.header("x-infinitepay-signature")||"");
- const expected=crypto.createHmac("sha256",config.infinitePayWebhookSecret).update((req as any).rawBody||"").digest("hex");
- if(!supplied||supplied.length!==expected.length||!crypto.timingSafeEqual(Buffer.from(supplied),Buffer.from(expected))){res.status(401).json({error:"Webhook não autorizado."});return;}
- const data=z.object({order_nsu:z.string().uuid(),transaction_nsu:z.string().min(1).max(200),amount:z.coerce.number().int().nonnegative(),paid_amount:z.coerce.number().int().nonnegative().optional(),status:z.string().optional()}).passthrough().parse(req.body);
+ const expected=crypto.createHmac("sha256",config.infinitePayWebhookSecret||"").update((req as any).rawBody||"").digest("hex");
+ if(supplied&&config.infinitePayWebhookSecret&&(supplied.length!==expected.length||!crypto.timingSafeEqual(Buffer.from(supplied),Buffer.from(expected)))){res.status(401).json({error:"Webhook não autorizado."});return;}
+ const data=z.object({order_nsu:z.string().uuid(),transaction_nsu:z.string().min(1).max(200),amount:z.coerce.number().int().nonnegative().optional(),paid_amount:z.coerce.number().int().nonnegative().optional(),invoice_slug:z.string().min(1).max(200).optional(),slug:z.string().min(1).max(200).optional(),status:z.string().optional()}).passthrough().parse(req.body);
  if(data.status === "refunded") { const db=serviceDatabase(); checked(await db.rpc("mark_payment_refunded",{p_provider:"infinitepay",p_payment_id:data.transaction_nsu})); res.status(200).json({ok:true}); return; }
  if(data.status&&!["paid","settled"].includes(data.status)){res.status(200).json({ok:true,ignored:true});return;}
  const db=serviceDatabase();
- checked(await db.rpc("complete_verified_payment",{p_order_id:data.order_nsu,p_provider:"infinitepay",p_payment_id:data.transaction_nsu,p_amount_cents:data.paid_amount??data.amount}));
+ const verification=await fetch("https://api.checkout.infinitepay.io/payment_check",{method:"POST",headers:{"X-Api-Key":config.infinitePayApiKey,"Content-Type":"application/json"},body:JSON.stringify({handle:config.infinitePayHandle,order_nsu:data.order_nsu,transaction_nsu:data.transaction_nsu,slug:data.invoice_slug||data.slug})});
+ if(!verification.ok) throw new HttpError(503,"Não foi possível confirmar o pagamento na InfinitePay.");
+ const checkedPayment=z.object({success:z.boolean().optional(),paid:z.boolean().optional(),amount:z.coerce.number().int().nonnegative().optional(),paid_amount:z.coerce.number().int().nonnegative().optional()}).passthrough().parse(await verification.json());
+ if(checkedPayment.success===false||checkedPayment.paid!==true){res.status(200).json({ok:true,pending:true});return;}
+ const paidAmount=checkedPayment.paid_amount??checkedPayment.amount??data.paid_amount??data.amount;
+ if(paidAmount===undefined) throw new HttpError(502,"A InfinitePay não informou o valor confirmado.");
+ checked(await db.rpc("complete_verified_payment",{p_order_id:data.order_nsu,p_provider:"infinitepay",p_payment_id:data.transaction_nsu,p_amount_cents:paidAmount}));
  await ensureBuyerAccount(db,data.order_nsu);
  checked(await db.rpc("reconcile_paid_order",{p_order_id:data.order_nsu}));
  res.status(200).json({ok:true});
