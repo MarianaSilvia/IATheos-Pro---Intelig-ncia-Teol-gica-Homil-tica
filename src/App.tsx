@@ -43,7 +43,7 @@ import type { SavedItem } from "./components/SavedLibraryView";
 const SavedLibraryView = lazy(() => import("./components/SavedLibraryView").then((m) => ({ default: m.SavedLibraryView })));
 const PulpitModeModal = lazy(() => import("./components/PulpitModeModal").then((m) => ({ default: m.PulpitModeModal })));
 const PdfReaderModal = lazy(() => import("./components/PdfReaderModal").then((m) => ({ default: m.PdfReaderModal })));
-import { LandingPage } from "./components/LandingPage/LandingPage";
+const LandingPage = lazy(() => import("./components/LandingPage/LandingPage").then((m) => ({ default: m.LandingPage })));
 import type { DigitalProduct } from "./utils/ecosystem";
 import { firstNameFromIdentity } from "./utils/dashboard";
 import { OfflineNotice } from "./components/OfflineNotice";
@@ -73,7 +73,7 @@ export default function App() {
     );
   if (!session)
     return (
-      <><OfflineNotice /><InstallPwaButton /><LandingPage
+      <><OfflineNotice /><InstallPwaButton /><Suspense fallback={<div role="status" className="p-12 text-center">Carregando Verbo Norte…</div>}><LandingPage
         signingIn={signingIn}
         products={publicProducts}
         plans={subscriptionPlans}
@@ -84,7 +84,7 @@ export default function App() {
         onAdminLogin={async (email, password) => { await loginAdmin(email, password); }}
         error={error}
         onRetry={() => void refresh()}
-      /></>
+      /></Suspense></>
     );
   return (
     <><OfflineNotice /><InstallPwaButton /><Workspace
