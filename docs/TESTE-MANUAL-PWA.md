@@ -22,6 +22,7 @@ Use este roteiro em uma janela anônima e em uma conta autenticada de teste. Nã
 - [ ] Comparar duas traduções quando ambas estiverem disponíveis.
 - [ ] Selecionar versículos, abrir **Comparar versões** e confirmar que somente o trecho selecionado aparece nas duas traduções; sem seleção, confirmar o capítulo completo.
 - [ ] Na comparação, usar **Copiar comparação** e confirmar que o texto contém as duas traduções e somente o trecho ativo.
+- [ ] Na comparação, usar **Salvar nas notas** e confirmar que a comparação reaparece em **Minhas notas** após recarregar.
 - [ ] Salvar o versículo como nota e confirmar a mensagem de sucesso.
 - [ ] Abrir o Editor e confirmar que referência e texto são preenchidos.
 - [ ] No Editor, inserir uma passagem, uma referência adicional e uma **Nota pessoal**.

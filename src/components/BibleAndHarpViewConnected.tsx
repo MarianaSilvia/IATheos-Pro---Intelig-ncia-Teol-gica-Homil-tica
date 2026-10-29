@@ -83,6 +83,7 @@ export function BibleAndHarpViewConnected({
   const [readingBusy, setReadingBusy] = useState(false);
   const [readingSyncState, setReadingSyncState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [readingRetryValue, setReadingRetryValue] = useState<boolean | null>(null);
+  const [comparisonSaving, setComparisonSaving] = useState(false);
 
   const selectedBook =
     BIBLE_BOOKS.find((item) => item.name === book) ?? BIBLE_BOOKS[0];
@@ -193,6 +194,28 @@ export function BibleAndHarpViewConnected({
       .map((verse) => `${verse.number}. ${verse.text}`)
       .join("\n")}`;
     return `${book} ${chapter}\n\n${formatVersion(data)}\n\n${formatVersion(compareData)}`;
+  }
+
+  async function saveComparison() {
+    const content = comparisonPassageText();
+    if (!content || comparisonSaving) return;
+    setComparisonSaving(true);
+    const reference = formatVerseReference(book, chapter, selectedVerses);
+    try {
+      await api(`/notes/${crypto.randomUUID()}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          title: `Comparação: ${reference}`,
+          biblicalReference: reference,
+          content,
+        }),
+      });
+      setMessage("Comparação salva nas suas notas.");
+    } catch {
+      setMessage("Não foi possível salvar a comparação. Tente novamente.");
+    } finally {
+      setComparisonSaving(false);
+    }
   }
 
   async function saveHymn() {
@@ -548,7 +571,10 @@ export function BibleAndHarpViewConnected({
                     </article>
                   ))}
                 </div>
-                <button type="button" onClick={() => void copy(comparisonPassageText())} className="mt-4 rounded-xl border border-indigo-300 bg-white px-3 py-2 text-sm font-bold text-indigo-900">Copiar comparação</button>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <button type="button" onClick={() => void copy(comparisonPassageText())} className="rounded-xl border border-indigo-300 bg-white px-3 py-2 text-sm font-bold text-indigo-900">Copiar comparação</button>
+                  <button type="button" disabled={comparisonSaving} onClick={() => void saveComparison()} className="rounded-xl bg-indigo-700 px-3 py-2 text-sm font-bold text-white disabled:opacity-50">{comparisonSaving ? "Salvando…" : "Salvar nas notas"}</button>
+                </div>
                 </>
               ) : (
                 <p className="text-sm text-slate-600">
