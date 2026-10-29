@@ -173,6 +173,15 @@ router.post("/admin/users/:uid/password-link",requireAdmin,asyncRoute(async(req,
  const link=generated.data.properties?.action_link; if(!link) throw new HttpError(503,"O provedor não retornou um link válido.");
  res.json({email:result.data.user.email,link});
 }));
+router.patch("/admin/users/:uid/contact",requireAdmin,asyncRoute(async(req,res)=>{
+ const uid=z.uuid().parse(req.params.uid); const data=z.object({displayName:z.string().trim().max(120),phone:phoneSchema}).strict().parse(req.body); const db=serviceDatabase();
+ const user=await db.auth.admin.getUserById(uid); if(user.error||!user.data.user?.email) throw new HttpError(404,"Usuário comprador não encontrado.");
+ checked(await db.from("profiles").update({display_name:data.displayName}).eq("user_id",uid));
+ const lead=checked(await db.from("interest_leads").select("id").eq("email",user.data.user.email.toLowerCase()).order("created_at",{ascending:false}).limit(1).maybeSingle()) as any;
+ if(lead?.id) checked(await db.from("interest_leads").update({phone_e164:data.phone}).eq("id",lead.id));
+ const metadata={...(user.data.user.user_metadata||{}),phone_e164:data.phone}; await db.auth.admin.updateUserById(uid,{user_metadata:metadata});
+ res.json({ok:true,phone:data.phone,displayName:data.displayName});
+}));
 router.get("/admin/orders",requireAdmin,asyncRoute(async(req,res)=>{
  const orders=checked(await req.db.from("payment_orders").select("id,user_id,product_id,plan_id,order_kind,amount_cents,currency,status,provider,provider_payment_id,created_at,paid_at,refunded_at,lead_id").order("created_at",{ascending:false}).limit(200));
  const leadIds=orders.map((o:any)=>o.lead_id).filter(Boolean); const leads=leadIds.length?checked(await req.db.from("interest_leads").select("id,email,phone_e164").in("id",leadIds)):[];
