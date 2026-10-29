@@ -116,6 +116,7 @@ function Workspace({
   >(null);
   const [bible, setBible] = useState({ book: "Romanos", chapter: 5 });
   const [contextReference, setContextReference] = useState("");
+  const [editorDraft, setEditorDraft] = useState<{ reference: string; text: string } | null>(null);
   const [access, setAccess] = useState(session);
   const [passwordSetupOpen, setPasswordSetupOpen] = useState(forcePasswordSetup || (!session.isAdmin && !session.passwordInitialized));
   const [newPassword, setNewPassword] = useState("");
@@ -182,6 +183,10 @@ function Workspace({
     setLesson(null);
     setContextReference(verseReference);
     setTab("ebd");
+  };
+  const startEditorFromBible = (verseReference: string, verseText: string) => {
+    setEditorDraft({ reference: verseReference, text: verseText });
+    setTab("editor");
   };
   const toggleSave = (type: SavedItem["type"], data: SavedItem["data"]) =>
     void run(
@@ -371,6 +376,7 @@ function Workspace({
               onSendToVerseXray={(v) => void generateXray(v)}
               onSendToSermon={startSermonFromBible}
               onSendToEbd={startEbdFromBible}
+              onSendToEditor={startEditorFromBible}
             />
           )}
           {tab === "store" && (
@@ -416,7 +422,7 @@ function Workspace({
               />
             </>
           )}
-          {tab === "editor" && <EditorView source={sermon || lesson || xray} />}
+          {tab === "editor" && <EditorView source={sermon || lesson || xray} initialReference={editorDraft?.reference} initialText={editorDraft?.text} />}
           {tab === "admin" && access.isAdmin && (
             <AdminPanelView
               products={catalog.data}

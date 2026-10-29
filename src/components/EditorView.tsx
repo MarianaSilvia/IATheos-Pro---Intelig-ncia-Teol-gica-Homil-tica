@@ -23,19 +23,22 @@ function sourceMarkdown(source: StudySource): string {
   return formatVerseXrayToMarkdown(source);
 }
 
-export function EditorView({ source }: { source: StudySource }) {
-  const [title, setTitle] = useState(sourceTitle(source));
-  const [reference, setReference] = useState(sourceReference(source));
-  const [content, setContent] = useState(sourceMarkdown(source));
+export function EditorView({ source, initialReference = "", initialText = "" }: { source: StudySource; initialReference?: string; initialText?: string }) {
+  const seedTitle = source ? sourceTitle(source) : initialReference ? `Estudo de ${initialReference}` : sourceTitle(source);
+  const seedReference = source ? sourceReference(source) : initialReference;
+  const seedContent = source ? sourceMarkdown(source) : initialText ? `# Estudo de ${initialReference}\n\nTexto-base:\n\n${initialText}\n\n## Observações\n\n` : sourceMarkdown(source);
+  const [title, setTitle] = useState(seedTitle);
+  const [reference, setReference] = useState(seedReference);
+  const [content, setContent] = useState(seedContent);
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
-  const seed = useMemo(() => sourceTitle(source) + sourceReference(source), [source]);
+  const seed = useMemo(() => seedTitle + seedReference + seedContent, [seedTitle, seedReference, seedContent]);
 
   useEffect(() => {
-    setTitle(sourceTitle(source));
-    setReference(sourceReference(source));
-    setContent(sourceMarkdown(source));
+    setTitle(seedTitle);
+    setReference(seedReference);
+    setContent(seedContent);
     setSaved(false);
     setError("");
   }, [seed]);
