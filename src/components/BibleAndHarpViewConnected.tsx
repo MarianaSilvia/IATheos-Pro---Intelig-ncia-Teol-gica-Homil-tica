@@ -5,7 +5,7 @@ import { INITIAL_HYMNS, searchHymns } from "../utils/ecosystem";
 import { findBibleChapter } from "../utils/bibleContent";
 import { api } from "../lib/api";
 import { INITIAL_CONCORDANCE_ENTRIES, normalizeReferenceSearch } from "../utils/dashboard";
-import { readOfflineBibleChapters, toggleOfflineBibleChapter, offlineBibleKey, writeOfflineBibleChapters, type OfflineBibleChapter } from "../utils/offlineBible";
+import { clearOfflineBibleChapters, readOfflineBibleChapters, toggleOfflineBibleChapter, offlineBibleKey, writeOfflineBibleChapters, type OfflineBibleChapter } from "../utils/offlineBible";
 import { formatVerseReference, toggleVerseSelection } from "../utils/bibleSelection";
 
 const TRANSLATIONS = ["ARC", "NAA", "NVI", "KJF"] as const;
@@ -209,7 +209,7 @@ export function BibleAndHarpViewConnected({
       {offlineChapters.length > 0 && <section aria-label="Capítulos disponíveis offline" className="bg-white rounded-2xl border border-emerald-200 p-4 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div><h2 className="font-bold text-emerald-900">Leitura offline neste dispositivo</h2><p className="text-xs text-slate-600">O texto público disponível é guardado localmente; notas, compras e dados privados não entram no cache.</p></div>
-          <span className="rounded-full bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-800">{offlineChapters.length} capítulo{offlineChapters.length === 1 ? "" : "s"}</span>
+          <div className="flex items-center gap-2"><span className="rounded-full bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-800">{offlineChapters.length} capítulo{offlineChapters.length === 1 ? "" : "s"}</span><button type="button" className="text-xs text-emerald-800 underline" onClick={() => { if (!clearOfflineBibleChapters()) { setMessage("Não foi possível limpar o cache offline."); return; } setOfflineChapters([]); setMessage("Cache bíblico offline limpo neste dispositivo."); }}>Limpar cache</button></div>
         </div>
         <div className="mt-3 flex flex-wrap gap-2">{offlineChapters.map((item) => <div key={offlineBibleKey(item)} className="flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50/60 pl-2 text-xs text-emerald-950"><button type="button" className="py-1 font-semibold underline" onClick={() => openOfflineChapter(item)}>{item.book} {item.chapter} · {item.translation}</button><button type="button" className="px-2 py-1 text-emerald-700" aria-label={`Remover ${item.book} ${item.chapter} do offline`} onClick={() => removeOfflineChapter(item)}>×</button></div>)}</div>
       </section>}

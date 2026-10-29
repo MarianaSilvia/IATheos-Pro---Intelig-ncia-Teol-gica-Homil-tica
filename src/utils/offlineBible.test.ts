@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   offlineBibleKey,
+  clearOfflineBibleChapters,
   readOfflineBibleChapters,
   toggleOfflineBibleChapter,
   writeOfflineBibleChapters,
@@ -35,4 +36,14 @@ test("offline chapters preserve public verse text and cap the local cache", () =
   };
   assert.equal(writeOfflineBibleChapters([chapterWithText], storage), true);
   assert.deepEqual(readOfflineBibleChapters(storage), [chapterWithText]);
+});
+
+test("offline cache can be cleared explicitly", () => {
+  let value = "[{\"book\":\"Romanos\",\"chapter\":5,\"translation\":\"NAA\"}]";
+  const storage = {
+    getItem: () => value,
+    setItem: (_key: string, next: string) => { value = next; },
+  };
+  assert.equal(clearOfflineBibleChapters(storage), true);
+  assert.deepEqual(readOfflineBibleChapters(storage), []);
 });

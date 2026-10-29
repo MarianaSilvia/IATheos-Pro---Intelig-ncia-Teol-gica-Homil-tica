@@ -71,3 +71,15 @@ export function writeOfflineBibleChapters(
   }
 }
 
+export function clearOfflineBibleChapters(
+  storage: StorageLike | null = browserStorage(),
+): boolean {
+  if (!storage) return false;
+  try {
+    storage.setItem(STORAGE_KEY, "[]");
+    return true;
+  } catch {
+    return false;
+  }
+}
+
