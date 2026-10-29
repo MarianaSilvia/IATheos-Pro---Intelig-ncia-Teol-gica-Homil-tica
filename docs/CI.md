@@ -2,6 +2,8 @@
 
 O workflow `.github/workflows/ci.yml` executa a cada push na `main`, a cada pull request e também pode ser iniciado manualmente em **Actions → Verbo Norte CI → Run workflow**:
 
+Execuções antigas da mesma referência são canceladas quando chega uma nova, para que o resultado mais recente seja o que permaneça como referência.
+
 1. instalação limpa com `npm ci`;
 2. preflight de segurança;
 3. verificação TypeScript (`npm run lint`);
