@@ -183,6 +183,18 @@ export function BibleAndHarpViewConnected({
     return `${text}\n\n(${reference} · ${translation})`;
   }
 
+  function comparisonPassageText(): string {
+    if (!data || !compareData) return "";
+    const numbers = selectedVerses.length > 0
+      ? selectedVerses
+      : data.verses.map((verse) => verse.number);
+    const formatVersion = (version: typeof data) => `${version.translation}\n${version.verses
+      .filter((verse) => numbers.includes(verse.number))
+      .map((verse) => `${verse.number}. ${verse.text}`)
+      .join("\n")}`;
+    return `${book} ${chapter}\n\n${formatVersion(data)}\n\n${formatVersion(compareData)}`;
+  }
+
   async function saveHymn() {
     try {
       await api(`/notes/${crypto.randomUUID()}`, {
@@ -511,6 +523,7 @@ export function BibleAndHarpViewConnected({
                 </label>
               </div>
               {data && compareData ? (
+                <>
                 <div className="grid md:grid-cols-2 gap-4">
                   {[data, compareData].map((version) => (
                     <article
@@ -535,6 +548,8 @@ export function BibleAndHarpViewConnected({
                     </article>
                   ))}
                 </div>
+                <button type="button" onClick={() => void copy(comparisonPassageText())} className="mt-4 rounded-xl border border-indigo-300 bg-white px-3 py-2 text-sm font-bold text-indigo-900">Copiar comparação</button>
+                </>
               ) : (
                 <p className="text-sm text-slate-600">
                   A comparação só está disponível quando as duas versões
