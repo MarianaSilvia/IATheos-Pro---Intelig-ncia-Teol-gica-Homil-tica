@@ -14,8 +14,13 @@ export function InstallPwaButton() {
       event.preventDefault();
       setInstallEvent(event as InstallPromptEvent);
     };
+    const handleInstalled = () => setInstallEvent(null);
     window.addEventListener("beforeinstallprompt", handlePrompt);
-    return () => window.removeEventListener("beforeinstallprompt", handlePrompt);
+    window.addEventListener("appinstalled", handleInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handlePrompt);
+      window.removeEventListener("appinstalled", handleInstalled);
+    };
   }, []);
 
   if (!installEvent) return null;
