@@ -55,6 +55,7 @@ export function EditorView({ source, initialReference = "", initialText = "", in
   const [peoplePlacesEvents, setPeoplePlacesEvents] = useState("");
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [dirty, setDirty] = useState(false);
   const [error, setError] = useState("");
   const [organizeOpen, setOrganizeOpen] = useState(false);
   const [blocks, setBlocks] = useState<EditorBlock[]>([]);
@@ -75,11 +76,17 @@ export function EditorView({ source, initialReference = "", initialText = "", in
     setContextOpen(initialContextOpen);
     studyId.current = source && "id" in source ? source.id : crypto.randomUUID();
     setSaved(false);
+    setDirty(false);
     setError("");
   }, [seed]);
 
+  const markDirty = () => {
+    setSaved(false);
+    setDirty(true);
+  };
+
   const save = async () => {
-    if (!title.trim() || !content.trim()) return;
+    if (busy || !title.trim() || !content.trim()) return;
     setBusy(true);
     setError("");
     try {
@@ -97,19 +104,26 @@ export function EditorView({ source, initialReference = "", initialText = "", in
         body: JSON.stringify({ title: title.trim(), biblicalReference: [reference.trim(), additionalReferences.trim()].filter(Boolean).join("; "), content: contentWithContext }),
       });
       setSaved(true);
+      setDirty(false);
     } catch (e) {
       setError((e as Error).message);
     } finally {
       setBusy(false);
     }
   };
+
+  useEffect(() => {
+    if (!dirty) return;
+    const timer = window.setTimeout(() => { void save(); }, 1400);
+    return () => window.clearTimeout(timer);
+  }, [dirty, title, reference, content, additionalReferences, authorAudience, historicalContext, literaryContext, keyTerms, peoplePlacesEvents]);
   const references = additionalReferences.split(/[;,\n]/).map((item) => item.trim()).filter(Boolean);
   const addReference = () => {
     const next = referenceInput.trim();
     if (!next || references.some((item) => item.toLowerCase() === next.toLowerCase())) return;
     setAdditionalReferences([...references, next].join("; "));
     setReferenceInput("");
-    setSaved(false);
+    markDirty();
   };
 
   const openOrganizer = () => {
@@ -120,7 +134,7 @@ export function EditorView({ source, initialReference = "", initialText = "", in
     const next = blocks.map((block, itemIndex) => itemIndex === index ? { ...block, ...update } : block);
     setBlocks(next);
     setContent(blocksToMarkdown(next));
-    setSaved(false);
+    markDirty();
   };
   const moveBlock = (index: number, direction: -1 | 1) => {
     const target = index + direction;
@@ -129,13 +143,13 @@ export function EditorView({ source, initialReference = "", initialText = "", in
     [next[index], next[target]] = [next[target], next[index]];
     setBlocks(next);
     setContent(blocksToMarkdown(next));
-    setSaved(false);
+    markDirty();
   };
   const addBlock = () => {
     const next = [...blocks, { title: "Novo bloco", body: "Escreva aqui o conteúdo deste bloco." }];
     setBlocks(next);
     setContent(blocksToMarkdown(next));
-    setSaved(false);
+    markDirty();
   };
 
   return (
@@ -154,14 +168,16 @@ export function EditorView({ source, initialReference = "", initialText = "", in
         </div>
       </div>
       {error && <p role="alert" className="rounded-xl bg-red-50 text-red-800 p-3">{error} <button className="underline" onClick={() => void save()}>Tentar novamente</button></p>}
-      {saved && <p role="status" className="rounded-xl bg-emerald-50 text-emerald-800 p-3 flex items-center gap-2"><Check className="w-4 h-4" /> Estudo salvo no caderno ministerial.</p>}
+      {busy && <p role="status" className="rounded-xl bg-amber-50 text-amber-800 p-3">Sincronizando alterações…</p>}
+      {!busy && dirty && <p role="status" className="rounded-xl bg-slate-50 text-slate-700 p-3">Alterações pendentes. Salvamento automático em andamento…</p>}
+      {saved && !dirty && <p role="status" className="rounded-xl bg-emerald-50 text-emerald-800 p-3 flex items-center gap-2"><Check className="w-4 h-4" /> Estudo salvo no caderno ministerial.</p>}
       {organizeOpen && <section className="bg-slate-50 rounded-2xl border p-4 space-y-3 no-print"><div className="flex items-center justify-between"><div><h2 className="font-bold">Blocos do estudo</h2><p className="text-xs text-slate-600">Reordene os tópicos e edite cada seção sem perder o Markdown salvo.</p></div><button type="button" onClick={addBlock} className="rounded-lg bg-slate-900 text-white px-3 py-2 text-sm flex items-center gap-1"><Plus className="w-4 h-4" /> Novo bloco</button></div>{blocks.map((block, index) => <article key={`${index}-${block.title}`} className="bg-white rounded-xl border p-3 space-y-2"><div className="flex items-center gap-2"><input aria-label={`Título do bloco ${index + 1}`} value={block.title} onChange={(event) => updateBlock(index, { title: event.target.value })} className="flex-1 rounded-lg border p-2 font-semibold" /><button type="button" disabled={index === 0} onClick={() => moveBlock(index, -1)} className="p-2 border rounded-lg disabled:opacity-40" title="Mover para cima"><ArrowUp className="w-4 h-4" /></button><button type="button" disabled={index === blocks.length - 1} onClick={() => moveBlock(index, 1)} className="p-2 border rounded-lg disabled:opacity-40" title="Mover para baixo"><ArrowDown className="w-4 h-4" /></button></div><textarea aria-label={`Conteúdo do bloco ${index + 1}`} value={block.body} onChange={(event) => updateBlock(index, { body: event.target.value })} className="w-full min-h-24 rounded-lg border p-3 text-sm" /></article>)}</section>}
-      {contextOpen && <section className="bg-indigo-50/60 rounded-2xl border border-indigo-100 p-4 space-y-3 no-print"><div><h2 className="font-bold text-indigo-950">Contexto do estudo</h2><p className="text-xs text-slate-600">Registre informações confirmadas ou suas próprias observações. Revise antes de usar publicamente.</p></div><div className="grid md:grid-cols-2 gap-3"><label className="text-sm font-semibold">Autor e público<textarea value={authorAudience} onChange={(event) => { setAuthorAudience(event.target.value); setSaved(false); }} placeholder="Ex.: autoria, destinatários e público da mensagem" className="mt-1 w-full min-h-20 rounded-lg border p-2 text-sm" /></label><label className="text-sm font-semibold">Contexto histórico<textarea value={historicalContext} onChange={(event) => { setHistoricalContext(event.target.value); setSaved(false); }} placeholder="Período, situação e fatos relevantes" className="mt-1 w-full min-h-20 rounded-lg border p-2 text-sm" /></label><label className="text-sm font-semibold">Contexto literário<textarea value={literaryContext} onChange={(event) => { setLiteraryContext(event.target.value); setSaved(false); }} placeholder="Gênero, estrutura e contexto imediato" className="mt-1 w-full min-h-20 rounded-lg border p-2 text-sm" /></label><label className="text-sm font-semibold">Termos importantes<textarea value={keyTerms} onChange={(event) => { setKeyTerms(event.target.value); setSaved(false); }} placeholder="Palavras, conceitos ou termos originais confirmados" className="mt-1 w-full min-h-20 rounded-lg border p-2 text-sm" /></label></div><label className="block text-sm font-semibold">Personagens, lugares e eventos<textarea value={peoplePlacesEvents} onChange={(event) => { setPeoplePlacesEvents(event.target.value); setSaved(false); }} placeholder="Registre somente informações verificadas" className="mt-1 w-full min-h-20 rounded-lg border p-2 text-sm" /></label></section>}
+      {contextOpen && <section className="bg-indigo-50/60 rounded-2xl border border-indigo-100 p-4 space-y-3 no-print"><div><h2 className="font-bold text-indigo-950">Contexto do estudo</h2><p className="text-xs text-slate-600">Registre informações confirmadas ou suas próprias observações. Revise antes de usar publicamente.</p></div><div className="grid md:grid-cols-2 gap-3"><label className="text-sm font-semibold">Autor e público<textarea value={authorAudience} onChange={(event) => { setAuthorAudience(event.target.value); markDirty(); }} placeholder="Ex.: autoria, destinatários e público da mensagem" className="mt-1 w-full min-h-20 rounded-lg border p-2 text-sm" /></label><label className="text-sm font-semibold">Contexto histórico<textarea value={historicalContext} onChange={(event) => { setHistoricalContext(event.target.value); markDirty(); }} placeholder="Período, situação e fatos relevantes" className="mt-1 w-full min-h-20 rounded-lg border p-2 text-sm" /></label><label className="text-sm font-semibold">Contexto literário<textarea value={literaryContext} onChange={(event) => { setLiteraryContext(event.target.value); markDirty(); }} placeholder="Gênero, estrutura e contexto imediato" className="mt-1 w-full min-h-20 rounded-lg border p-2 text-sm" /></label><label className="text-sm font-semibold">Termos importantes<textarea value={keyTerms} onChange={(event) => { setKeyTerms(event.target.value); markDirty(); }} placeholder="Palavras, conceitos ou termos originais confirmados" className="mt-1 w-full min-h-20 rounded-lg border p-2 text-sm" /></label></div><label className="block text-sm font-semibold">Personagens, lugares e eventos<textarea value={peoplePlacesEvents} onChange={(event) => { setPeoplePlacesEvents(event.target.value); markDirty(); }} placeholder="Registre somente informações verificadas" className="mt-1 w-full min-h-20 rounded-lg border p-2 text-sm" /></label></section>}
       <div className="bg-white rounded-3xl border shadow-sm p-5 sm:p-8 space-y-4">
-        <label className="block text-sm font-semibold">Título<input value={title} onChange={(event) => { setTitle(event.target.value); setSaved(false); }} maxLength={300} className="mt-1 block w-full rounded-xl border p-3 font-serif text-lg" /></label>
-        <label className="block text-sm font-semibold">Texto ou referência bíblica<input value={reference} onChange={(event) => { setReference(event.target.value); setSaved(false); }} maxLength={300} className="mt-1 block w-full rounded-xl border p-3" /></label>
-        <div className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-4 space-y-3"><div><h2 className="text-sm font-bold text-indigo-900">Referências adicionais</h2><p className="text-xs text-slate-600">Adicione referências relacionadas. Cada uma pode ser aberta no Raio‑X.</p></div><div className="flex gap-2"><input value={referenceInput} onChange={(event) => setReferenceInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addReference(); } }} placeholder="Ex.: João 3:16" className="flex-1 rounded-lg border p-2 text-sm" /><button type="button" onClick={addReference} className="rounded-lg bg-indigo-700 text-white px-3 py-2 text-sm font-bold">Adicionar</button></div>{references.length > 0 && <div className="flex flex-wrap gap-2">{references.map((item) => <span key={item} className="inline-flex items-center gap-1 rounded-lg bg-white border border-indigo-200 px-2 py-1 text-xs"><button type="button" onClick={() => onOpenReference?.(item)} className="text-indigo-800 underline font-semibold">{item}</button><button type="button" onClick={() => { setAdditionalReferences(references.filter((referenceItem) => referenceItem !== item).join("; ")); setSaved(false); }} aria-label={`Remover ${item}`} className="text-slate-500 hover:text-red-700">×</button></span>)}</div>}</div>
-        <label className="block text-sm font-semibold">Conteúdo<textarea value={content} onChange={(event) => { setContent(event.target.value); setSaved(false); }} maxLength={50000} className="mt-1 block w-full min-h-[520px] rounded-xl border p-4 font-mono text-sm leading-relaxed" /></label>
+        <label className="block text-sm font-semibold">Título<input value={title} onChange={(event) => { setTitle(event.target.value); markDirty(); }} maxLength={300} className="mt-1 block w-full rounded-xl border p-3 font-serif text-lg" /></label>
+        <label className="block text-sm font-semibold">Texto ou referência bíblica<input value={reference} onChange={(event) => { setReference(event.target.value); markDirty(); }} maxLength={300} className="mt-1 block w-full rounded-xl border p-3" /></label>
+        <div className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-4 space-y-3"><div><h2 className="text-sm font-bold text-indigo-900">Referências adicionais</h2><p className="text-xs text-slate-600">Adicione referências relacionadas. Cada uma pode ser aberta no Raio‑X.</p></div><div className="flex gap-2"><input value={referenceInput} onChange={(event) => setReferenceInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addReference(); } }} placeholder="Ex.: João 3:16" className="flex-1 rounded-lg border p-2 text-sm" /><button type="button" onClick={addReference} className="rounded-lg bg-indigo-700 text-white px-3 py-2 text-sm font-bold">Adicionar</button></div>{references.length > 0 && <div className="flex flex-wrap gap-2">{references.map((item) => <span key={item} className="inline-flex items-center gap-1 rounded-lg bg-white border border-indigo-200 px-2 py-1 text-xs"><button type="button" onClick={() => onOpenReference?.(item)} className="text-indigo-800 underline font-semibold">{item}</button><button type="button" onClick={() => { setAdditionalReferences(references.filter((referenceItem) => referenceItem !== item).join("; ")); markDirty(); }} aria-label={`Remover ${item}`} className="text-slate-500 hover:text-red-700">×</button></span>)}</div>}</div>
+        <label className="block text-sm font-semibold">Conteúdo<textarea value={content} onChange={(event) => { setContent(event.target.value); markDirty(); }} maxLength={50000} className="mt-1 block w-full min-h-[520px] rounded-xl border p-4 font-mono text-sm leading-relaxed" /></label>
         <p className="text-xs text-slate-500 flex items-center gap-2"><FileText className="w-4 h-4" /> Revise referências e aplicações antes de ensinar ou pregar.</p>
       </div>
     </section>
