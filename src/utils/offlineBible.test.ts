@@ -25,3 +25,14 @@ test("offline Bible storage ignores malformed entries and round-trips valid entr
   assert.equal(writeOfflineBibleChapters([chapter], storage), true);
   assert.deepEqual(readOfflineBibleChapters(storage), [chapter]);
 });
+
+test("offline chapters preserve public verse text and cap the local cache", () => {
+  const chapterWithText = { ...chapter, verses: [{ number: 1, text: "No princípio" }] };
+  let value = "";
+  const storage = {
+    getItem: () => value,
+    setItem: (_key: string, next: string) => { value = next; },
+  };
+  assert.equal(writeOfflineBibleChapters([chapterWithText], storage), true);
+  assert.deepEqual(readOfflineBibleChapters(storage), [chapterWithText]);
+});

@@ -45,7 +45,8 @@ export function BibleAndHarpViewConnected({
   const [offlineChapters, setOfflineChapters] = useState<OfflineBibleChapter[]>(() => readOfflineBibleChapters());
 
   const selectedBook = BIBLE_BOOKS.find((item) => item.name === book) ?? BIBLE_BOOKS[0];
-  const data = findBibleChapter(book, chapter, translation);
+  const cachedOfflineChapter = offlineChapters.find((item) => item.book === book && item.chapter === chapter && item.translation === translation);
+  const data = findBibleChapter(book, chapter, translation) ?? (cachedOfflineChapter?.verses ? { book, chapter, translation, verses: cachedOfflineChapter.verses } : null);
   const compareData = findBibleChapter(book, chapter, compareTranslation);
   const hymns = useMemo(() => searchHymns(INITIAL_HYMNS, search), [search]);
   const relatedReferences = useMemo(() => {
@@ -112,7 +113,7 @@ export function BibleAndHarpViewConnected({
     setSelectedVerses([]);
   }
 
-  const currentOfflineChapter: OfflineBibleChapter = { book, chapter, translation };
+  const currentOfflineChapter: OfflineBibleChapter = { book, chapter, translation, ...(data ? { verses: data.verses } : {}) };
   const currentOfflineKey = offlineBibleKey(currentOfflineChapter);
   const isCurrentChapterOffline = offlineChapters.some((item) => offlineBibleKey(item) === currentOfflineKey);
 
@@ -171,7 +172,7 @@ export function BibleAndHarpViewConnected({
 
       {offlineChapters.length > 0 && <section aria-label="Capítulos disponíveis offline" className="bg-white rounded-2xl border border-emerald-200 p-4 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <div><h2 className="font-bold text-emerald-900">Leitura offline neste dispositivo</h2><p className="text-xs text-slate-600">Somente referências públicas e traduções locais são guardadas.</p></div>
+          <div><h2 className="font-bold text-emerald-900">Leitura offline neste dispositivo</h2><p className="text-xs text-slate-600">O texto público disponível é guardado localmente; notas, compras e dados privados não entram no cache.</p></div>
           <span className="rounded-full bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-800">{offlineChapters.length} capítulo{offlineChapters.length === 1 ? "" : "s"}</span>
         </div>
         <div className="mt-3 flex flex-wrap gap-2">{offlineChapters.map((item) => <div key={offlineBibleKey(item)} className="flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50/60 pl-2 text-xs text-emerald-950"><button type="button" className="py-1 font-semibold underline" onClick={() => openOfflineChapter(item)}>{item.book} {item.chapter} · {item.translation}</button><button type="button" className="px-2 py-1 text-emerald-700" aria-label={`Remover ${item.book} ${item.chapter} do offline`} onClick={() => removeOfflineChapter(item)}>×</button></div>)}</div>
@@ -198,7 +199,7 @@ export function BibleAndHarpViewConnected({
             <button type="button" onClick={() => setCompareOpen((value) => !value)} className="px-3 py-2 rounded-xl border border-amber-300 text-amber-800 text-sm font-bold">
               {compareOpen ? "Fechar comparação" : "Comparar versões"}
             </button>
-            <button type="button" disabled={!data} onClick={toggleCurrentChapterOffline} className={`px-3 py-2 rounded-xl border text-sm font-bold disabled:opacity-50 ${isCurrentChapterOffline ? "border-emerald-300 bg-emerald-50 text-emerald-800" : "border-slate-300 text-slate-700"}`} title="Guarda apenas a referência e a tradução local disponível; não armazena dados privados">
+            <button type="button" disabled={!data} onClick={toggleCurrentChapterOffline} className={`px-3 py-2 rounded-xl border text-sm font-bold disabled:opacity-50 ${isCurrentChapterOffline ? "border-emerald-300 bg-emerald-50 text-emerald-800" : "border-slate-300 text-slate-700"}`} title="Guarda o texto público local disponível; não armazena dados privados">
               <Download className="w-4 h-4 inline mr-1" />{isCurrentChapterOffline ? "Disponível offline" : "Disponibilizar offline"}
             </button>
             <div className="ml-auto flex items-center gap-2 text-xs text-slate-500">
