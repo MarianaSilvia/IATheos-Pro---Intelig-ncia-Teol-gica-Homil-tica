@@ -471,7 +471,7 @@ function Workspace({
               />
             </>
           )}
-          {tab === "editor" && <EditorView source={sermon || lesson || xray} initialReference={editorDraft?.reference} initialText={editorDraft?.text} initialContextOpen={editorDraft?.contextOpen} onOpenReference={(reference) => void generateXray(reference)} onOpenBible={openBibleReference} onOpenDictionary={(reference) => { setActiveContext(reference); setModal("dictionary"); }} onOpenConcordance={(reference) => { setActiveContext(reference); setModal("concordance"); }} />}
+          {tab === "editor" && <EditorView source={sermon || lesson || xray} initialReference={editorDraft?.reference} activeReference={contextReference} initialText={editorDraft?.text} initialContextOpen={editorDraft?.contextOpen} onOpenReference={(reference) => void generateXray(reference)} onOpenBible={openBibleReference} onOpenDictionary={(reference) => { setActiveContext(reference); setModal("dictionary"); }} onOpenConcordance={(reference) => { setActiveContext(reference); setModal("concordance"); }} />}
           {tab === "admin" && access.isAdmin && (
             <AdminPanelView
               products={catalog.data}
