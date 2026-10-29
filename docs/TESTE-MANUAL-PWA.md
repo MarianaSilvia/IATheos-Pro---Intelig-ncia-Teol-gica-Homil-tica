@@ -39,7 +39,7 @@ Use este roteiro em uma janela anônima e em uma conta autenticada de teste. Nã
 - [ ] Pesquisar “graça”, “GRACA” e “graças” na Concordância e confirmar a mesma entrada quando disponível.
 - [ ] Em uma referência do Dicionário/Concordância, testar os atalhos **Bíblia** e **Raio-X**.
 - [ ] No resultado do Dicionário, abrir a Concordância e confirmar que o termo já aparece preenchido.
-- [ ] Salvar uma definição do Dicionário e uma ocorrência da Concordância diretamente nas notas e confirmar a sincronização.
+- [ ] Salvar uma definição do Dicionário e uma ocorrência da Concordância diretamente nas notas e confirmar a sincronização em **Minhas notas**.
 - [ ] Clicar duas vezes rapidamente em salvar e confirmar que apenas uma nota é criada e o botão mostra estado de salvamento.
 
 ## 3. Integridade e segurança
