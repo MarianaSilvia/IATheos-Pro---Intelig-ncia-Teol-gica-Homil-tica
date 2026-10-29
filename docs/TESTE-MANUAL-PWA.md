@@ -18,6 +18,7 @@ Use este roteiro em uma janela anônima e em uma conta autenticada de teste. Nã
 - [ ] Selecionar um ou vários versículos e confirmar a passagem ativa como intervalo/lista.
 - [ ] Abrir Raio-X, Sermão, EBD, Dicionário e Concordância a partir da passagem.
 - [ ] Fechar uma ferramenta, voltar ao leitor e confirmar que a seleção de versículos continua destacada como intervalo ou lista.
+- [ ] Em uma referência relacionada, usar **Editor** e confirmar que ela é aberta como nova referência do estudo sem redigitação.
 - [ ] Confirmar que a referência é preservada e que nenhuma ferramenta inventa texto ausente.
 - [ ] Comparar duas traduções quando ambas estiverem disponíveis.
 - [ ] Selecionar versículos, abrir **Comparar versões** e confirmar que somente o trecho selecionado aparece nas duas traduções; sem seleção, confirmar o capítulo completo.

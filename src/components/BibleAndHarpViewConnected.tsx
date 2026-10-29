@@ -705,6 +705,7 @@ export function BibleAndHarpViewConnected({
                           <span className="text-xs font-semibold text-indigo-950">{reference}</span>
                           {onOpenBible && <button type="button" onClick={() => onOpenBible(reference)} className="text-[11px] font-semibold text-emerald-800 underline">Bíblia</button>}
                           <button type="button" onClick={() => onSendToVerseXray(reference)} className="text-[11px] font-semibold text-amber-800 underline">Raio‑X</button>
+                          {onSendToEditor && <button type="button" onClick={() => onSendToEditor(reference, "")} className="text-[11px] font-semibold text-indigo-800 underline">Editor</button>}
                         </div>
                       ))}
                     </div>
