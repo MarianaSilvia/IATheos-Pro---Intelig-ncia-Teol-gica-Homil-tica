@@ -120,6 +120,8 @@ export function AdminPanelView({
   });
   const saveContact = () => void run(async () => {
     if (!contactEdit) return;
+    const digits = contactEdit.phone.replace(/\D/g, "");
+    if (!/^(?:55[1-9]\d{9,10}|[1-9]\d{9,10})$/.test(digits)) throw new Error("Informe um celular válido com DDD: 10/11 dígitos, ou com 55 como prefixo.");
     await api(`/admin/users/${encodeURIComponent(contactEdit.uid)}/contact`, { method: "PATCH", body: JSON.stringify({ displayName: contactEdit.displayName, phone: contactEdit.phone }) });
     setContactEdit(null); await Promise.all([users.reload(), orders.reload()]);
   });
