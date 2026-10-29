@@ -462,11 +462,18 @@ export function searchConcordance(
     const normalized = normalizeReferenceSearch(value);
     return [...queryForms].some((form) => normalized.includes(form));
   };
-  const entry = Object.entries(entries).find(([key, value]) =>
-    matches(key) || matches(value.word),
-  )?.[1];
-  if (!entry) return null;
-  return { ...entry, verses: entry.verses.filter((verse) => matches(`${verse.reference} ${verse.snippet}`) || matches(entry.word)) };
+  const matched = Object.entries(entries).find(([key, value]) =>
+    matches(key) || matches(value.word) || value.verses.some((verse) => matches(`${verse.reference} ${verse.snippet}`)),
+  );
+  if (!matched) return null;
+  const [key, entry] = matched;
+  const matchesEntryWord = matches(key) || matches(entry.word);
+  return {
+    ...entry,
+    verses: matchesEntryWord
+      ? entry.verses
+      : entry.verses.filter((verse) => matches(`${verse.reference} ${verse.snippet}`)),
+  };
 }
 
 export function toggleReadingCompleted(
