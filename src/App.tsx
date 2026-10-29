@@ -110,10 +110,10 @@ function Workspace({
   const persistedStudyContext = readStudyContext(session.uid);
   const persistedReference = persistedStudyContext?.reference ?? "";
   const parsedPersistedReference = parseBibleReference(persistedReference);
-  const persistedBook = parsedPersistedReference && BIBLE_BOOKS.some((item) => item.name === parsedPersistedReference.book)
-    ? parsedPersistedReference.book
-    : "Romanos";
-  const persistedChapter = parsedPersistedReference?.chapter ?? 5;
+  const persistedBookInfo = parsedPersistedReference ? BIBLE_BOOKS.find((item) => item.name === parsedPersistedReference.book) : undefined;
+  const persistedReferenceIsValid = Boolean(parsedPersistedReference && persistedBookInfo && parsedPersistedReference.chapter <= persistedBookInfo.chaptersCount);
+  const persistedBook = persistedReferenceIsValid && parsedPersistedReference ? parsedPersistedReference.book : "Romanos";
+  const persistedChapter = persistedReferenceIsValid && parsedPersistedReference ? parsedPersistedReference.chapter : 5;
   const [tab, setTab] = useState<TabType>("dashboard");
   const [sermon, setSermon] = useState<SermonOutline | null>(null);
   const [lesson, setLesson] = useState<EbdLesson | null>(null);
@@ -147,7 +147,8 @@ function Workspace({
   const setActiveContext = (reference: string) => {
     setContextReference(reference);
     const parsed = parseBibleReference(reference);
-    if (parsed && BIBLE_BOOKS.some((item) => item.name === parsed.book)) {
+    const bookInfo = parsed ? BIBLE_BOOKS.find((item) => item.name === parsed.book) : undefined;
+    if (parsed && bookInfo && parsed.chapter <= bookInfo.chaptersCount) {
       setBible({ book: parsed.book, chapter: parsed.chapter });
     }
   };
@@ -214,7 +215,8 @@ function Workspace({
   };
   const openBibleReference = (reference: string) => {
     const parsed = parseBibleReference(reference);
-    const book = parsed && BIBLE_BOOKS.some((item) => item.name === parsed.book) ? parsed.book : null;
+    const bookInfo = parsed ? BIBLE_BOOKS.find((item) => item.name === parsed.book) : undefined;
+    const book = parsed && bookInfo && parsed.chapter <= bookInfo.chaptersCount ? parsed.book : null;
     if (!parsed || !book) {
       setMessage("Esta referência não está em um formato reconhecido pelo leitor bíblico.");
       return;
