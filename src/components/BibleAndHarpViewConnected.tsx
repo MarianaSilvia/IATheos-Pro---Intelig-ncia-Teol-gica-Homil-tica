@@ -6,6 +6,7 @@ import { findBibleChapter } from "../utils/bibleContent";
 import { api } from "../lib/api";
 import { INITIAL_CONCORDANCE_ENTRIES, normalizeReferenceSearch } from "../utils/dashboard";
 import { readOfflineBibleChapters, toggleOfflineBibleChapter, offlineBibleKey, writeOfflineBibleChapters, type OfflineBibleChapter } from "../utils/offlineBible";
+import { formatVerseReference, toggleVerseSelection } from "../utils/bibleSelection";
 
 const TRANSLATIONS = ["ARC", "NAA", "NVI", "KJF"] as const;
 
@@ -36,7 +37,7 @@ export function BibleAndHarpViewConnected({
   const [translation, setTranslation] = useState<(typeof TRANSLATIONS)[number]>("NAA");
   const [compareTranslation, setCompareTranslation] = useState<(typeof TRANSLATIONS)[number]>("ARC");
   const [compareOpen, setCompareOpen] = useState(false);
-  const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
+  const [selectedVerses, setSelectedVerses] = useState<number[]>([]);
   const [fontSize, setFontSize] = useState(17);
   const [search, setSearch] = useState("");
   const [hymn, setHymn] = useState(INITIAL_HYMNS[0]);
@@ -48,11 +49,12 @@ export function BibleAndHarpViewConnected({
   const compareData = findBibleChapter(book, chapter, compareTranslation);
   const hymns = useMemo(() => searchHymns(INITIAL_HYMNS, search), [search]);
   const relatedReferences = useMemo(() => {
-    if (!data || selectedVerse === null) return [];
-    const verseText = data.verses.find((verse) => verse.number === selectedVerse)?.text ?? "";
+    if (!data || selectedVerses.length === 0) return [];
+    const verseText = data.verses.filter((verse) => selectedVerses.includes(verse.number)).map((verse) => verse.text).join(" ");
     const normalizedText = normalizeReferenceSearch(verseText);
-    return Object.entries(INITIAL_CONCORDANCE_ENTRIES).filter(([term, entry]) => normalizedText.includes(normalizeReferenceSearch(term)) || normalizedText.includes(normalizeReferenceSearch(entry.word))).flatMap(([, entry]) => entry.verses.map((verse) => verse.reference)).filter((reference, index, list) => list.indexOf(reference) === index && normalizeReferenceSearch(reference) !== normalizeReferenceSearch(`${book} ${chapter}:${selectedVerse}`)).slice(0, 6);
-  }, [book, chapter, data, selectedVerse]);
+    const currentReference = normalizeReferenceSearch(formatVerseReference(book, chapter, selectedVerses));
+    return Object.entries(INITIAL_CONCORDANCE_ENTRIES).filter(([term, entry]) => normalizedText.includes(normalizeReferenceSearch(term)) || normalizedText.includes(normalizeReferenceSearch(entry.word))).flatMap(([, entry]) => entry.verses.map((verse) => verse.reference)).filter((reference, index, list) => list.indexOf(reference) === index && normalizeReferenceSearch(reference) !== currentReference).slice(0, 6);
+  }, [book, chapter, data, selectedVerses]);
 
   async function copy(text: string) {
     try {
@@ -64,16 +66,17 @@ export function BibleAndHarpViewConnected({
   }
 
   async function saveSelectedVerse() {
-    if (!data || selectedVerse === null) return;
-    const verse = data.verses.find((item) => item.number === selectedVerse);
-    if (!verse) return;
+    if (!data || selectedVerses.length === 0) return;
+    const verses = data.verses.filter((item) => selectedVerses.includes(item.number));
+    if (!verses.length) return;
+    const reference = formatVerseReference(book, chapter, selectedVerses);
     try {
       await api(`/notes/${crypto.randomUUID()}`, {
         method: "PUT",
         body: JSON.stringify({
-          title: `${book} ${chapter}:${verse.number}`,
-          biblicalReference: `${book} ${chapter}:${verse.number}`,
-          content: `${verse.text}\n\nTradução: ${translation}`,
+          title: reference,
+          biblicalReference: reference,
+          content: `${verses.map((verse) => `${verse.number}. ${verse.text}`).join("\n\n")}\n\nTradução: ${translation}`,
         }),
       });
       setMessage("Versículo salvo nas suas notas.");
@@ -101,12 +104,12 @@ export function BibleAndHarpViewConnected({
   function changeBook(nextBook: string) {
     setBook(nextBook);
     setChapter(1);
-    setSelectedVerse(null);
+    setSelectedVerses([]);
   }
 
   function changeChapter(nextChapter: number) {
     setChapter(nextChapter);
-    setSelectedVerse(null);
+    setSelectedVerses([]);
   }
 
   const currentOfflineChapter: OfflineBibleChapter = { book, chapter, translation };
@@ -138,12 +141,12 @@ export function BibleAndHarpViewConnected({
     setBook(chapterToOpen.book);
     setChapter(chapterToOpen.chapter);
     setTranslation(chapterToOpen.translation as (typeof TRANSLATIONS)[number]);
-    setSelectedVerse(null);
+    setSelectedVerses([]);
     setMessage(`Abrindo ${chapterToOpen.book} ${chapterToOpen.chapter} · ${chapterToOpen.translation}.`);
   }
 
-  function openXray(verse: number) {
-    onSendToVerseXray(`${book} ${chapter}:${verse}`);
+  function openXray(verses: number[]) {
+    onSendToVerseXray(formatVerseReference(book, chapter, verses));
   }
 
   return (
@@ -231,12 +234,12 @@ export function BibleAndHarpViewConnected({
           <div className="bg-white rounded-3xl border border-slate-200 shadow-lg p-6 sm:p-10">
             <div className="border-b border-slate-100 pb-4"><h1 className="text-2xl sm:text-3xl font-extrabold font-serif">{book} {chapter}</h1><span className="text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-1 rounded-md border border-amber-200">Tradução: {translation}</span></div>
             {data ? <div className="space-y-3 mt-6" style={{ fontSize: `${fontSize}px` }}>
-              {data.verses.map((verse) => <div key={verse.number} role="button" tabIndex={0} onClick={() => setSelectedVerse(verse.number)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") setSelectedVerse(verse.number); }} className={`p-3 rounded-xl hover:bg-slate-50 flex items-start gap-3 group cursor-pointer ${selectedVerse === verse.number ? "bg-amber-50 ring-1 ring-amber-300" : ""}`}>
+              {data.verses.map((verse) => <div key={verse.number} role="button" tabIndex={0} aria-pressed={selectedVerses.includes(verse.number)} onClick={() => setSelectedVerses((current) => toggleVerseSelection(current, verse.number))} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setSelectedVerses((current) => toggleVerseSelection(current, verse.number)); } }} className={`p-3 rounded-xl hover:bg-slate-50 flex items-start gap-3 group cursor-pointer ${selectedVerses.includes(verse.number) ? "bg-amber-50 ring-1 ring-amber-300" : ""}`}>
                 <span className="font-mono font-bold text-amber-600 text-sm pt-1 w-6 text-right">{verse.number}</span><p className="flex-1 font-serif text-slate-800 leading-relaxed">{verse.text}</p>
-                <div className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 flex items-center gap-1"><button type="button" onClick={(event) => { event.stopPropagation(); void copy(`"${verse.text}" (${book} ${chapter}:${verse.number} - ${translation})`); }} className="p-1 text-slate-400 hover:text-slate-700" title="Copiar"><Copy className="w-3.5 h-3.5" /></button><button type="button" onClick={(event) => { event.stopPropagation(); openXray(verse.number); }} className="px-2 py-1 rounded bg-amber-50 text-amber-800 text-[10px] font-bold" title="Abrir no Raio-X"><Eye className="w-3 h-3 inline mr-1" />Raio-X</button></div>
+                <div className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 flex items-center gap-1"><button type="button" onClick={(event) => { event.stopPropagation(); void copy(`"${verse.text}" (${book} ${chapter}:${verse.number} - ${translation})`); }} className="p-1 text-slate-400 hover:text-slate-700" title="Copiar"><Copy className="w-3.5 h-3.5" /></button><button type="button" onClick={(event) => { event.stopPropagation(); openXray([verse.number]); }} className="px-2 py-1 rounded bg-amber-50 text-amber-800 text-[10px] font-bold" title="Abrir no Raio-X"><Eye className="w-3 h-3 inline mr-1" />Raio-X</button></div>
               </div>)}
             </div> : <p role="status" className="mt-6 text-slate-600">Texto indisponível para esta combinação de livro, capítulo e tradução.</p>}
-            {selectedVerse && data && <section aria-label="Passagem ativa" className="mt-6 rounded-2xl border border-indigo-200 bg-indigo-50/60 p-4"><div className="flex flex-wrap items-center justify-between gap-2"><div><span className="text-[10px] uppercase tracking-wider font-bold text-indigo-700">Passagem ativa</span><h2 className="font-serif text-lg font-bold text-slate-900">{book} {chapter}:{selectedVerse}</h2><span className="text-xs text-slate-600">Tradução: {translation}</span></div><button type="button" onClick={() => setSelectedVerse(null)} className="text-xs text-slate-600 underline">Limpar seleção</button></div><p className="mt-3 font-serif leading-relaxed text-slate-800">{data.verses.find((verse) => verse.number === selectedVerse)?.text}</p>{relatedReferences.length > 0 && <div className="mt-3"><span className="text-[10px] uppercase tracking-wider font-bold text-indigo-700">Referências relacionadas do acervo parcial</span><div className="flex flex-wrap gap-2 mt-1">{relatedReferences.map((reference) => <button type="button" key={reference} onClick={() => onSendToVerseXray(reference)} className="rounded-lg bg-white border border-indigo-200 text-indigo-900 px-2 py-1 text-xs font-semibold underline">{reference}</button>)}</div></div>}<div className="mt-3 flex flex-wrap gap-2 text-xs"><button type="button" onClick={() => void saveSelectedVerse()} className="rounded-lg bg-slate-900 text-white px-3 py-1.5 font-bold">Salvar nota</button><button type="button" onClick={() => openXray(selectedVerse)} className="rounded-lg bg-amber-100 text-amber-900 px-3 py-1.5 font-bold">Raio‑X</button>{onSendToSermon && <button type="button" onClick={() => onSendToSermon(`${book} ${chapter}:${selectedVerse}`)} className="rounded-lg bg-indigo-100 text-indigo-900 px-3 py-1.5 font-bold">Sermão</button>}{onSendToEbd && <button type="button" onClick={() => onSendToEbd(`${book} ${chapter}:${selectedVerse}`)} className="rounded-lg bg-emerald-100 text-emerald-900 px-3 py-1.5 font-bold">EBD</button>}{onSendToEditor && <button type="button" onClick={() => onSendToEditor(`${book} ${chapter}:${selectedVerse}`, data.verses.find((verse) => verse.number === selectedVerse)?.text ?? "")} className="rounded-lg bg-violet-100 text-violet-900 px-3 py-1.5 font-bold">Editor</button>}{onOpenDictionary && <button type="button" onClick={() => onOpenDictionary(`${book} ${chapter}:${selectedVerse}`)} className="rounded-lg bg-white border border-indigo-200 text-indigo-900 px-3 py-1.5 font-bold">Dicionário</button>}{onOpenConcordance && <button type="button" onClick={() => onOpenConcordance(`${book} ${chapter}:${selectedVerse}`)} className="rounded-lg bg-white border border-indigo-200 text-indigo-900 px-3 py-1.5 font-bold">Concordância</button>}</div></section>}
+            {selectedVerses.length > 0 && data && <section aria-label="Passagem ativa" className="mt-6 rounded-2xl border border-indigo-200 bg-indigo-50/60 p-4"><div className="flex flex-wrap items-center justify-between gap-2"><div><span className="text-[10px] uppercase tracking-wider font-bold text-indigo-700">Passagem ativa · {selectedVerses.length} versículo{selectedVerses.length === 1 ? "" : "s"}</span><h2 className="font-serif text-lg font-bold text-slate-900">{formatVerseReference(book, chapter, selectedVerses)}</h2><span className="text-xs text-slate-600">Tradução: {translation}</span></div><button type="button" onClick={() => setSelectedVerses([])} className="text-xs text-slate-600 underline">Limpar seleção</button></div><p className="mt-3 font-serif leading-relaxed text-slate-800">{data.verses.filter((verse) => selectedVerses.includes(verse.number)).map((verse) => `${verse.number}. ${verse.text}`).join(" ")}</p>{relatedReferences.length > 0 && <div className="mt-3"><span className="text-[10px] uppercase tracking-wider font-bold text-indigo-700">Referências relacionadas do acervo parcial</span><div className="flex flex-wrap gap-2 mt-1">{relatedReferences.map((reference) => <button type="button" key={reference} onClick={() => onSendToVerseXray(reference)} className="rounded-lg bg-white border border-indigo-200 text-indigo-900 px-2 py-1 text-xs font-semibold underline">{reference}</button>)}</div></div>}<div className="mt-3 flex flex-wrap gap-2 text-xs"><button type="button" onClick={() => void saveSelectedVerse()} className="rounded-lg bg-slate-900 text-white px-3 py-1.5 font-bold">Salvar nota</button><button type="button" onClick={() => openXray(selectedVerses)} className="rounded-lg bg-amber-100 text-amber-900 px-3 py-1.5 font-bold">Raio‑X</button>{onSendToSermon && <button type="button" onClick={() => onSendToSermon(formatVerseReference(book, chapter, selectedVerses))} className="rounded-lg bg-indigo-100 text-indigo-900 px-3 py-1.5 font-bold">Sermão</button>}{onSendToEbd && <button type="button" onClick={() => onSendToEbd(formatVerseReference(book, chapter, selectedVerses))} className="rounded-lg bg-emerald-100 text-emerald-900 px-3 py-1.5 font-bold">EBD</button>}{onSendToEditor && <button type="button" onClick={() => onSendToEditor(formatVerseReference(book, chapter, selectedVerses), data.verses.filter((verse) => selectedVerses.includes(verse.number)).map((verse) => `${verse.number}. ${verse.text}`).join("\n\n"))} className="rounded-lg bg-violet-100 text-violet-900 px-3 py-1.5 font-bold">Editor</button>}{onOpenDictionary && <button type="button" onClick={() => onOpenDictionary(formatVerseReference(book, chapter, selectedVerses))} className="rounded-lg bg-white border border-indigo-200 text-indigo-900 px-3 py-1.5 font-bold">Dicionário</button>}{onOpenConcordance && <button type="button" onClick={() => onOpenConcordance(formatVerseReference(book, chapter, selectedVerses))} className="rounded-lg bg-white border border-indigo-200 text-indigo-900 px-3 py-1.5 font-bold">Concordância</button>}</div></section>}
           </div>
         </div>
       ) : (
