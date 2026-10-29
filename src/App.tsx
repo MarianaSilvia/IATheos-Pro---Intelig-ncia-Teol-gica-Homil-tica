@@ -48,6 +48,7 @@ import type { DigitalProduct } from "./utils/ecosystem";
 import { firstNameFromIdentity } from "./utils/dashboard";
 import { OfflineNotice } from "./components/OfflineNotice";
 import { InstallPwaButton } from "./components/InstallPwaButton";
+import { ModuleErrorBoundary } from "./components/ModuleErrorBoundary";
 const EditorView = lazy(() => import("./components/EditorView").then((m) => ({ default: m.EditorView })));
 export default function App() {
   const { session, loading, error, signingIn, loginAdmin, loginBuyer, setBuyerPassword, requestMagicLink, logout, refresh } =
@@ -320,6 +321,7 @@ function Workspace({
       )}
       <main className="max-w-7xl mx-auto p-4 sm:p-8">
         {contextReference && <div role="status" className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-950"><span><strong>Passagem ativa:</strong> {contextReference}</span><div className="flex items-center gap-3"><button type="button" onClick={() => setTab("bible_harp")} className="font-bold underline">Voltar à Bíblia</button><button type="button" onClick={() => setContextReference("")} className="text-indigo-700 underline">Limpar</button></div></div>}
+        <ModuleErrorBoundary>
         <Suspense fallback={<p role="status">Carregando módulo…</p>}>
           {tab === "dashboard" && (
             <DashboardView
@@ -440,6 +442,7 @@ function Workspace({
             />
           )}
         </Suspense>
+        </ModuleErrorBoundary>
       </main>
       <Suspense fallback={null}>
         <DashboardModals
