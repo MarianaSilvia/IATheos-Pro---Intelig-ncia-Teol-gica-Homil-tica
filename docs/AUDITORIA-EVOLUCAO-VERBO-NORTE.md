@@ -1,5 +1,7 @@
 # Auditoria da evolução do Verbo Norte
 
+> A matriz atual de recursos, limites de acervo e próximos incrementos está em [MATRIZ-RECURSOS-ESTUDO.md](./MATRIZ-RECURSOS-ESTUDO.md).
+
 ## Concluído nesta fase
 
 - Leitor bíblico com livro, capítulo, tradução e tamanho de fonte.
