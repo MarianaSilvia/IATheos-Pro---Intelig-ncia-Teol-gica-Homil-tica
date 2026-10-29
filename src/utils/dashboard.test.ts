@@ -60,12 +60,16 @@ test("Theological dictionary search", () => {
 
   const koinonia = searchDictionary(INITIAL_DICTIONARY_ENTRIES, "comunhão");
   assert.ok(koinonia.length >= 1);
+
+  const byDefinition = searchDictionary(INITIAL_DICTIONARY_ENTRIES, "habitar");
+  assert.ok(byDefinition.some((entry) => entry.term === "Shekinah"));
 });
 
 test("General dictionary searches the local editorial catalog", () => {
   const result = searchGeneralDictionary(INITIAL_GENERAL_DICTIONARY_ENTRIES, "RESILIENCIA");
   assert.equal(result.length, 1);
   assert.equal(result[0].category, "Comportamento");
+  assert.equal(searchGeneralDictionary(INITIAL_GENERAL_DICTIONARY_ENTRIES, "superação")[0].term, "Resiliência");
   assert.equal(searchGeneralDictionary(INITIAL_GENERAL_DICTIONARY_ENTRIES, "termo inexistente").length, 0);
 });
 
