@@ -2,6 +2,10 @@ import "dotenv/config";
 export function resolveHost(nodeEnv: string | undefined, configuredHost: string | undefined): string {
   return configuredHost || (nodeEnv === "production" ? "0.0.0.0" : "127.0.0.1");
 }
+export function resolvePublicUrl(configuredUrl: string | undefined, vercelUrl: string | undefined, fallback: string): string {
+  const candidate = configuredUrl?.trim() || (vercelUrl?.trim() ? `https://${vercelUrl.trim()}` : fallback);
+  return candidate.replace(/\/$/, "");
+}
 const url = process.env.SUPABASE_URL || "http://127.0.0.1:54321";
 const parsed = new URL(url);
 const local = ["localhost", "127.0.0.1", "[::1]"].includes(parsed.hostname);
@@ -16,5 +20,8 @@ export const config = {
   infinitePayApiKey: process.env.INFINITEPAY_API_KEY,
   infinitePayHandle: process.env.INFINITEPAY_HANDLE,
   infinitePayWebhookSecret: process.env.INFINITEPAY_WEBHOOK_SECRET,
-  publicUrl: process.env.PUBLIC_URL || "http://localhost:3000",
+  // PUBLIC_URL is authoritative when configured. Vercel supplies VERCEL_URL
+  // automatically, which prevents auth/payment links from falling back to
+  // localhost when a deployment was created without an explicit domain.
+  publicUrl: resolvePublicUrl(process.env.PUBLIC_URL, process.env.VERCEL_URL, "http://localhost:3000"),
 };

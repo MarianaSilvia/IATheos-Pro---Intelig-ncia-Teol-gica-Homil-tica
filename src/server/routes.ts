@@ -11,7 +11,7 @@ import { INITIAL_CONCORDANCE_ENTRIES, searchConcordance } from "../utils/dashboa
 import { hasValidInfinitePaySignature } from "./payment.ts";
 const router=Router();
 const phoneSchema=z.string().trim().transform((value)=>value.replace(/\D/g,"")).refine((value)=>value.startsWith("55")?/^55[1-9][0-9]{9,10}$/.test(value):/^[1-9][0-9]{9,10}$/.test(value),"Informe um celular válido com DDD (11 dígitos; com 55, use 13 dígitos).").transform((value)=>value.startsWith("55")?value:`55${value}`);
-const applicationOrigin=()=>config.local?config.publicUrl:"https://ia-theos-pro-intelig-ncia-teol-gica.vercel.app";
+const applicationOrigin=()=>config.publicUrl;
 async function ensureBuyerAccount(db: ReturnType<typeof serviceDatabase>, orderId: string) {
  const order=checked(await db.from("payment_orders").select("id,lead_id").eq("id",orderId).maybeSingle()) as any;
  if(!order) throw new HttpError(404,"Pedido não encontrado.");
