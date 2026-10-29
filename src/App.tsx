@@ -49,6 +49,7 @@ import { LandingPage } from "./components/LandingPage/LandingPage";
 import type { DigitalProduct } from "./utils/ecosystem";
 import { firstNameFromIdentity } from "./utils/dashboard";
 import { OfflineNotice } from "./components/OfflineNotice";
+import { InstallPwaButton } from "./components/InstallPwaButton";
 const EditorView = lazy(() => import("./components/EditorView").then((m) => ({ default: m.EditorView })));
 export default function App() {
   const { session, loading, error, signingIn, loginAdmin, loginBuyer, setBuyerPassword, requestMagicLink, logout, refresh } =
@@ -70,7 +71,7 @@ export default function App() {
     );
   if (!session)
     return (
-      <><OfflineNotice /><LandingPage
+      <><OfflineNotice /><InstallPwaButton /><LandingPage
         signingIn={signingIn}
         products={publicProducts}
         plans={subscriptionPlans}
@@ -84,7 +85,7 @@ export default function App() {
       /></>
     );
   return (
-    <><OfflineNotice /><Workspace
+    <><OfflineNotice /><InstallPwaButton /><Workspace
       key={session.uid}
       session={session}
       forcePasswordSetup={setupPasswordFromLink}
