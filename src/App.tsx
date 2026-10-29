@@ -52,6 +52,7 @@ export default function App() {
     useSession();
   const [publicProducts, setPublicProducts] = useState<Array<{id:string;title:string;price:number}>>([]);
   const [subscriptionPlans, setSubscriptionPlans] = useState<Array<{id:string;name:string;price:number;durationDays:number}>>([]);
+  const setupPasswordFromLink = new URLSearchParams(window.location.search).get("setup_password") === "1";
   useEffect(() => {
     void Promise.all([
       fetch("/api/public/products").then((r) => r.ok ? r.json() : []),
@@ -83,6 +84,7 @@ export default function App() {
     <Workspace
       key={session.uid}
       session={session}
+      forcePasswordSetup={setupPasswordFromLink}
       onSetPassword={async (password) => { await setBuyerPassword(password); }}
       logout={() => void logout()}
     />
@@ -90,10 +92,12 @@ export default function App() {
 }
 function Workspace({
   session,
+  forcePasswordSetup,
   onSetPassword,
   logout,
 }: {
   session: Session;
+  forcePasswordSetup: boolean;
   onSetPassword: (password: string) => Promise<void>;
   logout: () => void;
 }) {
@@ -110,13 +114,13 @@ function Workspace({
   >(null);
   const [bible, setBible] = useState({ book: "Romanos", chapter: 5 });
   const [access, setAccess] = useState(session);
-  const [passwordSetupOpen, setPasswordSetupOpen] = useState(!session.isAdmin && !session.passwordInitialized);
+  const [passwordSetupOpen, setPasswordSetupOpen] = useState(forcePasswordSetup || (!session.isAdmin && !session.passwordInitialized));
   const [newPassword, setNewPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [passwordBusy, setPasswordBusy] = useState(false);
   const [passwordError, setPasswordError] = useState("");
   useEffect(() => setAccess(session), [session]);
-  useEffect(() => setPasswordSetupOpen(!session.isAdmin && !session.passwordInitialized), [session.isAdmin, session.passwordInitialized]);
+  useEffect(() => setPasswordSetupOpen(forcePasswordSetup || (!session.isAdmin && !session.passwordInitialized)), [forcePasswordSetup, session.isAdmin, session.passwordInitialized]);
   const library = useLibrary();
   const catalog = useResource<DigitalProduct[]>("/products", []);
   const run = async (action: () => Promise<unknown>, success?: string) => {
@@ -252,7 +256,7 @@ function Workspace({
       </div>
       {passwordSetupOpen && !access.isAdmin && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <form onSubmit={async (event) => { event.preventDefault(); setPasswordError(""); if (newPassword.length < 8) { setPasswordError("A senha deve ter pelo menos 8 caracteres."); return; } if (newPassword !== passwordConfirmation) { setPasswordError("As senhas não coincidem."); return; } setPasswordBusy(true); try { await onSetPassword(newPassword); setPasswordSetupOpen(false); setNewPassword(""); setPasswordConfirmation(""); setMessage("Senha criada. Nos próximos acessos, use seu e-mail e senha."); } catch (error) { setPasswordError((error as Error).message); } finally { setPasswordBusy(false); } }} className="bg-white text-slate-900 rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl">
+          <form onSubmit={async (event) => { event.preventDefault(); setPasswordError(""); if (newPassword.length < 8) { setPasswordError("A senha deve ter pelo menos 8 caracteres."); return; } if (newPassword !== passwordConfirmation) { setPasswordError("As senhas não coincidem."); return; } setPasswordBusy(true); try { await onSetPassword(newPassword); setPasswordSetupOpen(false); setNewPassword(""); setPasswordConfirmation(""); window.history.replaceState({}, "", window.location.pathname); setMessage("Senha criada. Nos próximos acessos, use seu e-mail e senha."); } catch (error) { setPasswordError((error as Error).message); } finally { setPasswordBusy(false); } }} className="bg-white text-slate-900 rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl">
             <h2 className="text-xl font-bold">Crie sua senha de acesso</h2>
             <p className="text-sm text-slate-600">Este é seu primeiro acesso. Defina uma senha pessoal para não depender de novos e-mails mágicos.</p>
             <input required minLength={8} type="password" autoComplete="new-password" placeholder="Nova senha" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} className="block w-full border p-3 rounded-xl" />

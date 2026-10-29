@@ -30,8 +30,8 @@ export function useSession(){
   // In production always return to the origin that issued the request. This
   // prevents a stale VITE_PUBLIC_APP_URL (for example localhost) from making
   // the confirmation link land outside the deployed application.
-  if (import.meta.env.PROD) return window.location.origin;
-  return import.meta.env.VITE_PUBLIC_APP_URL || window.location.origin;
+  const origin = import.meta.env.PROD ? window.location.origin : (import.meta.env.VITE_PUBLIC_APP_URL || window.location.origin);
+  return `${origin.replace(/\/$/, "")}/?setup_password=1`;
  };
  return {session,loading,error,signingIn,refresh,
   loginAdmin:async(email:string,password:string)=>runAuth(()=>authClient().auth.signInWithPassword({email,password})),
