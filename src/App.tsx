@@ -173,6 +173,16 @@ function Workspace({
       translation: "Almeida Revista e Atualizada (ARA)",
     });
   };
+  const startSermonFromBible = (verseReference: string) => {
+    setSermon(null);
+    setContextReference(verseReference);
+    setTab("sermons");
+  };
+  const startEbdFromBible = (verseReference: string) => {
+    setLesson(null);
+    setContextReference(verseReference);
+    setTab("ebd");
+  };
   const toggleSave = (type: SavedItem["type"], data: SavedItem["data"]) =>
     void run(
       () =>
@@ -359,6 +369,8 @@ function Workspace({
               initialBook={bible.book}
               initialChapter={bible.chapter}
               onSendToVerseXray={(v) => void generateXray(v)}
+              onSendToSermon={startSermonFromBible}
+              onSendToEbd={startEbdFromBible}
             />
           )}
           {tab === "store" && (
