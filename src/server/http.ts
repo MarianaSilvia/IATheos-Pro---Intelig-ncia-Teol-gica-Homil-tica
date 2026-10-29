@@ -22,6 +22,8 @@ export const requireAuth:RequestHandler=async(req,res,next)=> {
     const {data,error}=await db.auth.getUser(match[1]);
     if(error||!data.user) { res.status(401).json({error:"Sessão inválida. Entre novamente."}); return; }
     const admin=checked(await db.rpc("is_admin"));
+    const temporaryExpiry=Date.parse(String(data.user.user_metadata?.provisional_password_expires_at||""));
+    if(data.user.user_metadata?.password_initialized===false&&Number.isFinite(temporaryExpiry)&&temporaryExpiry<Date.now()){res.status(401).json({error:"A senha provisória expirou. Solicite uma nova ao administrador."});return;}
     Object.assign(req,{db,user:{uid:data.user.id,email:data.user.email||"",name:String(data.user.user_metadata?.full_name||"").slice(0,100),admin:admin===true,passwordInitialized:data.user.user_metadata?.password_initialized===true}}); next();
   } catch(error) { next(error); }
 };

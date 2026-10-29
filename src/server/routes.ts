@@ -9,6 +9,7 @@ import { config } from "./config.ts";
 import crypto from "node:crypto";
 const router=Router();
 const phoneSchema=z.string().trim().transform((value)=>value.replace(/\D/g,"")).refine((value)=>value.startsWith("55")?/^55[1-9][0-9]{9,10}$/.test(value):/^[1-9][0-9]{9,10}$/.test(value),"Informe um celular válido com DDD (11 dígitos; com 55, use 13 dígitos).").transform((value)=>value.startsWith("55")?value:`55${value}`);
+const applicationOrigin=()=>config.local?config.publicUrl:"https://ia-theos-pro-intelig-ncia-teol-gica.vercel.app";
 async function ensureBuyerAccount(db: ReturnType<typeof serviceDatabase>, orderId: string) {
  const order=checked(await db.from("payment_orders").select("id,lead_id").eq("id",orderId).maybeSingle()) as any;
  if(!order) throw new HttpError(404,"Pedido não encontrado.");
@@ -166,12 +167,19 @@ router.get("/admin/users",requireAdmin,asyncRoute(async(req,res)=>{
 router.post("/admin/users/:uid/password-link",requireAdmin,asyncRoute(async(req,res)=>{
  const uid=z.uuid().parse(req.params.uid); const adminDb=serviceDatabase();
  const result=await adminDb.auth.admin.getUserById(uid); if(result.error||!result.data.user?.email) throw new HttpError(404,"Usuário comprador não encontrado.");
- const publicOrigin=config.local?config.publicUrl:"https://ia-theos-pro-intelig-ncia-teol-gica.vercel.app";
- const redirectTo=`${publicOrigin.replace(/\/$/,"")}/first-access`;
+ const redirectTo=`${applicationOrigin().replace(/\/$/,"")}/first-access`;
  const generated=await adminDb.auth.admin.generateLink({type:"recovery",email:result.data.user.email,options:{redirectTo}});
  if(generated.error) throw new HttpError(503,"Não foi possível gerar o link de primeiro acesso.");
  const link=generated.data.properties?.action_link; if(!link) throw new HttpError(503,"O provedor não retornou um link válido.");
  res.json({email:result.data.user.email,link});
+}));
+router.post("/admin/users/:uid/provisional-password",requireAdmin,asyncRoute(async(req,res)=>{
+ const uid=z.uuid().parse(req.params.uid); const db=serviceDatabase(); const user=await db.auth.admin.getUserById(uid);
+ if(user.error||!user.data.user?.email) throw new HttpError(404,"Usuário comprador não encontrado.");
+ const provisionalPassword=crypto.randomBytes(12).toString("base64url").slice(0,16); const expiresAt=new Date(Date.now()+24*60*60*1000).toISOString();
+ const metadata={...(user.data.user.user_metadata||{}),password_initialized:false,provisional_password_expires_at:expiresAt}; const updated=await db.auth.admin.updateUserById(uid,{password:provisionalPassword,user_metadata:metadata});
+ if(updated.error) throw new HttpError(503,"Não foi possível gerar a senha provisória.");
+ res.json({email:user.data.user.email,provisionalPassword,expiresAt,loginUrl:`${applicationOrigin().replace(/\/$/,"")}/`});
 }));
 router.patch("/admin/users/:uid/contact",requireAdmin,asyncRoute(async(req,res)=>{
  const uid=z.uuid().parse(req.params.uid); const data=z.object({displayName:z.string().trim().max(120),phone:phoneSchema}).strict().parse(req.body); const db=serviceDatabase();
