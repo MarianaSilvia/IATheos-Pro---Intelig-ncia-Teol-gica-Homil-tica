@@ -78,9 +78,9 @@ export const FeaturesSection: React.FC<FeaturesSectionProps> = ({ onSelectFeatur
       title: 'Raio-X do Versículo nos Originais',
       kicker: 'Exegese Hebraica & Grega',
       description:
-        'Desvende os termos mais profundos das Escrituras com transliteração, códigos Strong H/G, tempos verbais, raízes morfológicas e contexto cultural do Antigo Oriente Próximo e do mundo Greco-Romano.',
+        'Explore contexto, termos e conexões do versículo quando houver dados confiáveis no acervo. O resultado deixa clara a origem das informações e sinaliza conteúdo que precisa de revisão.',
       icon: Search,
-      highlights: ['Códigos Strong G/H com significado literal', 'Pano de fundo cultural do primeiro século', 'Princípios hermenêuticos eternos'],
+      highlights: ['Dados originais somente quando disponíveis', 'Contexto histórico e literário identificado', 'Revisão ministerial antes do uso público'],
     },
   ];
 

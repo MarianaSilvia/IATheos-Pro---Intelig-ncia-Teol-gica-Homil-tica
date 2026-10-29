@@ -48,7 +48,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
           {/* Subtitle */}
           <p className="text-lg sm:text-xl text-slate-300 font-normal leading-relaxed max-w-2xl text-balance">
-            Revolucione seus esboços de pregação, aulas de EBD e estudos bíblicos com a tecnologia teológica mais avançada do mercado. Exegese dos originais em segundos.
+            Organize esboços de pregação, aulas de EBD e estudos bíblicos com IA responsável, acervo parcial identificado e ferramentas conectadas para a sua preparação ministerial.
           </p>
 
           {/* Dual CTAs */}
@@ -81,37 +81,37 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           <div className="pt-10 w-full grid grid-cols-2 sm:grid-cols-4 gap-4 text-left">
             <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 backdrop-blur">
               <div className="text-2xl sm:text-3xl font-extrabold text-amber-400 font-mono tabular-nums">
-                1.189
+                Acervo parcial
               </div>
               <div className="text-xs text-slate-400 mt-1 font-medium">
-                Capítulos bíblicos mapeados e rastreados
+                Textos e hinos exibidos conforme disponibilidade e licença
               </div>
             </div>
 
             <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 backdrop-blur">
               <div className="text-2xl sm:text-3xl font-extrabold text-amber-400 font-mono tabular-nums">
-                Hebraico & Grego
+                Estudo conectado
               </div>
               <div className="text-xs text-slate-400 mt-1 font-medium">
-                Exegese com Códigos Strong e morfologia
+                Bíblia, seleção, notas, temas e ferramentas no mesmo fluxo
               </div>
             </div>
 
             <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 backdrop-blur">
               <div className="text-2xl sm:text-3xl font-extrabold text-amber-400 font-mono tabular-nums">
-                640
+                Harpa parcial
               </div>
               <div className="text-xs text-slate-400 mt-1 font-medium">
-                Hinos históricos da Harpa Cristã
+                Busca e cópia dos hinos cadastrados no acervo
               </div>
             </div>
 
             <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 backdrop-blur">
               <div className="text-2xl sm:text-3xl font-extrabold text-amber-400 font-mono tabular-nums">
-                Gemini 3.8
+                Gemini no servidor
               </div>
               <div className="text-xs text-slate-400 mt-1 font-medium">
-                IA Teológica treinada em hermenêutica bíblica
+                Respostas estruturadas, limitadas e sujeitas à revisão
               </div>
             </div>
           </div>
