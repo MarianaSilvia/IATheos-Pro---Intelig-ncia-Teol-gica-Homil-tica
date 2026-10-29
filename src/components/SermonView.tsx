@@ -37,6 +37,7 @@ interface SermonViewProps {
     specificFocus: string;
   }) => Promise<void>;
   isLoading: boolean;
+  onOpenReference?: (reference: string) => void;
 }
 
 export const SermonView: React.FC<SermonViewProps> = ({
@@ -46,6 +47,7 @@ export const SermonView: React.FC<SermonViewProps> = ({
   onOpenPulpitMode,
   onGenerateSermon,
   isLoading,
+  onOpenReference,
 }) => {
   const [biblicalText, setBiblicalText] = useState(currentSermon.biblicalText);
   const [theme, setTheme] = useState(currentSermon.title);
@@ -488,12 +490,12 @@ export const SermonView: React.FC<SermonViewProps> = ({
                             Referências Cruzadas:
                           </span>
                           {topic.crossReferences.map((ref, idx) => (
-                            <span
+                            <button type="button" onClick={() => onOpenReference?.(ref)}
                               key={idx}
-                              className="px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-slate-700 font-medium"
+                              className="px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-slate-700 font-medium underline"
                             >
                               {ref}
-                            </span>
+                            </button>
                           ))}
                         </div>
                       )}

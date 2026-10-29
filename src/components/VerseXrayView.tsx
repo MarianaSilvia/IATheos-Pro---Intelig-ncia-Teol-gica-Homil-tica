@@ -32,6 +32,7 @@ interface VerseXrayViewProps {
     translation: string;
   }) => Promise<void>;
   isLoading: boolean;
+  onOpenReference?: (reference: string) => void;
 }
 
 export const VerseXrayView: React.FC<VerseXrayViewProps> = ({
@@ -40,6 +41,7 @@ export const VerseXrayView: React.FC<VerseXrayViewProps> = ({
   isSaved,
   onGenerateXray,
   isLoading,
+  onOpenReference,
 }) => {
   const [verseReference, setVerseReference] = useState(
     currentXray.verseReference,
@@ -420,9 +422,9 @@ export const VerseXrayView: React.FC<VerseXrayViewProps> = ({
                       key={idx}
                       className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1"
                     >
-                      <span className="text-xs font-bold text-indigo-800 font-serif block">
+                      <button type="button" onClick={() => onOpenReference?.(cr.reference)} className="text-xs font-bold text-indigo-800 font-serif block underline text-left">
                         {cr.reference}
-                      </span>
+                      </button>
                       <p className="text-xs text-slate-700 leading-relaxed">
                         {cr.connection}
                       </p>

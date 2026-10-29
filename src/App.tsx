@@ -322,6 +322,7 @@ function Workspace({
                 isSaved={library.data.some((i) => i.id === sermon.id)}
                 onOpenPulpitMode={() => setPulpit(true)}
                 onGenerateSermon={generateSermon}
+                onOpenReference={(reference) => void generateXray(reference)}
                 isLoading={busy}
               />
             ) : (
@@ -346,6 +347,7 @@ function Workspace({
                 onSaveXray={(x) => toggleSave("xray", x)}
                 isSaved={library.data.some((i) => i.id === xray.id)}
                 onGenerateXray={(params) => generate("xray", params)}
+                onOpenReference={(reference) => void generateXray(reference)}
                 isLoading={busy}
               />
             ) : (
