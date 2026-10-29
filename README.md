@@ -1,6 +1,6 @@
-# IATheos Pro — backend QI Store Pro
+# Verbo Norte — backend QI Store Pro
 
-Aplicação React/Express de estudo bíblico. Código no GitHub; autenticação e dados no Supabase **QI Store Pro**, projeto `idrumlpdobiackcnhdas`, São Paulo. O nome da interface permanece IATheos Pro; QI Store Pro é o nome do projeto Supabase solicitado.
+Aplicação React/Express de estudo bíblico. Código no GitHub; autenticação e dados no Supabase **QI Store Pro**, projeto `idrumlpdobiackcnhdas`, São Paulo. A interface usa a marca **Verbo Norte**; QI Store Pro é o nome do projeto Supabase.
 
 ## Materiais e cobrança
 

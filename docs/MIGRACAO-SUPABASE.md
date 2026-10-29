@@ -11,7 +11,7 @@ Destino criado: **QI Store Pro**, ref `idrumlpdobiackcnhdas`, organização **Ma
 - Painel de upload substituído por cadastro/edição de link. Nenhum bucket Supabase foi criado. Storage está desativado no ambiente local.
 - Pedidos e confirmação idempotente preparados para a futura plataforma de pagamentos. O cliente não pode marcar pedido como pago nem conceder acesso. O endpoint antigo permanece 410. Acesso manual continua disponível, sem ser tratado como receita.
 - SDKs, CLI, regras, índices, scripts e testes Firebase removidos da versão ativa. A versão anterior permanece no histórico Git e os recursos remotos permanecem preservados.
-- Configuração, documentação, lockfile e fluxo AGENTS.md atualizados para Supabase. A interface continua IATheos Pro; não houve solicitação de renomear a marca ou o repositório.
+- Configuração, documentação, lockfile e fluxo AGENTS.md atualizados para Supabase. A interface usa a marca Verbo Norte; o nome do repositório permanece inalterado para preservar o histórico.
 
 ## Limites e pendências
 

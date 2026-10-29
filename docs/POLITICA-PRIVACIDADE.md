@@ -1,4 +1,4 @@
-# Política de privacidade — IATheos Pro
+# Política de privacidade — Verbo Norte
 
 Este documento é um modelo para revisão jurídica antes da publicação. O responsável pelo tratamento, endereço, e-mail de suporte e prazos de retenção ainda devem ser preenchidos.
 

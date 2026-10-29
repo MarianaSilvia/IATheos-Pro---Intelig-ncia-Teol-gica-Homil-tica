@@ -69,10 +69,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-amber-200 via-amber-100 to-amber-400 bg-clip-text text-transparent font-serif">
-                  IATheos{" "}
-                  <span className="text-amber-500 font-sans text-xs uppercase tracking-wider px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded">
-                    PRO
-                  </span>
+                  Verbo Norte
                 </span>
               </div>
               <p className="text-xs text-slate-400 hidden sm:block">

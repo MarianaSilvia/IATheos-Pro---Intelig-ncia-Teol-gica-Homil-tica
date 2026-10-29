@@ -42,7 +42,7 @@ router.post("/purchase-interest",asyncRoute(async(req,res)=>{
  const price=Number(product.details?.price); if(!Number.isFinite(price)||price<=0) throw new HttpError(400,"Este material não requer pagamento.");
  const lead=checked(await db.from("interest_leads").insert({email:data.email,product_id:data.productId,consent:true}).select("id").single());
  const order=checked(await db.from("payment_orders").insert({product_id:data.productId,lead_id:lead.id,amount_cents:Math.round(price*100),currency:"BRL",provider:"infinitepay"}).select("id").single());
- const payload={handle:config.infinitePayHandle,order_nsu:order.id,items:[{description:String(product.details?.title||"Material IATheos Pro"),quantity:1,price:Math.round(price*100)}],webhook_url:`${config.publicUrl}/api/webhooks/infinitepay`,redirect_url:`${config.publicUrl}/?order=${order.id}`};
+ const payload={handle:config.infinitePayHandle,order_nsu:order.id,items:[{description:String(product.details?.title||"Material Verbo Norte"),quantity:1,price:Math.round(price*100)}],webhook_url:`${config.publicUrl}/api/webhooks/infinitepay`,redirect_url:`${config.publicUrl}/?order=${order.id}`};
  const response=await fetch("https://api.checkout.infinitepay.io/links",{method:"POST",headers:{"X-Api-Key":config.infinitePayApiKey,"Content-Type":"application/json"},body:JSON.stringify(payload)});
  if(!response.ok) throw new HttpError(503,"Não foi possível criar o checkout.");
  const result:any=await response.json(); const checkoutUrl=String(result.url||result.link||result.checkout_url||"");

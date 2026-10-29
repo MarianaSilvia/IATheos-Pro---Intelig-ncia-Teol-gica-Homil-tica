@@ -30,7 +30,7 @@ export const INITIAL_PRODUCTS: DigitalProduct[] = [
   {
     id: "prod-revista-ebd-4tri",
     title: "Revista EBD Adultos: As Grandes Alianças Bíblicas e a Graça",
-    author: "Conselho Teológico IATheos",
+    author: "Conselho Teológico Verbo Norte",
     category: "Revista EBD",
     format: "PDF",
     pages: 96,

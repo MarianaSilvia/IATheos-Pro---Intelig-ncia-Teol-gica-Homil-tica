@@ -38,7 +38,7 @@ export const TheologicalChatView: React.FC<TheologicalChatViewProps> = ({
     {
       id: "welcome",
       sender: "assistant",
-      text: `**Graça e Paz! Eu sou o IATheos Pro.**\n\nEstou à disposição para auxiliá-lo em seu ministério pastoral, preparo homilético, exegese dos originais (hebraico, grego e aramaico) e didática cristã.\n\nVocê pode me fazer perguntas sobre:\n- Interpretação de passagens difíceis (*crux interpretum*)\n- Harmonia bíblica e teologia pactual\n- Contexto histórico e arqueológico dos tempos bíblicos\n- Dúvidas doutrinárias, escatologia e história da igreja\n\nComo posso ser útil ao seu estudo hoje?`,
+      text: `**Graça e Paz! Eu sou o Verbo Norte.**\n\nEstou à disposição para auxiliá-lo em seu ministério pastoral, preparo homilético, exegese dos originais (hebraico, grego e aramaico) e didática cristã.\n\nVocê pode me fazer perguntas sobre:\n- Interpretação de passagens difíceis (*crux interpretum*)\n- Harmonia bíblica e teologia pactual\n- Contexto histórico e arqueológico dos tempos bíblicos\n- Dúvidas doutrinárias, escatologia e história da igreja\n\nComo posso ser útil ao seu estudo hoje?`,
       timestamp: new Date().toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
@@ -171,7 +171,7 @@ export const TheologicalChatView: React.FC<TheologicalChatViewProps> = ({
               >
                 <div className="flex items-center justify-between text-[11px] opacity-75 mb-1">
                   <span className="font-semibold">
-                    {msg.sender === "user" ? "Você" : "IATheos Pro"}
+                    {msg.sender === "user" ? "Você" : "Verbo Norte"}
                   </span>
                   <span>{msg.timestamp}</span>
                 </div>

@@ -186,7 +186,7 @@ ${activeItem.conclusion}
 Oração Pastoral:
 ${activeItem.prayer}
 
-Gerado pelo IATheos Pro`;
+Gerado pelo Verbo Norte`;
 
     navigator.clipboard.writeText(textToCopy);
     setCopied(true);
@@ -204,7 +204,7 @@ Gerado pelo IATheos Pro`;
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-bold text-white font-['Cinzel',serif] tracking-tight">
-            Experimente o Cérebro Teológico do IATheos Pro
+            Experimente o Cérebro Teológico do Verbo Norte
           </h2>
 
           <p className="text-slate-300 text-base sm:text-lg">
@@ -241,7 +241,7 @@ Gerado pelo IATheos Pro`;
               <span className="w-3 h-3 rounded-full bg-amber-500/80 inline-block" />
               <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block" />
               <span className="ml-3 text-xs font-mono text-slate-400 hidden sm:inline">
-                iatheos-pro-engine // {activeItem.badge}
+                verbo-norte-engine // {activeItem.badge}
               </span>
             </div>
 

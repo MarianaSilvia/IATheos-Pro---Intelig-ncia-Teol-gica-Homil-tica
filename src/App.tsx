@@ -428,7 +428,7 @@ function Workspace({
         />
       )}
       <footer className="text-center p-8 text-slate-500 no-print">
-        IATheos Pro · Estudos e preparo ministerial
+        Verbo Norte · Estudos e preparo ministerial
       </footer>
     </div>
   );

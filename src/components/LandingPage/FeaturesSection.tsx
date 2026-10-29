@@ -95,7 +95,7 @@ export const FeaturesSection: React.FC<FeaturesSectionProps> = ({ onSelectFeatur
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white font-['Cinzel',serif] tracking-tight">
-            Os Encartes do Ecossistema IATheos Pro
+            Os Encartes do Ecossistema Verbo Norte
           </h2>
 
           <p className="text-slate-300 text-base sm:text-lg">

@@ -28,7 +28,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <BookOpen className="w-5 h-5 stroke-[2.5]" />
               </div>
               <span className="text-xl font-bold text-white font-['Cinzel',serif] tracking-tight">
-                IATheos Pro
+                Verbo Norte
               </span>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">
@@ -69,7 +69,7 @@ export const Footer: React.FC<FooterProps> = ({
           </div>
 
           <div className="text-center sm:text-right">
-            © {new Date().getFullYear()} IATheos Pro. Todos os direitos reservados.
+            © {new Date().getFullYear()} Verbo Norte. Todos os direitos reservados.
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 {
-  "name": "IATheos Pro - Inteligência Teológica & Homilética",
+  "name": "Verbo Norte - Estudos bíblicos e preparo ministerial",
   "description": "Assistente de teologia avançada, exegese bíblica dos originais (grego e hebraico), homilética e didática para pregadores e professores de EBD.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

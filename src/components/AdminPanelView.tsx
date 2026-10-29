@@ -113,14 +113,14 @@ export function AdminPanelView({
   const useContact = (email: string, phone: string) => { setWhatsappName(email.split("@")[0]); setWhatsappPhone(phone); setMessage("Contato carregado para o rascunho do WhatsApp."); };
   const sendPasswordLink = (user: any, phone?: string) => void run(async () => {
     const result = await api<{email:string;link:string}>(`/admin/users/${encodeURIComponent(user.uid)}/password-link`, { method: "POST" });
-    const message = `Olá! Seu pagamento foi confirmado. Use este link para criar sua senha de acesso ao IATheos Pro: ${result.link}`;
+    const message = `Olá! Seu pagamento foi confirmado. Use este link para criar sua senha de acesso ao Verbo Norte: ${result.link}`;
     const digits = phone?.replace(/\D/g, "") || "";
     if (digits.length >= 12) window.open(`https://wa.me/${digits}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
     else { await navigator.clipboard?.writeText(message); setMessage("Link gerado e copiado. Cadastre o telefone do comprador ou cole a mensagem manualmente no WhatsApp."); }
   });
   const sendProvisionalPassword = (user: any, phone?: string) => void run(async () => {
     const result = await api<{email:string;provisionalPassword:string;expiresAt:string;loginUrl:string}>(`/admin/users/${encodeURIComponent(user.uid)}/provisional-password`, { method: "POST" });
-    const message = `Olá! Seu acesso ao IATheos Pro foi liberado.\n\nE-mail: ${result.email}\nSenha provisória: ${result.provisionalPassword}\n\nAcesse: ${result.loginUrl}\nApós entrar, o sistema pedirá a criação de uma senha pessoal. Esta senha provisória expira em 24 horas.`;
+    const message = `Olá! Seu acesso ao Verbo Norte foi liberado.\n\nE-mail: ${result.email}\nSenha provisória: ${result.provisionalPassword}\n\nAcesse: ${result.loginUrl}\nApós entrar, o sistema pedirá a criação de uma senha pessoal. Esta senha provisória expira em 24 horas.`;
     const digits = phone?.replace(/\D/g, "") || "";
     if (digits.length >= 12) window.open(`https://wa.me/${digits}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
     else { await navigator.clipboard?.writeText(message); setMessage("Senha provisória gerada e copiada. Cole a mensagem manualmente no WhatsApp."); }

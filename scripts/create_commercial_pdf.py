@@ -33,13 +33,13 @@ def footer(canvas, doc):
     canvas.saveState()
     canvas.setFont("Arial", 8)
     canvas.setFillColor(colors.HexColor("#64748b"))
-    canvas.drawString(18 * mm, 12 * mm, "IATheos Pro - Roteiros comerciais")
+    canvas.drawString(18 * mm, 12 * mm, "Verbo Norte - Roteiros comerciais")
     canvas.drawRightString(192 * mm, 12 * mm, f"Página {doc.page}")
     canvas.restoreState()
 
 
 story = [
-    P("Roteiros comerciais - IATheos Pro", "TitleIA"),
+    P("Roteiros comerciais - Verbo Norte", "TitleIA"),
     P("Material de apoio para gravação de vídeos comerciais em redes sociais.", "SmallIA"),
     P("Orientação de produção", "H1IA"),
     P("Crie um vídeo-mestre vertical em <b>1080 x 1920 px, proporção 9:16, MP4/H.264, 30 fps e 15 segundos</b>. Esse formato atende Reels e TikTok. Mantenha textos e legendas longe das áreas ocupadas por botões e informações da plataforma.", "BodyIA"),
@@ -66,10 +66,10 @@ story += [table, Spacer(1, 5 * mm), P("Roteiro-mestre - 15 segundos", "H1IA")]
 
 scenes = [
     ("0-3 s - Gancho", "Bíblia aberta e tela do sistema entrando no painel.<br/><b>Texto:</b> Prepare melhor. Em menos tempo.<br/><b>Locução:</b> Você ainda começa cada pregação do zero?"),
-    ("3-7 s - Benefício principal", "Mostrar a geração de um esboço de pregação.<br/><b>Texto:</b> Pregações estruturadas + exegese.<br/><b>Locução:</b> Com o IATheos Pro, organize pregações e explore o contexto do versículo."),
+    ("3-7 s - Benefício principal", "Mostrar a geração de um esboço de pregação.<br/><b>Texto:</b> Pregações estruturadas + exegese.<br/><b>Locução:</b> Com o Verbo Norte, organize pregações e explore o contexto do versículo."),
     ("7-11 s - Diferencial EBD", "Mostrar a tela EBD selecionando PDF ou imagem da revista.<br/><b>Texto:</b> EBD a partir da sua revista.<br/><b>Locução:</b> Use PDF ou imagem como referência para preparar sua aula de EBD."),
     ("11-13 s - Ecossistema", "Mostrar alternância entre caderno, Bíblia e biblioteca.<br/><b>Texto:</b> Estudos, Bíblia e materiais em um só lugar.<br/><b>Locução:</b> Guarde seus estudos e acesse seus recursos em um só lugar."),
-    ("13-15 s - CTA", "Mostrar planos mensal e anual e o logo.<br/><b>Texto:</b> Conheça o IATheos Pro - link na bio.<br/><b>Locução:</b> Conheça o IATheos Pro. Revise o conteúdo e use a IA como apoio ao seu ministério."),
+    ("13-15 s - CTA", "Mostrar planos mensal e anual e o logo.<br/><b>Texto:</b> Conheça o Verbo Norte - link na bio.<br/><b>Locução:</b> Conheça o Verbo Norte. Revise o conteúdo e use a IA como apoio ao seu ministério."),
 ]
 for title, body in scenes:
     story += [P(title, "H2IA"), P(body)]
@@ -78,19 +78,19 @@ story += [
     PageBreak(),
     P("Adaptações por rede", "H1IA"),
     P("Instagram Reels e Facebook Reels", "H2IA"),
-    P("Use o vídeo-mestre 9:16. Deixe o nome IATheos Pro e a frase principal no centro da tela. CTA sugerido: <b>Saiba mais</b> ou <b>Link na bio</b>.", "BodyIA"),
+    P("Use o vídeo-mestre 9:16. Deixe o nome Verbo Norte e a frase principal no centro da tela. CTA sugerido: <b>Saiba mais</b> ou <b>Link na bio</b>.", "BodyIA"),
     P("Instagram e Facebook Feed", "H2IA"),
     P("Exporte a versão 4:5 em 1080 x 1350 px. Reenquadre a gravação para manter o painel e as legendas visíveis. Não corte o texto do CTA.", "BodyIA"),
     P("TikTok", "H2IA"),
     P("Use o vídeo 9:16. Comece diretamente com a pergunta do gancho, evite uma abertura longa com o logo e mantenha a locução clara. Inclua legenda embutida e CTA final.", "BodyIA"),
     P("Texto para legenda", "H1IA"),
-    P("Ferramentas de apoio para pregações, EBD e estudos bíblicos. Conteúdo gerado por IA exige revisão. Conheça o IATheos Pro pelo link da bio.", "QuoteIA"),
+    P("Ferramentas de apoio para pregações, EBD e estudos bíblicos. Conteúdo gerado por IA exige revisão. Conheça o Verbo Norte pelo link da bio.", "QuoteIA"),
     P("Mensagem para WhatsApp", "H1IA"),
-    P("Olá! Estamos apresentando o IATheos Pro, uma ferramenta de apoio para preparar pregações, aulas de EBD e estudos bíblicos. Há plano mensal e anual pelo checkout oficial. Se quiser conhecer, acesse o link oficial.", "QuoteIA"),
+    P("Olá! Estamos apresentando o Verbo Norte, uma ferramenta de apoio para preparar pregações, aulas de EBD e estudos bíblicos. Há plano mensal e anual pelo checkout oficial. Se quiser conhecer, acesse o link oficial.", "QuoteIA"),
     P("Checklist antes de publicar", "H1IA"),
     P("• Conferir preço, periodicidade e link do checkout.<br/>• Não prometer acesso antes da confirmação do pagamento.<br/>• Não exibir chaves, tokens ou dados de clientes.<br/>• Usar somente imagens e músicas autorizadas.<br/>• Manter política de privacidade, termos e aviso de IA acessíveis.", "BodyIA"),
 ]
 
-doc = SimpleDocTemplate(str(OUT), pagesize=A4, rightMargin=18 * mm, leftMargin=18 * mm, topMargin=16 * mm, bottomMargin=20 * mm, title="Roteiros comerciais - IATheos Pro", author="IATheos Pro")
+doc = SimpleDocTemplate(str(OUT), pagesize=A4, rightMargin=18 * mm, leftMargin=18 * mm, topMargin=16 * mm, bottomMargin=20 * mm, title="Roteiros comerciais - Verbo Norte", author="Verbo Norte")
 doc.build(story, onFirstPage=footer, onLaterPages=footer)
 print(OUT)

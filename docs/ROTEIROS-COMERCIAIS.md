@@ -1,4 +1,4 @@
-# Roteiros comerciais — IATheos Pro
+# Roteiros comerciais — Verbo Norte
 
 ## Pacote de exportação recomendado
 
@@ -31,7 +31,7 @@ Imagem: geração de um esboço de pregação.
 
 Texto na tela: `Pregações estruturadas + exegese`
 
-Locução: “Com o IATheos Pro, organize pregações e explore o contexto do versículo.”
+Locução: “Com o Verbo Norte, organize pregações e explore o contexto do versículo.”
 
 **7–11 s — Diferencial EBD**
 
@@ -53,9 +53,9 @@ Locução: “Guarde seus estudos e acesse seus recursos em um só lugar.”
 
 Imagem: planos mensal e anual + logo.
 
-Texto na tela: `Conheça o IATheos Pro · link na bio`
+Texto na tela: `Conheça o Verbo Norte · link na bio`
 
-Locução: “Conheça o IATheos Pro. Revise o conteúdo e use a IA como apoio ao seu ministério.”
+Locução: “Conheça o Verbo Norte. Revise o conteúdo e use a IA como apoio ao seu ministério.”
 
 Áudio: voz clara, música instrumental licenciada em volume baixo. Evite prometer resultado automático, precisão absoluta ou acesso antes da confirmação do pagamento.
 
@@ -69,7 +69,7 @@ Use estes roteiros como base. O conteúdo gerado por IA deve ser revisado antes 
 
 **Tela 2 — 5s**
 
-> Conheça o IATheos Pro: esboços estruturados, apoio para EBD, Raio-X do versículo e caderno ministerial.
+> Conheça o Verbo Norte: esboços estruturados, apoio para EBD, Raio-X do versículo e caderno ministerial.
 
 **Tela 3 — 5s**
 
@@ -85,7 +85,7 @@ Locução: “A preparação da sua próxima mensagem não precisa começar do z
 
 **Cena 2 (4–12s):** gravação da tela criando um esboço.
 
-Locução: “No IATheos Pro, você informa o texto bíblico e organiza um esboço homilético, uma aula de EBD ou uma análise do versículo.”
+Locução: “No Verbo Norte, você informa o texto bíblico e organiza um esboço homilético, uma aula de EBD ou uma análise do versículo.”
 
 **Cena 3 (12–21s):** mostrar a tela de EBD, o campo de material de apoio e o caderno.
 
@@ -97,7 +97,7 @@ Locução: “Escolha o plano mensal ou anual e faça o checkout pela InfinitePa
 
 **Cena 5 (27–30s):** logo e CTA.
 
-Locução: “Revise cada conteúdo e use a tecnologia como apoio ao seu ministério. Conheça o IATheos Pro.”
+Locução: “Revise cada conteúdo e use a tecnologia como apoio ao seu ministério. Conheça o Verbo Norte.”
 
 Legenda sugerida: `Ferramentas de apoio para pregações, EBD e estudos bíblicos. Conteúdo gerado por IA exige revisão. Conheça pelo link da bio.`
 
@@ -109,11 +109,11 @@ Legenda sugerida: `Ferramentas de apoio para pregações, EBD e estudos bíblico
 
 **Explicação (14–20s):** “O material serve como referência para a aula. Depois, revise o resultado, adapte à sua turma e salve no caderno.”
 
-**CTA (20–25s):** “Planos mensal e anual no link. O IATheos Pro apoia sua preparação; a decisão pastoral continua sendo sua.”
+**CTA (20–25s):** “Planos mensal e anual no link. O Verbo Norte apoia sua preparação; a decisão pastoral continua sendo sua.”
 
 ## Mensagem direta de lançamento
 
-> Olá! Estamos apresentando o IATheos Pro, uma ferramenta de apoio para preparar pregações, aulas de EBD e estudos bíblicos. Ele oferece geração estruturada, análise de versículos, referência por PDF/imagem na EBD e caderno ministerial. Há plano mensal e anual pelo checkout oficial. Se quiser conhecer, acesse [link oficial].
+> Olá! Estamos apresentando o Verbo Norte, uma ferramenta de apoio para preparar pregações, aulas de EBD e estudos bíblicos. Ele oferece geração estruturada, análise de versículos, referência por PDF/imagem na EBD e caderno ministerial. Há plano mensal e anual pelo checkout oficial. Se quiser conhecer, acesse [link oficial].
 
 ## Checklist antes de publicar cada anúncio
 

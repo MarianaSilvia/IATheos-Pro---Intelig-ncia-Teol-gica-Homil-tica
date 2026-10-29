@@ -31,10 +31,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">
                 <span className="text-xl font-bold tracking-tight text-white font-['Cinzel',serif]">
-                  IATheos
-                </span>
-                <span className="text-xs font-extrabold uppercase tracking-widest text-amber-400 bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 rounded">
-                  PRO
+                  Verbo Norte
                 </span>
               </div>
               <span className="text-[10px] tracking-wider text-slate-400 uppercase font-medium">

@@ -1,4 +1,4 @@
-# Termos de uso — IATheos Pro
+# Termos de uso — Verbo Norte
 
 Modelo para revisão jurídica antes da publicação. O uso é pessoal e não transfere propriedade dos materiais. Links externos do Google Drive podem ser compartilhados e devem ser usados conforme os termos do produto.
 
