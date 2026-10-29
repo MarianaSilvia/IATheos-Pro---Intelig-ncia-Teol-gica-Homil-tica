@@ -63,9 +63,11 @@ export const SavedLibraryView: React.FC<SavedLibraryViewProps> = ({
 
   const filteredItems = savedItems.filter((item) => {
     const matchesFilter = filter === "all" || item.type === filter;
-    const matchesSearch =
-      item.title.toLowerCase().includes(search.toLowerCase()) ||
-      item.reference.toLowerCase().includes(search.toLowerCase());
+    const editorData = item.data as EditorStudy;
+    const searchableText = item.type === "editor"
+      ? [item.title, item.reference, editorData.content, ...editorData.additionalReferences, ...Object.values(editorData.context)].join(" ")
+      : [item.title, item.reference, JSON.stringify(item.data)].join(" ");
+    const matchesSearch = searchableText.toLocaleLowerCase().includes(search.toLocaleLowerCase());
     return matchesFilter && matchesSearch;
   });
 
@@ -224,6 +226,7 @@ export const SavedLibraryView: React.FC<SavedLibraryViewProps> = ({
                 <p className="text-xs text-amber-800 font-semibold font-serif">
                   {item.reference}
                 </p>
+                {item.type === "editor" && <p className="text-xs text-slate-500 line-clamp-2">{(item.data as EditorStudy).content.replace(/^#+\s*/gm, "").replace(/\s+/g, " ").trim()}</p>}
               </div>
 
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
