@@ -22,6 +22,7 @@ import {
   Flame,
   Presentation,
   RefreshCw,
+  FilePenLine,
 } from "lucide-react";
 
 interface SermonViewProps {
@@ -38,6 +39,7 @@ interface SermonViewProps {
   }) => Promise<void>;
   isLoading: boolean;
   onOpenReference?: (reference: string) => void;
+  onOpenEditor?: () => void;
 }
 
 export const SermonView: React.FC<SermonViewProps> = ({
@@ -48,6 +50,7 @@ export const SermonView: React.FC<SermonViewProps> = ({
   onGenerateSermon,
   isLoading,
   onOpenReference,
+  onOpenEditor,
 }) => {
   const [biblicalText, setBiblicalText] = useState(currentSermon.biblicalText);
   const [theme, setTheme] = useState(currentSermon.title);
@@ -324,6 +327,7 @@ export const SermonView: React.FC<SermonViewProps> = ({
             </div>
 
             <div className="flex items-center gap-1.5 sm:gap-2">
+              {onOpenEditor && <button type="button" onClick={onOpenEditor} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-100 hover:bg-violet-200 text-violet-900 text-xs font-semibold transition-all" title="Editar no Editor Ministerial"><FilePenLine className="w-4 h-4" /><span>Editor</span></button>}
               <button
                 onClick={() => onOpenPulpitMode(currentSermon)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-200 text-xs font-semibold transition-all shadow-sm"

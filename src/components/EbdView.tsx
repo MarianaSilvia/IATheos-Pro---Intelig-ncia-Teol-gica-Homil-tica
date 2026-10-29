@@ -22,6 +22,7 @@ import {
   RefreshCw,
   Layers,
   MessageCircle,
+  FilePenLine,
 } from "lucide-react";
 
 interface EbdViewProps {
@@ -43,6 +44,7 @@ interface EbdViewProps {
     source?: { mimeType: "application/pdf" | "image/jpeg" | "image/png" | "image/webp"; data: string };
   }) => Promise<void>;
   isLoading: boolean;
+  onOpenEditor?: () => void;
 }
 
 export const EbdView: React.FC<EbdViewProps> = ({
@@ -51,6 +53,7 @@ export const EbdView: React.FC<EbdViewProps> = ({
   isSaved,
   onGenerateLesson,
   isLoading,
+  onOpenEditor,
 }) => {
   const [biblicalText, setBiblicalText] = useState(currentLesson.biblicalText);
   const [theme, setTheme] = useState(currentLesson.title);
@@ -313,6 +316,7 @@ export const EbdView: React.FC<EbdViewProps> = ({
             </div>
 
             <div className="flex items-center gap-1.5 sm:gap-2">
+              {onOpenEditor && <button type="button" onClick={onOpenEditor} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-100 hover:bg-violet-200 text-violet-900 text-xs font-semibold transition-all" title="Editar no Editor Ministerial"><FilePenLine className="w-4 h-4" /><span>Editor</span></button>}
               <button
                 onClick={() => onSaveLesson(currentLesson)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all ${

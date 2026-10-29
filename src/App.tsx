@@ -188,6 +188,10 @@ function Workspace({
     setEditorDraft({ reference: verseReference, text: verseText });
     setTab("editor");
   };
+  const openCurrentResultInEditor = () => {
+    setEditorDraft(null);
+    setTab("editor");
+  };
   const toggleSave = (type: SavedItem["type"], data: SavedItem["data"]) =>
     void run(
       () =>
@@ -338,6 +342,7 @@ function Workspace({
                 onOpenPulpitMode={() => setPulpit(true)}
                 onGenerateSermon={generateSermon}
                 onOpenReference={(reference) => void generateXray(reference)}
+                onOpenEditor={openCurrentResultInEditor}
                 isLoading={busy}
               />
             ) : (
@@ -350,6 +355,7 @@ function Workspace({
                 onSaveLesson={(l) => toggleSave("ebd", l)}
                 isSaved={library.data.some((i) => i.id === lesson.id)}
                 onGenerateLesson={(params) => generate("ebd", params)}
+                onOpenEditor={openCurrentResultInEditor}
                 isLoading={busy}
               />
             ) : (
@@ -363,6 +369,7 @@ function Workspace({
                 isSaved={library.data.some((i) => i.id === xray.id)}
                 onGenerateXray={(params) => generate("xray", params)}
                 onOpenReference={(reference) => void generateXray(reference)}
+                onOpenEditor={openCurrentResultInEditor}
                 isLoading={busy}
               />
             ) : (
