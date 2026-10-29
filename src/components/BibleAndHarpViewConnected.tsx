@@ -196,6 +196,17 @@ export function BibleAndHarpViewConnected({
     return `${book} ${chapter}\n\n${formatVersion(data)}\n\n${formatVersion(compareData)}`;
   }
 
+  function relatedReferenceText(reference: string): string {
+    const parsed = parseBibleReference(reference);
+    if (!parsed) return "";
+    const relatedData = findBibleChapter(parsed.book, parsed.chapter, translation);
+    if (!relatedData) return "";
+    const verses = parsed.verses?.length
+      ? relatedData.verses.filter((verse) => parsed.verses?.includes(verse.number))
+      : relatedData.verses;
+    return verses.map((verse) => `${verse.number}. ${verse.text}`).join("\n\n");
+  }
+
   async function saveComparison() {
     const content = comparisonPassageText();
     if (!content || comparisonSaving) return;
@@ -705,7 +716,7 @@ export function BibleAndHarpViewConnected({
                           <span className="text-xs font-semibold text-indigo-950">{reference}</span>
                           {onOpenBible && <button type="button" onClick={() => onOpenBible(reference)} className="text-[11px] font-semibold text-emerald-800 underline">Bíblia</button>}
                           <button type="button" onClick={() => onSendToVerseXray(reference)} className="text-[11px] font-semibold text-amber-800 underline">Raio‑X</button>
-                          {onSendToEditor && <button type="button" onClick={() => onSendToEditor(reference, "")} className="text-[11px] font-semibold text-indigo-800 underline">Editor</button>}
+                          {onSendToEditor && <button type="button" onClick={() => onSendToEditor(reference, relatedReferenceText(reference))} className="text-[11px] font-semibold text-indigo-800 underline">Editor</button>}
                         </div>
                       ))}
                     </div>
