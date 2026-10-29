@@ -256,11 +256,13 @@ export function BibleAndHarpViewConnected({
     setBook(nextBook);
     setChapter(1);
     setSelectedVerses([]);
+    onActiveReferenceChange?.("");
   }
 
   function changeChapter(nextChapter: number) {
     setChapter(nextChapter);
     setSelectedVerses([]);
+    onActiveReferenceChange?.("");
   }
 
   const currentOfflineChapter: OfflineBibleChapter = {
@@ -339,6 +341,7 @@ export function BibleAndHarpViewConnected({
     setChapter(chapterToOpen.chapter);
     setTranslation(chapterToOpen.translation as (typeof TRANSLATIONS)[number]);
     setSelectedVerses([]);
+    onActiveReferenceChange?.("");
     setMessage(
       `Abrindo ${chapterToOpen.book} ${chapterToOpen.chapter} · ${chapterToOpen.translation}.`,
     );
@@ -701,7 +704,10 @@ export function BibleAndHarpViewConnected({
                   </div>
                   <button
                     type="button"
-                    onClick={() => setSelectedVerses([])}
+                    onClick={() => {
+                      setSelectedVerses([]);
+                      onActiveReferenceChange?.("");
+                    }}
                     className="text-xs text-slate-600 underline"
                   >
                     Limpar seleção
