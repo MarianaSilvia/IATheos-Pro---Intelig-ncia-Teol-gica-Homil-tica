@@ -429,7 +429,7 @@ function Workspace({
               />
             </>
           )}
-          {tab === "editor" && <EditorView source={sermon || lesson || xray} initialReference={editorDraft?.reference} initialText={editorDraft?.text} />}
+          {tab === "editor" && <EditorView source={sermon || lesson || xray} initialReference={editorDraft?.reference} initialText={editorDraft?.text} onOpenReference={(reference) => void generateXray(reference)} />}
           {tab === "admin" && access.isAdmin && (
             <AdminPanelView
               products={catalog.data}

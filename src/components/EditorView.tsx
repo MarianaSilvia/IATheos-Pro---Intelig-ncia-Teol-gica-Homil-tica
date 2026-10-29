@@ -38,13 +38,15 @@ function sourceMarkdown(source: StudySource): string {
   return formatVerseXrayToMarkdown(source);
 }
 
-export function EditorView({ source, initialReference = "", initialText = "" }: { source: StudySource; initialReference?: string; initialText?: string }) {
+export function EditorView({ source, initialReference = "", initialText = "", onOpenReference }: { source: StudySource; initialReference?: string; initialText?: string; onOpenReference?: (reference: string) => void }) {
   const seedTitle = source ? sourceTitle(source) : initialReference ? `Estudo de ${initialReference}` : sourceTitle(source);
   const seedReference = source ? sourceReference(source) : initialReference;
   const seedContent = source ? sourceMarkdown(source) : initialText ? `# Estudo de ${initialReference}\n\nTexto-base:\n\n${initialText}\n\n## Observações\n\n` : sourceMarkdown(source);
   const [title, setTitle] = useState(seedTitle);
   const [reference, setReference] = useState(seedReference);
   const [content, setContent] = useState(seedContent);
+  const [additionalReferences, setAdditionalReferences] = useState("");
+  const [referenceInput, setReferenceInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
@@ -56,6 +58,8 @@ export function EditorView({ source, initialReference = "", initialText = "" }: 
     setTitle(seedTitle);
     setReference(seedReference);
     setContent(seedContent);
+    setAdditionalReferences("");
+    setReferenceInput("");
     setSaved(false);
     setError("");
   }, [seed]);
@@ -67,7 +71,7 @@ export function EditorView({ source, initialReference = "", initialText = "" }: 
     try {
       await api(`/notes/${crypto.randomUUID()}`, {
         method: "PUT",
-        body: JSON.stringify({ title: title.trim(), biblicalReference: reference.trim(), content: content.trim() }),
+        body: JSON.stringify({ title: title.trim(), biblicalReference: [reference.trim(), additionalReferences.trim()].filter(Boolean).join("; "), content: content.trim() }),
       });
       setSaved(true);
     } catch (e) {
@@ -75,6 +79,14 @@ export function EditorView({ source, initialReference = "", initialText = "" }: 
     } finally {
       setBusy(false);
     }
+  };
+  const references = additionalReferences.split(/[;,\n]/).map((item) => item.trim()).filter(Boolean);
+  const addReference = () => {
+    const next = referenceInput.trim();
+    if (!next || references.some((item) => item.toLowerCase() === next.toLowerCase())) return;
+    setAdditionalReferences([...references, next].join("; "));
+    setReferenceInput("");
+    setSaved(false);
   };
 
   const openOrganizer = () => {
@@ -123,6 +135,7 @@ export function EditorView({ source, initialReference = "", initialText = "" }: 
       <div className="bg-white rounded-3xl border shadow-sm p-5 sm:p-8 space-y-4">
         <label className="block text-sm font-semibold">Título<input value={title} onChange={(event) => { setTitle(event.target.value); setSaved(false); }} maxLength={300} className="mt-1 block w-full rounded-xl border p-3 font-serif text-lg" /></label>
         <label className="block text-sm font-semibold">Texto ou referência bíblica<input value={reference} onChange={(event) => { setReference(event.target.value); setSaved(false); }} maxLength={300} className="mt-1 block w-full rounded-xl border p-3" /></label>
+        <div className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-4 space-y-3"><div><h2 className="text-sm font-bold text-indigo-900">Referências adicionais</h2><p className="text-xs text-slate-600">Adicione referências relacionadas. Cada uma pode ser aberta no Raio‑X.</p></div><div className="flex gap-2"><input value={referenceInput} onChange={(event) => setReferenceInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addReference(); } }} placeholder="Ex.: João 3:16" className="flex-1 rounded-lg border p-2 text-sm" /><button type="button" onClick={addReference} className="rounded-lg bg-indigo-700 text-white px-3 py-2 text-sm font-bold">Adicionar</button></div>{references.length > 0 && <div className="flex flex-wrap gap-2">{references.map((item) => <span key={item} className="inline-flex items-center gap-1 rounded-lg bg-white border border-indigo-200 px-2 py-1 text-xs"><button type="button" onClick={() => onOpenReference?.(item)} className="text-indigo-800 underline font-semibold">{item}</button><button type="button" onClick={() => { setAdditionalReferences(references.filter((referenceItem) => referenceItem !== item).join("; ")); setSaved(false); }} aria-label={`Remover ${item}`} className="text-slate-500 hover:text-red-700">×</button></span>)}</div>}</div>
         <label className="block text-sm font-semibold">Conteúdo<textarea value={content} onChange={(event) => { setContent(event.target.value); setSaved(false); }} maxLength={50000} className="mt-1 block w-full min-h-[520px] rounded-xl border p-4 font-mono text-sm leading-relaxed" /></label>
         <p className="text-xs text-slate-500 flex items-center gap-2"><FileText className="w-4 h-4" /> Revise referências e aplicações antes de ensinar ou pregar.</p>
       </div>
