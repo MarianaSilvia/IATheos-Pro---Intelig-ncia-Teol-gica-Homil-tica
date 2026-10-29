@@ -1,5 +1,7 @@
 # Verbo Norte — backend QI Store Pro
 
+O pacote da aplicação é identificado tecnicamente como `verbo-norte`; QI Store Pro continua sendo apenas o nome do projeto Supabase.
+
 Aplicação React/Express de estudo bíblico. Código no GitHub; autenticação e dados no Supabase **QI Store Pro**, projeto `idrumlpdobiackcnhdas`, São Paulo. A interface usa a marca **Verbo Norte**; QI Store Pro é o nome do projeto Supabase.
 
 ## Materiais e cobrança
