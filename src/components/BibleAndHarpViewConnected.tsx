@@ -521,14 +521,16 @@ export function BibleAndHarpViewConnected({
                         {version.translation}
                       </h2>
                       <div className="space-y-2 text-sm">
-                        {version.verses.map((verse) => (
+                        {version.verses
+                          .filter((verse) => selectedVerses.length === 0 || selectedVerses.includes(verse.number))
+                          .map((verse) => (
                           <p key={verse.number}>
                             <strong className="text-amber-700">
                               {verse.number}
                             </strong>{" "}
                             {verse.text}
                           </p>
-                        ))}
+                          ))}
                       </div>
                     </article>
                   ))}

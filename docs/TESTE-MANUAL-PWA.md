@@ -20,6 +20,7 @@ Use este roteiro em uma janela anônima e em uma conta autenticada de teste. Nã
 - [ ] Fechar uma ferramenta, voltar ao leitor e confirmar que a seleção de versículos continua destacada como intervalo ou lista.
 - [ ] Confirmar que a referência é preservada e que nenhuma ferramenta inventa texto ausente.
 - [ ] Comparar duas traduções quando ambas estiverem disponíveis.
+- [ ] Selecionar versículos, abrir **Comparar versões** e confirmar que somente o trecho selecionado aparece nas duas traduções; sem seleção, confirmar o capítulo completo.
 - [ ] Salvar o versículo como nota e confirmar a mensagem de sucesso.
 - [ ] Abrir o Editor e confirmar que referência e texto são preenchidos.
 - [ ] No Editor, inserir uma passagem, uma referência adicional e uma **Nota pessoal**.
