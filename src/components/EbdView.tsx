@@ -80,6 +80,7 @@ export const EbdView: React.FC<EbdViewProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (sourceError) return;
     onGenerateLesson({
       biblicalText,
       theme,
@@ -283,7 +284,7 @@ export const EbdView: React.FC<EbdViewProps> = ({
             <div className="flex justify-end pt-2">
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || Boolean(sourceError)}
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm shadow-md transition-all disabled:opacity-50"
               >
                 {isLoading ? (
