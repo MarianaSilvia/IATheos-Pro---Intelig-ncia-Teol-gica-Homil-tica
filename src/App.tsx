@@ -125,6 +125,7 @@ function Workspace({
   const [modal, setModal] = useState<
     "themes" | "dictionary" | "concordance" | "notes" | null
   >(null);
+  const [researchInitialSearch, setResearchInitialSearch] = useState("");
   const [bible, setBible] = useState({ book: persistedBook, chapter: persistedChapter });
   const [contextReference, setContextReference] = useState(persistedReference);
   const [editorDraft, setEditorDraft] = useState<{ reference: string; text: string; contextOpen?: boolean } | null>(null);
@@ -378,7 +379,7 @@ function Workspace({
               displayName={firstNameFromIdentity(access.displayName, access.email)}
               savedCount={library.data.length}
               onNavigateTab={setTab}
-              onOpenModal={setModal}
+              onOpenModal={(type) => { setResearchInitialSearch(""); setModal(type); }}
               onNavigateToBible={(book, chapter) => {
                 setBible({ book, chapter });
                 setActiveContext(`${book} ${chapter}`);
@@ -512,6 +513,10 @@ function Workspace({
             setModal(null);
             openBibleReference(reference);
           }}
+          onNavigateToConcordance={(term) => {
+            setResearchInitialSearch(term);
+            setModal("concordance");
+          }}
           onSaveReferenceNote={(reference, content, title) => {
             void run(async () => {
               await api(`/notes/${crypto.randomUUID()}`, {
@@ -521,7 +526,7 @@ function Workspace({
               setModal(null);
             }, "Referência salva nas suas notas.");
           }}
-          initialSearch=""
+          initialSearch={researchInitialSearch}
           contextReference={contextReference}
         />
       </Suspense>
