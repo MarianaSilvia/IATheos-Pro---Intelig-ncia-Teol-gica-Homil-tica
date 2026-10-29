@@ -19,7 +19,18 @@ if (existsSync(envPath)) {
 }
 
 const production = process.env.PREFLIGHT_PRODUCTION === "true";
-const requiredProduction = ["PUBLIC_URL", "SUPABASE_URL", "SUPABASE_SECRET_KEY", "GEMINI_API_KEY"];
+const requiredProduction = [
+  "PUBLIC_URL",
+  "SUPABASE_URL",
+  "SUPABASE_PUBLISHABLE_KEY",
+  "SUPABASE_SECRET_KEY",
+  "VITE_SUPABASE_URL",
+  "VITE_SUPABASE_PUBLISHABLE_KEY",
+  "GEMINI_API_KEY",
+  "INFINITEPAY_API_KEY",
+  "INFINITEPAY_HANDLE",
+  "INFINITEPAY_WEBHOOK_SECRET",
+];
 const missingProduction = requiredProduction.filter((name) => !process.env[name]);
 if (production && missingProduction.length > 0) {
   console.error(`Variáveis de produção ausentes: ${missingProduction.join(", ")}`);

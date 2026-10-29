@@ -21,6 +21,7 @@
 - Falhas ao carregar chunks lazy exibem recuperação explícita com recarga da aplicação, evitando uma tela vazia após atualização do PWA.
 - O servidor usa loopback no desenvolvimento e `0.0.0.0` por padrão em produção, com `HOST` configurável.
 - Testes automatizados verificam o manifest instalável e impedem que o service worker faça cache das rotas privadas `/api/`.
+- O preflight de produção exige URLs, chaves Supabase, Gemini e credenciais completas do InfinitePay antes de aprovar uma publicação.
 
 ## Evidências de validação
 
