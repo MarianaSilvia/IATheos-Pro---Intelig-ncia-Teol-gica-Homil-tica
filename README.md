@@ -34,6 +34,10 @@ npm run build
 
 Aplicação: http://127.0.0.1:3000. O teste SQL executa uma transação com `ROLLBACK`, sem deixar usuários ou materiais de demonstração. Os testes HTTP não dependem de conta ou cobrança real.
 
+### CI do GitHub
+
+O workflow [`Verbo Norte CI`](.github/workflows/ci.yml) roda em cada push e pull request. Ele instala dependências com `npm ci` e executa o preflight, TypeScript, testes unitários, integração e build. Consulte [`docs/CI.md`](docs/CI.md) para reproduzir a mesma verificação localmente.
+
 ### Vercel (backend serverless)
 
 O arquivo `api/[...path].ts` adapta o Express para uma Vercel Function Node.js. O
