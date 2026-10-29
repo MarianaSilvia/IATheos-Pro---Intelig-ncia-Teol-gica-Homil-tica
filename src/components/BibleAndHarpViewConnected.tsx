@@ -80,6 +80,22 @@ export function BibleAndHarpViewConnected({
     }
   }
 
+  async function saveHymn() {
+    try {
+      await api(`/notes/${crypto.randomUUID()}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          title: `Harpa Cristã ${hymn.number} — ${hymn.title}`,
+          biblicalReference: `Harpa Cristã ${hymn.number}`,
+          content: `# ${hymn.title}\n\n${hymn.chorus}\n\n${hymn.stanzas.join("\n\n")}`,
+        }),
+      });
+      setMessage("Hino salvo nas suas notas.");
+    } catch {
+      setMessage("Não foi possível salvar o hino. Tente novamente.");
+    }
+  }
+
   function changeBook(nextBook: string) {
     setBook(nextBook);
     setChapter(1);
@@ -178,7 +194,7 @@ export function BibleAndHarpViewConnected({
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6"><div className="lg:col-span-5 space-y-3"><div className="bg-white rounded-2xl border p-3 shadow-sm relative"><Search className="w-4 h-4 text-slate-400 absolute left-6 top-6" /><input aria-label="Buscar hino" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar hino por número ou título" className="w-full pl-9 pr-3 py-2 rounded-xl border text-sm" /></div><div className="bg-white rounded-2xl border shadow-sm overflow-y-auto max-h-[600px] divide-y">{hymns.map((item) => <button type="button" key={item.number} onClick={() => setHymn(item)} className={`w-full text-left p-4 hover:bg-amber-50 ${hymn.number === item.number ? "bg-amber-50 border-l-4 border-amber-500" : ""}`}><span className="text-xs font-mono text-amber-700">HINO {item.number}</span><span className="block font-bold text-slate-800">{item.title}</span></button>)}</div></div><article className="lg:col-span-7 bg-white rounded-3xl border shadow-lg p-6 sm:p-10"><span className="text-xs uppercase font-bold tracking-wider text-amber-700">Harpa Cristã · Hino {hymn.number}</span><h1 className="text-2xl sm:text-3xl font-extrabold font-serif mt-2">{hymn.title}</h1><div className="border-t my-6 pt-6 space-y-5 text-slate-800 leading-relaxed"><div><span className="text-xs font-bold uppercase text-amber-700">Refrão</span><p className="whitespace-pre-wrap font-serif mt-2">{hymn.chorus}</p></div>{hymn.stanzas.map((stanza, index) => <p key={index} className="whitespace-pre-wrap font-serif">{stanza}</p>)}</div><button type="button" onClick={() => void copy(`HARPA CRISTÃ - HINO ${hymn.number}: ${hymn.title}\n\n${hymn.chorus}\n\n${hymn.stanzas.join("\n\n")}`)} className="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm flex items-center gap-2"><Check className="w-4 h-4" /> Copiar hino</button></article></div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6"><div className="lg:col-span-5 space-y-3"><div className="bg-white rounded-2xl border p-3 shadow-sm relative"><Search className="w-4 h-4 text-slate-400 absolute left-6 top-6" /><input aria-label="Buscar hino" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar hino por número ou título" className="w-full pl-9 pr-3 py-2 rounded-xl border text-sm" /></div><div className="bg-white rounded-2xl border shadow-sm overflow-y-auto max-h-[600px] divide-y">{hymns.map((item) => <button type="button" key={item.number} onClick={() => setHymn(item)} className={`w-full text-left p-4 hover:bg-amber-50 ${hymn.number === item.number ? "bg-amber-50 border-l-4 border-amber-500" : ""}`}><span className="text-xs font-mono text-amber-700">HINO {item.number}</span><span className="block font-bold text-slate-800">{item.title}</span></button>)}</div></div><article className="lg:col-span-7 bg-white rounded-3xl border shadow-lg p-6 sm:p-10"><span className="text-xs uppercase font-bold tracking-wider text-amber-700">Harpa Cristã · Hino {hymn.number}</span><h1 className="text-2xl sm:text-3xl font-extrabold font-serif mt-2">{hymn.title}</h1><div className="border-t my-6 pt-6 space-y-5 text-slate-800 leading-relaxed"><div><span className="text-xs font-bold uppercase text-amber-700">Refrão</span><p className="whitespace-pre-wrap font-serif mt-2">{hymn.chorus}</p></div>{hymn.stanzas.map((stanza, index) => <p key={index} className="whitespace-pre-wrap font-serif">{stanza}</p>)}</div><div className="flex flex-wrap gap-2"><button type="button" onClick={() => void copy(`HARPA CRISTÃ - HINO ${hymn.number}: ${hymn.title}\n\n${hymn.chorus}\n\n${hymn.stanzas.join("\n\n")}`)} className="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm flex items-center gap-2"><Check className="w-4 h-4" /> Copiar hino</button><button type="button" onClick={() => void saveHymn()} className="px-4 py-2 rounded-xl bg-amber-100 text-amber-900 text-sm font-bold">Salvar nas notas</button></div></article></div>
       )}
     </div>
   );
