@@ -37,6 +37,11 @@ Use este roteiro em uma janela anônima e em uma conta autenticada de teste. Nã
 - [ ] Testar uma conta sem acesso Pro: IA e materiais protegidos devem permanecer bloqueados.
 - [ ] Confirmar que o DevTools não mostra chave Gemini ou segredo de servidor no bundle.
 - [ ] Testar uma falha de rede durante salvar nota e confirmar botão/mensagem de nova tentativa.
+- [ ] Na loja, confirmar que **Minha biblioteca** mostra somente materiais com direito concedido.
+- [ ] Abrir um produto sem acesso e confirmar a mensagem de solicitação ao administrador.
+- [ ] Abrir um produto concedido sem link e confirmar a mensagem de link ainda não cadastrado.
+- [ ] Abrir um produto concedido com link e confirmar a conferência de acesso antes de abrir a nuvem externa.
+- [ ] Simular falha na consulta do link e confirmar mensagem de erro e nova tentativa sem liberar acesso indevido.
 
 ## 4. Evidência
 
