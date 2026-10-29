@@ -179,7 +179,7 @@ router.patch("/admin/users/:uid/contact",requireAdmin,asyncRoute(async(req,res)=
  checked(await db.from("profiles").update({display_name:data.displayName}).eq("user_id",uid));
  const lead=checked(await db.from("interest_leads").select("id").eq("email",user.data.user.email.toLowerCase()).order("created_at",{ascending:false}).limit(1).maybeSingle()) as any;
  if(lead?.id) checked(await db.from("interest_leads").update({phone_e164:data.phone}).eq("id",lead.id));
- const metadata={...(user.data.user.user_metadata||{}),phone_e164:data.phone}; await db.auth.admin.updateUserById(uid,{user_metadata:metadata});
+ const metadata={...(user.data.user.user_metadata||{}),phone_e164:data.phone}; const updated=await db.auth.admin.updateUserById(uid,{user_metadata:metadata}); if(updated.error) throw new HttpError(503,"Não foi possível atualizar o cadastro de autenticação.");
  res.json({ok:true,phone:data.phone,displayName:data.displayName});
 }));
 router.get("/admin/orders",requireAdmin,asyncRoute(async(req,res)=>{
