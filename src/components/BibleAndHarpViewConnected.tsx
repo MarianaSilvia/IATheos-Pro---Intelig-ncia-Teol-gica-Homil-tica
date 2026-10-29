@@ -73,6 +73,8 @@ export function BibleAndHarpViewConnected({
   );
   const [chapterRead, setChapterRead] = useState(false);
   const [readingBusy, setReadingBusy] = useState(false);
+  const [readingSyncState, setReadingSyncState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [readingRetryValue, setReadingRetryValue] = useState<boolean | null>(null);
 
   const selectedBook =
     BIBLE_BOOKS.find((item) => item.name === book) ?? BIBLE_BOOKS[0];
@@ -117,6 +119,8 @@ export function BibleAndHarpViewConnected({
   useEffect(() => {
     let active = true;
     setChapterRead(false);
+    setReadingSyncState("idle");
+    setReadingRetryValue(null);
     void api<string[]>("/reading")
       .then((completed) => {
         if (active)
@@ -230,6 +234,8 @@ export function BibleAndHarpViewConnected({
     if (readingBusy) return;
     setReadingBusy(true);
     const completed = !chapterRead;
+    setReadingSyncState("saving");
+    setReadingRetryValue(null);
     try {
       await api(
         `/reading/${encodeURIComponent(formatChapterKey(selectedBook.id, chapter))}`,
@@ -244,8 +250,11 @@ export function BibleAndHarpViewConnected({
           ? "Capítulo marcado como lido."
           : "Capítulo retirado do progresso.",
       );
+      setReadingSyncState("saved");
     } catch {
       setMessage("Não foi possível atualizar o progresso. Tente novamente.");
+      setReadingSyncState("error");
+      setReadingRetryValue(completed);
     } finally {
       setReadingBusy(false);
     }
@@ -307,11 +316,9 @@ export function BibleAndHarpViewConnected({
         Bíblia e Harpa usam somente o conteúdo disponível e autorizado.
         Combinações ausentes são informadas sem inventar texto.
       </div>
-      {message && (
-        <p role="status" className="text-sm text-emerald-700">
-          {message}
-        </p>
-      )}
+      {message && <p role={readingSyncState === "error" ? "alert" : "status"} className={`text-sm ${readingSyncState === "error" ? "text-red-700" : "text-emerald-700"}`}>{message}{readingRetryValue !== null && <button type="button" className="ml-2 underline font-semibold" onClick={() => void toggleChapterRead()}>Tentar novamente</button>}</p>}
+      {readingSyncState === "saving" && <p role="status" className="rounded-xl bg-amber-50 text-amber-800 p-3">Sincronizando progresso de leitura…</p>}
+      {readingSyncState === "saved" && <p role="status" className="rounded-xl bg-emerald-50 text-emerald-800 p-3">Progresso de leitura sincronizado.</p>}
 
       {offlineChapters.length > 0 && (
         <section
