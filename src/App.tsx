@@ -508,6 +508,10 @@ function Workspace({
             setModal(null);
             void generateXray(verse);
           }}
+          onNavigateToBible={(reference) => {
+            setModal(null);
+            openBibleReference(reference);
+          }}
           initialSearch=""
           contextReference={contextReference}
         />
