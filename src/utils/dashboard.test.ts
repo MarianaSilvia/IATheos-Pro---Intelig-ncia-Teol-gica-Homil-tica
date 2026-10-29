@@ -16,6 +16,7 @@ import {
   INITIAL_CONCORDANCE_ENTRIES,
   buildThemeApproaches,
   searchConcordance,
+  firstNameFromIdentity,
 } from "./dashboard.ts";
 
 test("Reading progress calculation", () => {
@@ -80,4 +81,10 @@ test("Reference searches normalize accents and partial terms", () => {
   assert.ok(result);
   assert.equal(result?.word, "Graça");
   assert.equal(searchConcordance(INITIAL_CONCORDANCE_ENTRIES, "termo-inexistente"), null);
+});
+
+test("First name greeting prefers profile name and safely falls back to email", () => {
+  assert.equal(firstNameFromIdentity("Mariana Silva", "mariana@example.com"), "Mariana");
+  assert.equal(firstNameFromIdentity("", "maria.silva@example.com"), "maria");
+  assert.equal(firstNameFromIdentity("usuario@example.com", "usuario@example.com"), "usuario");
 });

@@ -62,6 +62,13 @@ export function normalizeReferenceSearch(value: string): string {
   return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase().replace(/\s+/g, " ");
 }
 
+export function firstNameFromIdentity(displayName: string, email = ""): string {
+  const name = displayName.trim().replace(/\s+/g, " ");
+  if (name && !name.includes("@")) return name.split(" ")[0];
+  const fallback = email.trim().split("@")[0].replace(/[._-]+/g, " ").trim();
+  return fallback ? fallback.split(/\s+/)[0] : "estudante";
+}
+
 export function buildThemeApproaches(theme: BiblicalTheme): ThemeApproach[] {
   const [first, second, third] = theme.primaryVerses;
   return [

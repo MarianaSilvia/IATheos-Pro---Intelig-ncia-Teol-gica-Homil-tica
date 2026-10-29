@@ -30,6 +30,7 @@ export type TabType =
   | "store"
   | "chat"
   | "library"
+  | "editor"
   | "admin";
 
 interface NavbarProps {
@@ -203,6 +204,18 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {savedCount}
               </span>
             )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab("editor")}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${
+              activeTab === "editor"
+                ? "bg-amber-600 text-white shadow-md"
+                : "text-slate-300 hover:text-white hover:bg-slate-800/60"
+            }`}
+          >
+            <Scroll className="w-4 h-4" />
+            <span>Editor ministerial</span>
           </button>
 
           {/* Tab 8: Admin Panel (Highlighted if Admin) */}

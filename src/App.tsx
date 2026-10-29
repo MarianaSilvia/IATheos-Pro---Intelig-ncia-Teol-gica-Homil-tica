@@ -47,6 +47,8 @@ import { PulpitModeModal } from "./components/PulpitModeModal";
 import { PdfReaderModal } from "./components/PdfReaderModal";
 import { LandingPage } from "./components/LandingPage/LandingPage";
 import type { DigitalProduct } from "./utils/ecosystem";
+import { firstNameFromIdentity } from "./utils/dashboard";
+const EditorView = lazy(() => import("./components/EditorView").then((m) => ({ default: m.EditorView })));
 export default function App() {
   const { session, loading, error, signingIn, loginAdmin, loginBuyer, setBuyerPassword, requestMagicLink, logout, refresh } =
     useSession();
@@ -113,6 +115,7 @@ function Workspace({
     "themes" | "dictionary" | "concordance" | "notes" | null
   >(null);
   const [bible, setBible] = useState({ book: "Romanos", chapter: 5 });
+  const [contextReference, setContextReference] = useState("");
   const [access, setAccess] = useState(session);
   const [passwordSetupOpen, setPasswordSetupOpen] = useState(forcePasswordSetup || (!session.isAdmin && !session.passwordInitialized));
   const [newPassword, setNewPassword] = useState("");
@@ -158,10 +161,12 @@ function Workspace({
     }
   };
   const generateSermon = (params: any) => {
+    if (params?.biblicalText) setContextReference(String(params.biblicalText));
     setTab("sermons");
     return generate("sermon", params);
   };
   const generateXray = (verseReference: string) => {
+    setContextReference(verseReference);
     setTab("xray");
     return generate("xray", {
       verseReference,
@@ -204,6 +209,7 @@ function Workspace({
     <InitialGenerator
       title={title}
       busy={busy}
+      initialValue={contextReference}
       allowReferenceUpload={type === "ebd"}
       onGenerate={(value, source) =>
         generate(
@@ -297,12 +303,13 @@ function Workspace({
         <Suspense fallback={<p role="status">Carregando módulo…</p>}>
           {tab === "dashboard" && (
             <DashboardView
-              displayName={access.displayName}
+              displayName={firstNameFromIdentity(access.displayName, access.email)}
               savedCount={library.data.length}
               onNavigateTab={setTab}
               onOpenModal={setModal}
               onNavigateToBible={(book, chapter) => {
                 setBible({ book, chapter });
+                setContextReference(`${book} ${chapter}`);
                 setTab("bible_harp");
               }}
             />
@@ -395,6 +402,7 @@ function Workspace({
               />
             </>
           )}
+          {tab === "editor" && <EditorView source={sermon || lesson || xray} />}
           {tab === "admin" && access.isAdmin && (
             <AdminPanelView
               products={catalog.data}
@@ -436,11 +444,13 @@ function Workspace({
 function InitialGenerator({
   title,
   busy,
+  initialValue = "",
   onGenerate,
   allowReferenceUpload = false,
 }: {
   title: string;
   busy: boolean;
+  initialValue?: string;
   allowReferenceUpload?: boolean;
   onGenerate: (
     text: string,
@@ -450,7 +460,7 @@ function InitialGenerator({
     },
   ) => Promise<unknown>;
 }) {
-  const [text, setText] = useState("");
+  const [text, setText] = useState(initialValue);
   const [source, setSource] = useState<{
     mimeType: "application/pdf" | "image/jpeg" | "image/png" | "image/webp";
     data: string;
