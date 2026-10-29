@@ -66,6 +66,10 @@ export const geminiSchema = (schema: unknown): unknown => {
   }
   return result;
 };
+function parseJsonText(output: string): unknown {
+  const cleaned = output.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+  return JSON.parse(cleaned);
+}
 router.post("/whatsapp-draft", requireAdmin, asyncRoute(async (req, res) => {
   if (!config.apiKey || config.apiKey === "MY_GEMINI_API_KEY") throw new HttpError(503, "Gemini não configurado. Nenhum rascunho foi gerado.");
   const data = z.object({
@@ -99,25 +103,25 @@ router.post("/theme-options", asyncRoute(async (req, res) => {
   await requirePro(req.db, req.user);
   const data = z.object({ theme: z.string().trim().min(2).max(300) }).strict().parse(req.body);
   const local = INITIAL_BIBLICAL_THEMES.find((item) => normalizeReferenceSearch(item.name) === normalizeReferenceSearch(data.theme));
-  if (local) {
-    res.json({ theme: local.name, source: "catalog", needsReview: false, options: buildThemeApproaches(local) });
-    return;
+  if (!config.apiKey || config.apiKey === "MY_GEMINI_API_KEY") {
+    if (local) { res.json({ theme: local.name, source: "catalog", needsReview: false, options: buildThemeApproaches(local) }); return; }
+    throw new HttpError(503, "Gemini não configurado. Não foi possível gerar opções para este tema.");
   }
-  if (!config.apiKey || config.apiKey === "MY_GEMINI_API_KEY") throw new HttpError(503, "Gemini não configurado. Não foi possível gerar opções para este tema.");
   if (!config.secretKey) throw new HttpError(503, "Configure a chave privada do servidor para registrar gerações reais.");
   await takeAiSlot(req.db);
   const client = new GoogleGenAI({ apiKey: config.apiKey });
   try {
     const response = await client.models.generateContent({
       model: config.model,
-      contents: `Crie quatro opções de preparação para o tema bíblico: ${data.theme}. Use exatamente os formatos Expositivo, Temático, Devocional e EBD/Pastoral. Só inclua referências bíblicas que você reconheça com segurança; se houver dúvida, escreva "Referência a confirmar" e não invente referências. Responda em JSON com theme, source=ai, needsReview=true e options, cada uma contendo id, approach, title, biblicalText, objective, targetAudience e description.`,
-      config: { systemInstruction, responseMimeType: "application/json", responseJsonSchema: geminiSchema(z.toJSONSchema(themeOptionsSchema)), maxOutputTokens: 4000, httpOptions: { timeout: 60000 } },
+      contents: `Crie quatro opções de preparação para o tema bíblico: ${data.theme}. Use exatamente os formatos Expositivo, Temático, Devocional e EBD/Pastoral. Só inclua referências bíblicas que você reconheça com segurança; se houver dúvida, escreva "Referência a confirmar" e não invente referências. ${local ? `O acervo local relaciona este tema a: ${local.primaryVerses.map((verse) => verse.reference).join(", ")}. Use-o como ponto de partida, mas amplie as opções.` : ""} Responda somente JSON com theme, source, needsReview e options; cada opção deve conter id, approach, title, biblicalText, objective, targetAudience e description.`,
+      config: { systemInstruction, responseMimeType: "application/json", maxOutputTokens: 4000, httpOptions: { timeout: 60000 } },
     });
-    const parsed = themeOptionsSchema.parse(JSON.parse(response.text?.trim() || ""));
+    const parsed = themeOptionsSchema.parse(parseJsonText(response.text || ""));
     checked(await req.db.from("generation_events").insert({ user_id: req.user.uid, type: "theme-options" }));
     res.json(parsed);
   } catch (error) {
     console.error("Gemini theme options failed", error);
+    if (local) { res.json({ theme: local.name, source: "catalog", needsReview: false, options: buildThemeApproaches(local) }); return; }
     if (error instanceof HttpError) throw error;
     throw new HttpError(502, "Não foi possível gerar opções para este tema. Tente novamente.");
   }
@@ -139,9 +143,9 @@ router.post("/dictionary", asyncRoute(async (req, res) => {
     const response = await client.models.generateContent({
       model: config.model,
       contents: `Defina o termo ${data.term} no modo ${data.mode === "biblical" ? "dicionário bíblico" : "dicionário geral"}. Não invente referências bíblicas, idiomas originais ou etimologias. Use uma lista vazia quando não houver segurança. Responda somente em JSON com term, mode, category, definition, synonyms, originalTerm opcional, scriptureReferences, source=ai e needsReview=true.`,
-      config: { systemInstruction, responseMimeType: "application/json", responseJsonSchema: geminiSchema(z.toJSONSchema(dictionaryResultSchema)), maxOutputTokens: 2500, httpOptions: { timeout: 60000 } },
+      config: { systemInstruction, responseMimeType: "application/json", maxOutputTokens: 2500, httpOptions: { timeout: 60000 } },
     });
-    const parsed = dictionaryResultSchema.parse(JSON.parse(response.text?.trim() || ""));
+    const parsed = dictionaryResultSchema.parse(parseJsonText(response.text || ""));
     checked(await req.db.from("generation_events").insert({ user_id: req.user.uid, type: "dictionary" }));
     res.json(parsed);
   } catch (error) {
