@@ -32,6 +32,13 @@ npm run supabase:test
 npm run build
 ```
 
+Para validar uma publicação sem acessar dados privados, execute o smoke test
+com a URL pública:
+
+```sh
+SMOKE_BASE_URL=https://seu-dominio npm run smoke:production
+```
+
 Aplicação: http://127.0.0.1:3000. O teste SQL executa uma transação com `ROLLBACK`, sem deixar usuários ou materiais de demonstração. Os testes HTTP não dependem de conta ou cobrança real.
 
 ### CI do GitHub
