@@ -14,8 +14,13 @@ test("formats single, contiguous and disjoint verse selections", () => {
 });
 
 test("parses references with books that contain spaces", () => {
-  assert.deepEqual(parseBibleReference("1 Coríntios 13:4-7"), { book: "1 Coríntios", chapter: 13 });
+  assert.deepEqual(parseBibleReference("1 Coríntios 13:4-7"), { book: "1 Coríntios", chapter: 13, verses: [4, 5, 6, 7] });
   assert.deepEqual(parseBibleReference("João 3"), { book: "João", chapter: 3 });
   assert.equal(parseBibleReference("não é referência"), null);
+});
+
+test("parses selected verse ranges for restoring the active passage", () => {
+  assert.deepEqual(parseBibleReference("João 3:16-18"), { book: "João", chapter: 3, verses: [16, 17, 18] });
+  assert.deepEqual(parseBibleReference("Salmos 23:1,3"), { book: "Salmos", chapter: 23, verses: [1, 3] });
 });
 

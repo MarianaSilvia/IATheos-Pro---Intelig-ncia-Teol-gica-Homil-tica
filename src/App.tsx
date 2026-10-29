@@ -430,9 +430,10 @@ function Workspace({
             ))}
           {tab === "bible_harp" && (
             <BibleAndHarpView
-              key={bible.book + ":" + bible.chapter}
+              key={bible.book + ":" + bible.chapter + ":" + contextReference}
               initialBook={bible.book}
               initialChapter={bible.chapter}
+              initialReference={contextReference}
               onSendToVerseXray={(v) => void generateXray(v)}
               onSendToSermon={startSermonFromBible}
               onSendToEbd={startEbdFromBible}

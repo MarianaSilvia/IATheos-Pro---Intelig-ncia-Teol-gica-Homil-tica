@@ -27,6 +27,7 @@ import {
 } from "../utils/offlineBible";
 import {
   formatVerseReference,
+  parseBibleReference,
   toggleVerseSelection,
 } from "../utils/bibleSelection";
 
@@ -35,6 +36,7 @@ const TRANSLATIONS = ["ARC", "NAA", "NVI", "KJF"] as const;
 type Props = {
   initialBook?: string;
   initialChapter?: number;
+  initialReference?: string;
   onSendToVerseXray: (verse: string) => void;
   onSendToSermon?: (verse: string) => void;
   onSendToEbd?: (verse: string) => void;
@@ -47,6 +49,7 @@ type Props = {
 export function BibleAndHarpViewConnected({
   initialBook = "Romanos",
   initialChapter = 5,
+  initialReference = "",
   onSendToVerseXray,
   onSendToSermon,
   onSendToEbd,
@@ -63,7 +66,12 @@ export function BibleAndHarpViewConnected({
   const [compareTranslation, setCompareTranslation] =
     useState<(typeof TRANSLATIONS)[number]>("ARC");
   const [compareOpen, setCompareOpen] = useState(false);
-  const [selectedVerses, setSelectedVerses] = useState<number[]>([]);
+  const [selectedVerses, setSelectedVerses] = useState<number[]>(() => {
+    const parsed = parseBibleReference(initialReference);
+    return parsed && parsed.book === initialBook && parsed.chapter === initialChapter
+      ? parsed.verses ?? []
+      : [];
+  });
   const [fontSize, setFontSize] = useState(17);
   const [search, setSearch] = useState("");
   const [hymn, setHymn] = useState(INITIAL_HYMNS[0]);
