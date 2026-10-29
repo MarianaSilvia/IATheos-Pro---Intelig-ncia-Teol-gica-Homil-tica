@@ -21,6 +21,10 @@ Use este roteiro em uma janela anônima e em uma conta autenticada de teste. Nã
 - [ ] Comparar duas traduções quando ambas estiverem disponíveis.
 - [ ] Salvar o versículo como nota e confirmar a mensagem de sucesso.
 - [ ] Abrir o Editor e confirmar que referência e texto são preenchidos.
+- [ ] No Editor, inserir uma passagem, uma referência adicional e uma **Nota pessoal**.
+- [ ] Aguardar o salvamento automático, recarregar a aplicação e abrir o filtro **Editados** no Caderno.
+- [ ] Reabrir o estudo editado e confirmar que blocos, referências e campos de contexto foram restaurados.
+- [ ] Confirmar com outra conta que o estudo editado não aparece.
 - [ ] Marcar o capítulo como **Disponibilizar offline**, sair e reabrir o PWA sem rede.
 - [ ] Confirmar que o texto dos versículos marcados continua disponível offline e que o cache não inclui notas ou dados privados.
 - [ ] Reabrir o capítulo pela lista de capítulos offline e removê-lo depois do teste.

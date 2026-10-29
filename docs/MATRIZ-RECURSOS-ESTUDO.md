@@ -12,6 +12,7 @@ Este documento registra o estado real dos recursos de estudo e evita que a inter
 | Explicação por IA | Disponível com acesso | A geração ocorre no servidor, exige acesso válido, aplica limite e identifica conteúdo gerado por IA. |
 | Referências relacionadas | Disponível parcialmente | As referências vêm do acervo autorizado local; o sistema não estima ocorrências nem inventa versículos. |
 | Anotações | Disponível | Passagens, hinos e estudos são persistidos por usuário. |
+| Editor Ministerial | Disponível | Blocos, referências adicionais, notas pessoais e contexto são persistidos no Caderno e restaurados ao reabrir. |
 | Materiais da loja | Disponível | O acesso é conferido no servidor antes de retornar o link externo do material. |
 | Temas bíblicos | Disponível | O acervo local é usado primeiro; temas ausentes podem receber quatro sugestões estruturadas do Gemini. |
 | Harpa Cristã | Disponível parcialmente | Busca, cópia, notas e Editor funcionam apenas para os hinos cadastrados e autorizados. |
