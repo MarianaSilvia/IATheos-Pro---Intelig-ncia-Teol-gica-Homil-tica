@@ -12,6 +12,10 @@
 - Referências relacionadas somente do acervo local de concordância parcial.
 - Harpa Cristã com busca, cópia, salvamento em notas e abertura no Editor.
 - Editor Ministerial com blocos reordenáveis, referências adicionais, painel de contexto e salvamento automático sem duplicação.
+- Estudos do Editor persistidos como tipo privado no Caderno, com restauração de blocos, referências, notas pessoais e contexto.
+- Caderno com busca no conteúdo dos estudos, filtros por tipo, ordenação e data de sincronização.
+- Estados de sincronização visíveis no Editor, nas notas e no progresso de leitura, com nova tentativa após erro.
+- Loja separa materiais concedidos de materiais apenas elegíveis; leitor confirma o direito antes de abrir o link externo.
 - Contexto de estudo com autor/público, histórico, literário, termos e personagens/lugares/eventos.
 - PWA com cache seguro da interface e aviso de conexão offline.
 - Leitura offline explícita: o usuário pode guardar a referência pública de um capítulo e sua tradução neste dispositivo.
@@ -29,7 +33,7 @@
 ## Evidências de validação
 
 - `npm run lint` aprovado.
-- `npm test` aprovado com 37 testes.
+- `npm test` aprovado com 40 testes.
 - `npm run test:integration` aprovado com 3 testes.
 - `npm run build` aprovado.
 - Commits publicados continuamente no branch `main`.
