@@ -116,7 +116,7 @@ function Workspace({
   >(null);
   const [bible, setBible] = useState({ book: "Romanos", chapter: 5 });
   const [contextReference, setContextReference] = useState("");
-  const [editorDraft, setEditorDraft] = useState<{ reference: string; text: string } | null>(null);
+  const [editorDraft, setEditorDraft] = useState<{ reference: string; text: string; contextOpen?: boolean } | null>(null);
   const [access, setAccess] = useState(session);
   const [passwordSetupOpen, setPasswordSetupOpen] = useState(forcePasswordSetup || (!session.isAdmin && !session.passwordInitialized));
   const [newPassword, setNewPassword] = useState("");
@@ -185,7 +185,7 @@ function Workspace({
     setTab("ebd");
   };
   const startEditorFromBible = (verseReference: string, verseText: string) => {
-    setEditorDraft({ reference: verseReference, text: verseText });
+    setEditorDraft({ reference: verseReference, text: verseText, contextOpen: true });
     setTab("editor");
   };
   const openCurrentResultInEditor = () => {
@@ -429,7 +429,7 @@ function Workspace({
               />
             </>
           )}
-          {tab === "editor" && <EditorView source={sermon || lesson || xray} initialReference={editorDraft?.reference} initialText={editorDraft?.text} onOpenReference={(reference) => void generateXray(reference)} />}
+          {tab === "editor" && <EditorView source={sermon || lesson || xray} initialReference={editorDraft?.reference} initialText={editorDraft?.text} initialContextOpen={editorDraft?.contextOpen} onOpenReference={(reference) => void generateXray(reference)} />}
           {tab === "admin" && access.isAdmin && (
             <AdminPanelView
               products={catalog.data}

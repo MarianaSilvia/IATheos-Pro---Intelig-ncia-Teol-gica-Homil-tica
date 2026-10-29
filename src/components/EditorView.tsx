@@ -38,7 +38,7 @@ function sourceMarkdown(source: StudySource): string {
   return formatVerseXrayToMarkdown(source);
 }
 
-export function EditorView({ source, initialReference = "", initialText = "", onOpenReference }: { source: StudySource; initialReference?: string; initialText?: string; onOpenReference?: (reference: string) => void }) {
+export function EditorView({ source, initialReference = "", initialText = "", initialContextOpen = false, onOpenReference }: { source: StudySource; initialReference?: string; initialText?: string; initialContextOpen?: boolean; onOpenReference?: (reference: string) => void }) {
   const seedTitle = source ? sourceTitle(source) : initialReference ? `Estudo de ${initialReference}` : sourceTitle(source);
   const seedReference = source ? sourceReference(source) : initialReference;
   const seedContent = source ? sourceMarkdown(source) : initialText ? `# Estudo de ${initialReference}\n\nTexto-base:\n\n${initialText}\n\n## Observações\n\n` : sourceMarkdown(source);
@@ -47,7 +47,7 @@ export function EditorView({ source, initialReference = "", initialText = "", on
   const [content, setContent] = useState(seedContent);
   const [additionalReferences, setAdditionalReferences] = useState("");
   const [referenceInput, setReferenceInput] = useState("");
-  const [contextOpen, setContextOpen] = useState(false);
+  const [contextOpen, setContextOpen] = useState(initialContextOpen);
   const [authorAudience, setAuthorAudience] = useState("");
   const [historicalContext, setHistoricalContext] = useState("");
   const [literaryContext, setLiteraryContext] = useState("");
@@ -71,6 +71,7 @@ export function EditorView({ source, initialReference = "", initialText = "", on
     setLiteraryContext("");
     setKeyTerms("");
     setPeoplePlacesEvents("");
+    setContextOpen(initialContextOpen);
     setSaved(false);
     setError("");
   }, [seed]);
