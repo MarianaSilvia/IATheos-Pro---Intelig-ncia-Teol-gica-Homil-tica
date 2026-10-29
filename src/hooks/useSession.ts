@@ -31,7 +31,7 @@ export function useSession(){
   // prevents a stale VITE_PUBLIC_APP_URL (for example localhost) from making
   // the confirmation link land outside the deployed application.
   const origin = import.meta.env.PROD ? window.location.origin : (import.meta.env.VITE_PUBLIC_APP_URL || window.location.origin);
-  return `${origin.replace(/\/$/, "")}/?setup_password=1`;
+  return `${origin.replace(/\/$/, "")}/first-access`;
  };
  return {session,loading,error,signingIn,refresh,
   loginAdmin:async(email:string,password:string)=>runAuth(()=>authClient().auth.signInWithPassword({email,password})),

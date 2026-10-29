@@ -4,7 +4,8 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/api/:match*", "destination": "/api/index" }
+    { "source": "/api/:match*", "destination": "/api/index" },
+    { "source": "/first-access", "destination": "/index.html" }
   ],
   "functions": {
     "api/index.ts": {

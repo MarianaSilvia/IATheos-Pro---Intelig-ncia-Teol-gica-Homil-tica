@@ -167,7 +167,7 @@ router.post("/admin/users/:uid/password-link",requireAdmin,asyncRoute(async(req,
  const uid=z.uuid().parse(req.params.uid); const adminDb=serviceDatabase();
  const result=await adminDb.auth.admin.getUserById(uid); if(result.error||!result.data.user?.email) throw new HttpError(404,"Usuário comprador não encontrado.");
  const publicOrigin=config.local?config.publicUrl:"https://ia-theos-pro-intelig-ncia-teol-gica.vercel.app";
- const redirectTo=`${publicOrigin.replace(/\/$/,"")}/?setup_password=1`;
+ const redirectTo=`${publicOrigin.replace(/\/$/,"")}/first-access`;
  const generated=await adminDb.auth.admin.generateLink({type:"recovery",email:result.data.user.email,options:{redirectTo}});
  if(generated.error) throw new HttpError(503,"Não foi possível gerar o link de primeiro acesso.");
  const link=generated.data.properties?.action_link; if(!link) throw new HttpError(503,"O provedor não retornou um link válido.");
