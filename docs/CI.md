@@ -1,6 +1,6 @@
 # Integração contínua
 
-O workflow `.github/workflows/ci.yml` executa a cada push na `main` e a cada pull request:
+O workflow `.github/workflows/ci.yml` executa a cada push na `main`, a cada pull request e também pode ser iniciado manualmente em **Actions → Verbo Norte CI → Run workflow**:
 
 1. instalação limpa com `npm ci`;
 2. preflight de segurança;
