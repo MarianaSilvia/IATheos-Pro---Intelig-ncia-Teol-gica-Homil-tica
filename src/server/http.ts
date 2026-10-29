@@ -15,6 +15,7 @@ export function checked<T>(result: { data: T; error: any }): NonNullable<T> {
 }
 export const asyncRoute=(fn:(req:AuthRequest,res:Response)=>Promise<unknown>):RequestHandler=>(req,res,next)=> { Promise.resolve(fn(req as AuthRequest,res)).catch(next); };
 export const requireAuth:RequestHandler=async(req,res,next)=> {
+  res.setHeader("Cache-Control", "private, no-store, max-age=0");
   const match=/^Bearer (\S+)$/.exec(req.headers.authorization||"");
   if(!match) { res.status(401).json({error:"Entre com seu e-mail para continuar."}); return; }
   try {
