@@ -24,6 +24,7 @@ Use este roteiro em uma janela anônima e em uma conta autenticada de teste. Nã
 - [ ] Marcar o capítulo como **Disponibilizar offline**, sair e reabrir o PWA sem rede.
 - [ ] Confirmar que o texto dos versículos marcados continua disponível offline e que o cache não inclui notas ou dados privados.
 - [ ] Reabrir o capítulo pela lista de capítulos offline e removê-lo depois do teste.
+- [ ] Marcar mais de um capítulo, usar **Limpar cache** e confirmar que a lista fica vazia.
 
 ## 3. Integridade e segurança
 
@@ -42,3 +43,4 @@ Registrar data, navegador, versão do commit, conta de teste (sem senha), result
 - O acervo bíblico, hinos e concordância são parciais e dependem de conteúdo autorizado.
 - O modo offline armazena somente até 30 capítulos públicos por dispositivo e não substitui sincronização de dados privados.
 - Os testes SQL do Supabase exigem Docker/Podman e `supabase start` local.
+- Após iniciar o emulador, executar `npm run supabase:test` e registrar o resultado no relatório de homologação.
