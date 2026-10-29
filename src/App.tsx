@@ -423,6 +423,7 @@ function Workspace({
               onSendToSermon={startSermonFromBible}
               onSendToEbd={startEbdFromBible}
               onSendToEditor={startEditorFromBible}
+              onOpenBible={openBibleReference}
               onOpenDictionary={(reference) => { setActiveContext(reference); setModal("dictionary"); }}
               onOpenConcordance={(reference) => { setActiveContext(reference); setModal("concordance"); }}
             />
