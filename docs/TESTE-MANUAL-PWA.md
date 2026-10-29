@@ -29,6 +29,7 @@ Use este roteiro em uma janela anônima e em uma conta autenticada de teste. Nã
 - [ ] Abrir o Editor e confirmar que referência e texto são preenchidos.
 - [ ] No Editor, inserir uma passagem, uma referência adicional e uma **Nota pessoal**.
 - [ ] Aguardar o salvamento automático, recarregar a aplicação e abrir o filtro **Editados** no Caderno.
+- [ ] Voltar do Editor diretamente para o Caderno e confirmar que a lista é recarregada, sem precisar sair da conta.
 - [ ] Reabrir o estudo editado e confirmar que blocos, referências e campos de contexto foram restaurados.
 - [ ] Confirmar com outra conta que o estudo editado não aparece.
 - [ ] Marcar o capítulo como **Disponibilizar offline**, sair e reabrir o PWA sem rede.

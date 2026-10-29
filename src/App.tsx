@@ -146,6 +146,9 @@ function Workspace({
   useEffect(() => setPasswordSetupOpen(forcePasswordSetup || (!session.isAdmin && !session.passwordInitialized)), [forcePasswordSetup, session.isAdmin, session.passwordInitialized]);
   const library = useLibrary();
   const catalog = useResource<DigitalProduct[]>("/products", []);
+  useEffect(() => {
+    if (tab === "library") void library.reload();
+  }, [tab, library.reload]);
   const setActiveContext = (reference: string) => {
     setContextReference(reference);
     const parsed = parseBibleReference(reference);
