@@ -19,6 +19,7 @@
 - Política de privacidade, termos, aviso de IA e política de acesso estão acessíveis no rodapé da landing page.
 - Loja, pesquisa, caderno e modais de uso eventual são carregados sob demanda para reduzir o JavaScript inicial.
 - Falhas ao carregar chunks lazy exibem recuperação explícita com recarga da aplicação, evitando uma tela vazia após atualização do PWA.
+- O servidor usa loopback no desenvolvimento e `0.0.0.0` por padrão em produção, com `HOST` configurável.
 
 ## Evidências de validação
 

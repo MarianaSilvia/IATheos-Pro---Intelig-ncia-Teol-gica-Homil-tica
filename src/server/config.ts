@@ -6,9 +6,9 @@ if (!local && (process.env.ALLOW_REMOTE_SUPABASE !== "true" || parsed.hostname !
 export const config = {
   local, url, publishableKey: process.env.SUPABASE_PUBLISHABLE_KEY || "", secretKey: process.env.SUPABASE_SECRET_KEY || "",
   port: Number(process.env.PORT || 3000),
-  // Keep local development reachable from browsers that resolve localhost to IPv4.
-  // Production hosts can still set HOST=0.0.0.0 explicitly.
-  host: process.env.HOST || "127.0.0.1",
+  // Keep local development on loopback while production hosts bind all interfaces.
+  // HOST remains configurable for platforms that provide their own binding.
+  host: process.env.HOST || (process.env.NODE_ENV === "production" ? "0.0.0.0" : "127.0.0.1"),
   model: process.env.GEMINI_MODEL || "gemini-2.5-flash", apiKey: process.env.GEMINI_API_KEY,
   infinitePayApiKey: process.env.INFINITEPAY_API_KEY,
   infinitePayHandle: process.env.INFINITEPAY_HANDLE,
