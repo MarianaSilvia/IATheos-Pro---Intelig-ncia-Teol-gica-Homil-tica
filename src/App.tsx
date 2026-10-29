@@ -512,6 +512,15 @@ function Workspace({
             setModal(null);
             openBibleReference(reference);
           }}
+          onSaveReferenceNote={(reference, content, title) => {
+            void run(async () => {
+              await api(`/notes/${crypto.randomUUID()}`, {
+                method: "PUT",
+                body: JSON.stringify({ title: title || reference, biblicalReference: reference, content }),
+              });
+              setModal(null);
+            }, "Referência salva nas suas notas.");
+          }}
           initialSearch=""
           contextReference={contextReference}
         />

@@ -38,6 +38,7 @@ Use este roteiro em uma janela anônima e em uma conta autenticada de teste. Nã
 - [ ] Pesquisar um termo geral ausente e confirmar que a consulta ao Gemini aparece identificada como IA e sujeita a revisão.
 - [ ] Pesquisar “graça”, “GRACA” e “graças” na Concordância e confirmar a mesma entrada quando disponível.
 - [ ] Em uma referência do Dicionário/Concordância, testar os atalhos **Bíblia** e **Raio-X**.
+- [ ] Salvar uma definição do Dicionário e uma ocorrência da Concordância diretamente nas notas e confirmar a sincronização.
 
 ## 3. Integridade e segurança
 
