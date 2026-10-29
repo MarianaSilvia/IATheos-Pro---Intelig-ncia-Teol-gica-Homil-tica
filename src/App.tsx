@@ -385,6 +385,8 @@ function Workspace({
               onSendToSermon={startSermonFromBible}
               onSendToEbd={startEbdFromBible}
               onSendToEditor={startEditorFromBible}
+              onOpenDictionary={(reference) => { setContextReference(reference); setModal("dictionary"); }}
+              onOpenConcordance={(reference) => { setContextReference(reference); setModal("concordance"); }}
             />
           )}
           {tab === "store" && (
@@ -450,6 +452,7 @@ function Workspace({
           setModal(null);
           void generateXray(verse);
         }}
+        initialSearch={contextReference}
       />
       {pulpit && sermon && (
         <PulpitModeModal sermon={sermon} onClose={() => setPulpit(false)} />

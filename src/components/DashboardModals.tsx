@@ -17,13 +17,15 @@ export function DashboardModals({
   onClose,
   onNavigateToSermon,
   onNavigateToXray,
+  initialSearch = "",
 }: {
   modalType: "themes" | "dictionary" | "concordance" | "notes" | null;
   onClose: () => void;
   onNavigateToSermon: (text: string, theme: string) => void;
   onNavigateToXray: (verse: string) => void;
+  initialSearch?: string;
 }) {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(initialSearch);
   const [dictionaryMode, setDictionaryMode] = useState<"biblical" | "general">("biblical");
   const [themeOptions, setThemeOptions] = useState<Record<string, ThemeOptions>>({});
   const [dictionaryResult, setDictionaryResult] = useState<DictionaryResult | null>(null);
@@ -31,13 +33,13 @@ export function DashboardModals({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   useEffect(() => {
-    setSearch("");
+    setSearch(initialSearch);
     setDictionaryMode("biblical");
     setThemeOptions({});
     setDictionaryResult(null);
     setConcordance(null);
     setError("");
-  }, [modalType]);
+  }, [modalType, initialSearch]);
   const runThemeSearch = async () => {
     if (!search.trim()) return;
     setBusy(true); setError("");
