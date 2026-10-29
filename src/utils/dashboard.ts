@@ -455,11 +455,18 @@ export function searchConcordance(
 ): ConcordanceResult | null {
   const q = normalizeReferenceSearch(query);
   if (!q) return null;
+  const queryForms = new Set([q]);
+  if (q.endsWith("es") && q.length > 4) queryForms.add(q.slice(0, -2));
+  if (q.endsWith("s") && q.length > 3) queryForms.add(q.slice(0, -1));
+  const matches = (value: string) => {
+    const normalized = normalizeReferenceSearch(value);
+    return [...queryForms].some((form) => normalized.includes(form));
+  };
   const entry = Object.entries(entries).find(([key, value]) =>
-    normalizeReferenceSearch(key).includes(q) || normalizeReferenceSearch(value.word).includes(q),
+    matches(key) || matches(value.word),
   )?.[1];
   if (!entry) return null;
-  return { ...entry, verses: entry.verses.filter((verse) => normalizeReferenceSearch(`${verse.reference} ${verse.snippet}`).includes(q) || normalizeReferenceSearch(entry.word).includes(q)) };
+  return { ...entry, verses: entry.verses.filter((verse) => matches(`${verse.reference} ${verse.snippet}`) || matches(entry.word)) };
 }
 
 export function toggleReadingCompleted(

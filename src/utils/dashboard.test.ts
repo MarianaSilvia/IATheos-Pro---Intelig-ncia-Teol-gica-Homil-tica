@@ -89,6 +89,7 @@ test("Reference searches normalize accents and partial terms", () => {
   const result = searchConcordance(INITIAL_CONCORDANCE_ENTRIES, "GRACA");
   assert.ok(result);
   assert.equal(result?.word, "Graça");
+  assert.equal(searchConcordance(INITIAL_CONCORDANCE_ENTRIES, "graças")?.word, "Graça");
   assert.equal(searchConcordance(INITIAL_CONCORDANCE_ENTRIES, "termo-inexistente"), null);
 });
 
