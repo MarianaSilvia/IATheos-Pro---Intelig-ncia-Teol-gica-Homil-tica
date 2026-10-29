@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { BookOpen, Sparkles, User, ArrowRight, Menu, X } from 'lucide-react';
+import { Sparkles, User, ArrowRight, Menu, X } from 'lucide-react';
 
 interface NavbarProps {
   onOpenClientLogin: () => void;
@@ -26,7 +26,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center gap-3 shrink-0">
           <a href="#" className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 flex items-center justify-center shadow-lg shadow-amber-500/20 border border-amber-400/30 group-hover:scale-105 transition-transform">
-              <BookOpen className="w-5 h-5 text-slate-950 stroke-[2.5]" />
+              <img src="/brand/verbo-norte-logo.jpg" alt="Verbo Norte" className="w-full h-full rounded-xl object-cover" />
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">

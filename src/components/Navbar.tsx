@@ -60,7 +60,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="flex items-center gap-3 cursor-pointer group"
           >
             <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-amber-600 via-amber-700 to-amber-900 shadow-md ring-1 ring-amber-400/30 group-hover:scale-105 transition-transform">
-              <BookOpen className="w-5 h-5 text-amber-100" />
+              <img src="/brand/verbo-norte-logo.jpg" alt="Verbo Norte" className="w-full h-full rounded-xl object-cover" />
               <div
                 className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-900"
                 title="Sessão autenticada"

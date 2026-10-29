@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { BookOpen, ShieldCheck, Heart } from 'lucide-react';
+import { ShieldCheck, Heart } from 'lucide-react';
 
 interface FooterProps {
   onOpenClientLogin: () => void;
@@ -25,7 +25,7 @@ export const Footer: React.FC<FooterProps> = ({
           <div className="space-y-3 max-w-sm">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-slate-950 font-bold">
-                <BookOpen className="w-5 h-5 stroke-[2.5]" />
+                <img src="/brand/verbo-norte-logo.jpg" alt="Verbo Norte" className="w-full h-full rounded-xl object-cover" />
               </div>
               <span className="text-xl font-bold text-white font-['Cinzel',serif] tracking-tight">
                 Verbo Norte
