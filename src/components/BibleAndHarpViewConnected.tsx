@@ -44,6 +44,7 @@ type Props = {
   onOpenBible?: (reference: string) => void;
   onOpenDictionary?: (reference: string) => void;
   onOpenConcordance?: (reference: string) => void;
+  onActiveReferenceChange?: (reference: string) => void;
 };
 
 export function BibleAndHarpViewConnected({
@@ -57,6 +58,7 @@ export function BibleAndHarpViewConnected({
   onOpenBible,
   onOpenDictionary,
   onOpenConcordance,
+  onActiveReferenceChange,
 }: Props) {
   const [tab, setTab] = useState<"bible" | "harp">("bible");
   const [book, setBook] = useState(initialBook);
@@ -124,6 +126,11 @@ export function BibleAndHarpViewConnected({
       )
       .slice(0, 6);
   }, [book, chapter, data, selectedVerses]);
+
+  useEffect(() => {
+    if (!onActiveReferenceChange || selectedVerses.length === 0) return;
+    onActiveReferenceChange(formatVerseReference(book, chapter, selectedVerses));
+  }, [book, chapter, onActiveReferenceChange, selectedVerses]);
 
   useEffect(() => {
     let active = true;

@@ -455,6 +455,7 @@ function Workspace({
               onOpenBible={openBibleReference}
               onOpenDictionary={(reference) => { setActiveContext(reference); setResearchInitialSearch(""); setModal("dictionary"); }}
               onOpenConcordance={(reference) => { setActiveContext(reference); setResearchInitialSearch(""); setModal("concordance"); }}
+              onActiveReferenceChange={setActiveContext}
             />
           )}
           {tab === "store" && (
