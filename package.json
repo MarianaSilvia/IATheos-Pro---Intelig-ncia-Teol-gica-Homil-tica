@@ -17,6 +17,7 @@
     "lint": "tsc --noEmit",
     "test:integration": "tsx --test tests/integration/api.test.ts",
     "preflight": "node scripts/preflight.mjs",
+    "verify": "npm run preflight && npm run lint && npm test && npm run test:integration && npm run build",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
     "supabase:test": "node scripts/supabase-test.mjs"
