@@ -153,6 +153,20 @@ export function EditorView({ source, initialReference = "", activeReference = ""
     setContent(blocksToMarkdown(next));
     markDirty();
   };
+  const insertReferenceBlock = () => {
+    const connected = reference.trim();
+    if (!connected) return;
+    const currentBlocks = blocks.length > 0 ? blocks : parseBlocks(content);
+    if (currentBlocks.some((block) => block.body.includes(connected) || block.title.includes(connected))) {
+      setOrganizeOpen(true);
+      return;
+    }
+    const next = [...currentBlocks, { title: `Passagem bíblica — ${connected}`, body: `${connected}\n\nTexto e observações desta passagem serão desenvolvidos aqui.` }];
+    setBlocks(next);
+    setContent(blocksToMarkdown(next));
+    setOrganizeOpen(true);
+    markDirty();
+  };
 
   return (
     <section className="max-w-5xl mx-auto space-y-5">
@@ -164,6 +178,7 @@ export function EditorView({ source, initialReference = "", activeReference = ""
         </div>
         <div className="flex gap-2 no-print">
           <button type="button" onClick={openOrganizer} className="rounded-xl border px-4 py-2 flex items-center gap-2"><FilePenLine className="w-4 h-4" /> {organizeOpen ? "Fechar blocos" : "Organizar blocos"}</button>
+          {reference.trim() && <button type="button" onClick={insertReferenceBlock} className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2 text-indigo-900">Inserir passagem</button>}
           <button type="button" onClick={() => setContextOpen((value) => !value)} className="rounded-xl border px-4 py-2 flex items-center gap-2">{contextOpen ? "Fechar contexto" : "Contexto do estudo"}</button>
           <button type="button" onClick={() => window.print()} className="rounded-xl border px-4 py-2 flex items-center gap-2"><Printer className="w-4 h-4" /> Imprimir</button>
           <button type="button" disabled={busy} onClick={() => void save()} className="rounded-xl bg-amber-600 text-white px-4 py-2 flex items-center gap-2 disabled:opacity-50"><Save className="w-4 h-4" /> {busy ? "Salvando…" : saved ? "Salvo" : "Salvar"}</button>
