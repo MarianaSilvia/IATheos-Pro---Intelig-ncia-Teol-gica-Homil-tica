@@ -38,6 +38,8 @@ Aplicação: http://127.0.0.1:3000. O teste SQL executa uma transação com `ROL
 
 O workflow [`Verbo Norte CI`](.github/workflows/ci.yml) roda em cada push e pull request. Ele instala dependências com `npm ci` e executa o preflight, TypeScript, testes unitários, integração e build. Consulte [`docs/CI.md`](docs/CI.md) para reproduzir a mesma verificação localmente.
 
+Antes de publicar, siga o [`checklist de liberação`](docs/CHECKLIST-LIBERACAO.md) e o [`roteiro de teste manual do PWA`](docs/TESTE-MANUAL-PWA.md). Os dois documentos distinguem evidência automatizada de validações que precisam ser observadas no navegador.
+
 ### Vercel (backend serverless)
 
 O arquivo `api/[...path].ts` adapta o Express para uma Vercel Function Node.js. O
