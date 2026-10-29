@@ -15,13 +15,14 @@ Use este roteiro em uma janela anônima e em uma conta autenticada de teste. Nã
 ## 2. Fluxo Bíblia → estudo
 
 - [ ] Escolher livro, capítulo e tradução disponíveis.
-- [ ] Selecionar um versículo e confirmar a passagem ativa.
+- [ ] Selecionar um ou vários versículos e confirmar a passagem ativa como intervalo/lista.
 - [ ] Abrir Raio-X, Sermão, EBD, Dicionário e Concordância a partir da passagem.
 - [ ] Confirmar que a referência é preservada e que nenhuma ferramenta inventa texto ausente.
 - [ ] Comparar duas traduções quando ambas estiverem disponíveis.
 - [ ] Salvar o versículo como nota e confirmar a mensagem de sucesso.
 - [ ] Abrir o Editor e confirmar que referência e texto são preenchidos.
 - [ ] Marcar o capítulo como **Disponibilizar offline**, sair e reabrir o PWA sem rede.
+- [ ] Confirmar que o texto dos versículos marcados continua disponível offline e que o cache não inclui notas ou dados privados.
 - [ ] Reabrir o capítulo pela lista de capítulos offline e removê-lo depois do teste.
 
 ## 3. Integridade e segurança
@@ -39,5 +40,5 @@ Registrar data, navegador, versão do commit, conta de teste (sem senha), result
 ## Limitações conhecidas
 
 - O acervo bíblico, hinos e concordância são parciais e dependem de conteúdo autorizado.
-- O modo offline não substitui sincronização de dados privados.
+- O modo offline armazena somente até 30 capítulos públicos por dispositivo e não substitui sincronização de dados privados.
 - Os testes SQL do Supabase exigem Docker/Podman e `supabase start` local.
