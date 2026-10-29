@@ -530,6 +530,10 @@ function Workspace({
             setResearchInitialSearch(term);
             setModal("concordance");
           }}
+          onNavigateToEditor={(reference, content) => {
+            setModal(null);
+            startEditorFromBible(reference, content);
+          }}
           onSaveReferenceNote={(reference, content, title) => {
             return run(async () => {
               await api(`/notes/${crypto.randomUUID()}`, {
