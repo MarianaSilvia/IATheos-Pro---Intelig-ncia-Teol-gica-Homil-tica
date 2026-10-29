@@ -144,6 +144,13 @@ function Workspace({
   useEffect(() => setPasswordSetupOpen(forcePasswordSetup || (!session.isAdmin && !session.passwordInitialized)), [forcePasswordSetup, session.isAdmin, session.passwordInitialized]);
   const library = useLibrary();
   const catalog = useResource<DigitalProduct[]>("/products", []);
+  const setActiveContext = (reference: string) => {
+    setContextReference(reference);
+    const parsed = parseBibleReference(reference);
+    if (parsed && BIBLE_BOOKS.some((item) => item.name === parsed.book)) {
+      setBible({ book: parsed.book, chapter: parsed.chapter });
+    }
+  };
   const run = async (action: () => Promise<unknown>, success?: string) => {
     try {
       await action();
@@ -179,12 +186,12 @@ function Workspace({
     }
   };
   const generateSermon = (params: any) => {
-    if (params?.biblicalText) setContextReference(String(params.biblicalText));
+    if (params?.biblicalText) setActiveContext(String(params.biblicalText));
     setTab("sermons");
     return generate("sermon", params);
   };
   const generateXray = (verseReference: string) => {
-    setContextReference(verseReference);
+    setActiveContext(verseReference);
     setTab("xray");
     return generate("xray", {
       verseReference,
@@ -193,12 +200,12 @@ function Workspace({
   };
   const startSermonFromBible = (verseReference: string) => {
     setSermon(null);
-    setContextReference(verseReference);
+    setActiveContext(verseReference);
     setTab("sermons");
   };
   const startEbdFromBible = (verseReference: string) => {
     setLesson(null);
-    setContextReference(verseReference);
+    setActiveContext(verseReference);
     setTab("ebd");
   };
   const startEditorFromBible = (verseReference: string, verseText: string) => {
@@ -213,7 +220,7 @@ function Workspace({
       return;
     }
     setBible({ book, chapter: parsed.chapter });
-    setContextReference(reference);
+    setActiveContext(reference);
     setTab("bible_harp");
   };
   const openCurrentResultInEditor = () => {
@@ -358,7 +365,7 @@ function Workspace({
               onOpenModal={setModal}
               onNavigateToBible={(book, chapter) => {
                 setBible({ book, chapter });
-                setContextReference(`${book} ${chapter}`);
+                setActiveContext(`${book} ${chapter}`);
                 setTab("bible_harp");
               }}
             />
@@ -414,8 +421,8 @@ function Workspace({
               onSendToSermon={startSermonFromBible}
               onSendToEbd={startEbdFromBible}
               onSendToEditor={startEditorFromBible}
-              onOpenDictionary={(reference) => { setContextReference(reference); setModal("dictionary"); }}
-              onOpenConcordance={(reference) => { setContextReference(reference); setModal("concordance"); }}
+              onOpenDictionary={(reference) => { setActiveContext(reference); setModal("dictionary"); }}
+              onOpenConcordance={(reference) => { setActiveContext(reference); setModal("concordance"); }}
             />
           )}
           {tab === "store" && (
@@ -461,7 +468,7 @@ function Workspace({
               />
             </>
           )}
-          {tab === "editor" && <EditorView source={sermon || lesson || xray} initialReference={editorDraft?.reference} initialText={editorDraft?.text} initialContextOpen={editorDraft?.contextOpen} onOpenReference={(reference) => void generateXray(reference)} onOpenBible={openBibleReference} onOpenDictionary={(reference) => { setContextReference(reference); setModal("dictionary"); }} onOpenConcordance={(reference) => { setContextReference(reference); setModal("concordance"); }} />}
+          {tab === "editor" && <EditorView source={sermon || lesson || xray} initialReference={editorDraft?.reference} initialText={editorDraft?.text} initialContextOpen={editorDraft?.contextOpen} onOpenReference={(reference) => void generateXray(reference)} onOpenBible={openBibleReference} onOpenDictionary={(reference) => { setActiveContext(reference); setModal("dictionary"); }} onOpenConcordance={(reference) => { setActiveContext(reference); setModal("concordance"); }} />}
           {tab === "admin" && access.isAdmin && (
             <AdminPanelView
               products={catalog.data}
