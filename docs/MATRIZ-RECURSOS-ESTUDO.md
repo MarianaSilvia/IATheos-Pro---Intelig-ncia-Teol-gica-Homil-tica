@@ -2,6 +2,8 @@
 
 Este documento registra o estado real dos recursos de estudo e evita que a interface prometa conteúdo que ainda depende de licença, acervo ou implementação.
 
+A origem e a autorização de cada fonte devem ser preenchidas em [REGISTRO-CONTEUDO-LICENCAS.md](./REGISTRO-CONTEUDO-LICENCAS.md) antes de ampliar o acervo.
+
 ## Disponível nesta versão
 
 | Recurso | Estado | Observação |
