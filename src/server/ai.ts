@@ -7,7 +7,7 @@ import { requireAuth, requireAdmin, asyncRoute, HttpError } from "./http.ts";
 import { requirePro, takeAiSlot } from "./services.ts";
 import { checked } from "./http.ts";
 import { generatedSchemas, themeOptionsSchema, dictionaryResultSchema } from "../shared/contracts.ts";
-import { INITIAL_BIBLICAL_THEMES, INITIAL_DICTIONARY_ENTRIES, buildThemeApproaches, normalizeReferenceSearch } from "../utils/dashboard.ts";
+import { INITIAL_BIBLICAL_THEMES, INITIAL_DICTIONARY_ENTRIES, INITIAL_GENERAL_DICTIONARY_ENTRIES, buildThemeApproaches, normalizeReferenceSearch, searchDictionary, searchGeneralDictionary } from "../utils/dashboard.ts";
 const router = Router();
 router.use(requireAuth);
 const inputSchema = z
@@ -130,7 +130,16 @@ router.post("/theme-options", asyncRoute(async (req, res) => {
 router.post("/dictionary", asyncRoute(async (req, res) => {
   await requirePro(req.db, req.user);
   const data = z.object({ term: z.string().trim().min(2).max(300), mode: z.enum(["biblical", "general"]).default("biblical") }).strict().parse(req.body);
-  const local = data.mode === "biblical" ? INITIAL_DICTIONARY_ENTRIES.find((entry) => normalizeReferenceSearch(entry.term) === normalizeReferenceSearch(data.term) || normalizeReferenceSearch(entry.term).includes(normalizeReferenceSearch(data.term))) : undefined;
+  const local = data.mode === "biblical"
+    ? searchDictionary(INITIAL_DICTIONARY_ENTRIES, data.term)[0]
+    : undefined;
+  const localGeneral = data.mode === "general"
+    ? searchGeneralDictionary(INITIAL_GENERAL_DICTIONARY_ENTRIES, data.term)[0]
+    : undefined;
+  if (localGeneral) {
+    res.json({ term: localGeneral.term, mode: "general", category: localGeneral.category, definition: localGeneral.definition, synonyms: localGeneral.synonyms, scriptureReferences: [], source: "catalog", needsReview: false });
+    return;
+  }
   if (local) {
     res.json({ term: local.term, mode: "biblical", category: local.category, definition: local.definition, synonyms: [], originalTerm: local.originalTerm, scriptureReferences: local.scriptureReferences, source: "catalog", needsReview: false });
     return;
