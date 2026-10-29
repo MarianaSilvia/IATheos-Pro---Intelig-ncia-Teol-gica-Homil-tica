@@ -47,6 +47,8 @@ O workflow [`Verbo Norte CI`](.github/workflows/ci.yml) roda em cada push e pull
 
 Antes de publicar, siga o [`checklist de liberação`](docs/CHECKLIST-LIBERACAO.md) e o [`roteiro de teste manual do PWA`](docs/TESTE-MANUAL-PWA.md). Os dois documentos distinguem evidência automatizada de validações que precisam ser observadas no navegador.
 
+Para a homologação de contas, use o [`roteiro de teste autenticado`](docs/TESTE-AUTENTICADO.md) em janelas separadas para administrador e comprador.
+
 ### Vercel (backend serverless)
 
 O arquivo `api/[...path].ts` adapta o Express para uma Vercel Function Node.js. O
