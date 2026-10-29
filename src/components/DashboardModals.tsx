@@ -117,15 +117,19 @@ function NotesPanel() {
   const [id, setId] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [syncState, setSyncState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const run = async (fn: () => Promise<void>) => {
     if (busy) return;
     setBusy(true);
     setError("");
+    setSyncState("saving");
     try {
       await fn();
       await resource.reload();
+      setSyncState("saved");
     } catch (e) {
       setError((e as Error).message);
+      setSyncState("error");
     } finally {
       setBusy(false);
     }
@@ -133,10 +137,12 @@ function NotesPanel() {
   return (
     <section>
       <h3 className="text-xl font-bold">Minhas notas</h3>
+      {syncState === "saving" && <p role="status" className="rounded-xl bg-amber-50 text-amber-800 p-3">Sincronizando nota…</p>}
+      {syncState === "saved" && <p role="status" className="rounded-xl bg-emerald-50 text-emerald-800 p-3">Nota sincronizada com segurança.</p>}
       {(error || resource.error) && (
-        <p role="alert">
+        <p role="alert" className="rounded-xl bg-red-50 text-red-800 p-3">
           {error || resource.error}{" "}
-          <button onClick={() => void resource.reload()}>
+          <button className="underline font-semibold" onClick={() => { setSyncState("saving"); setError(""); void resource.reload().then(() => setSyncState("saved")).catch((e) => { setError((e as Error).message); setSyncState("error"); }); }}>
             Tentar novamente
           </button>
         </p>
@@ -192,6 +198,7 @@ function NotesPanel() {
           onClick={() => {
             setId("");
             setForm({ title: "", biblicalReference: "", content: "" });
+            setSyncState("idle");
           }}
         >
           Nova nota
@@ -212,6 +219,7 @@ function NotesPanel() {
                 biblicalReference: n.biblicalReference,
                 content: n.content,
               });
+              setSyncState("idle");
             }}
           >
             Editar
