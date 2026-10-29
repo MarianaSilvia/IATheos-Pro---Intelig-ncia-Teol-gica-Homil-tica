@@ -29,6 +29,7 @@ Use este roteiro em uma janela anônima e em uma conta autenticada de teste. Nã
 - [ ] Abrir o Editor e confirmar que referência e texto são preenchidos.
 - [ ] No Editor, usar **Abrir na Bíblia** e confirmar que a referência ativa é restaurada no leitor.
 - [ ] No Editor, testar os atalhos **Raio-X**, **Dicionário** e **Concordância** e confirmar que todos preservam a referência do estudo.
+- [ ] Abrir Dicionário/Concordância após outra pesquisa e confirmar que o campo de busca começa limpo, sem carregar termo de outra consulta.
 - [ ] No Editor, inserir uma passagem, uma referência adicional e uma **Nota pessoal**.
 - [ ] Aguardar o salvamento automático, recarregar a aplicação e abrir o filtro **Editados** no Caderno.
 - [ ] Voltar do Editor diretamente para o Caderno e confirmar que a lista é recarregada, sem precisar sair da conta.
