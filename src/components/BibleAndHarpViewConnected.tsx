@@ -3,6 +3,7 @@ import { BookOpen, Check, Copy, Eye, Music, Search, Sparkles } from "lucide-reac
 import { BIBLE_BOOKS } from "../utils/bibleProgress";
 import { INITIAL_HYMNS, searchHymns } from "../utils/ecosystem";
 import { findBibleChapter } from "../utils/bibleContent";
+import { api } from "../lib/api";
 
 const TRANSLATIONS = ["ARC", "NAA", "NVI", "KJF"] as const;
 
@@ -40,6 +41,25 @@ export function BibleAndHarpViewConnected({
       setMessage("Texto copiado.");
     } catch {
       setMessage("Não foi possível copiar. Selecione o texto manualmente.");
+    }
+  }
+
+  async function saveSelectedVerse() {
+    if (!data || selectedVerse === null) return;
+    const verse = data.verses.find((item) => item.number === selectedVerse);
+    if (!verse) return;
+    try {
+      await api(`/notes/${crypto.randomUUID()}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          title: `${book} ${chapter}:${verse.number}`,
+          biblicalReference: `${book} ${chapter}:${verse.number}`,
+          content: `${verse.text}\n\nTradução: ${translation}`,
+        }),
+      });
+      setMessage("Versículo salvo nas suas notas.");
+    } catch {
+      setMessage("Não foi possível salvar a nota. Tente novamente.");
     }
   }
 
@@ -137,7 +157,7 @@ export function BibleAndHarpViewConnected({
                 <div className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 flex items-center gap-1"><button type="button" onClick={(event) => { event.stopPropagation(); void copy(`"${verse.text}" (${book} ${chapter}:${verse.number} - ${translation})`); }} className="p-1 text-slate-400 hover:text-slate-700" title="Copiar"><Copy className="w-3.5 h-3.5" /></button><button type="button" onClick={(event) => { event.stopPropagation(); openXray(verse.number); }} className="px-2 py-1 rounded bg-amber-50 text-amber-800 text-[10px] font-bold" title="Abrir no Raio-X"><Eye className="w-3 h-3 inline mr-1" />Raio-X</button></div>
               </div>)}
             </div> : <p role="status" className="mt-6 text-slate-600">Texto indisponível para esta combinação de livro, capítulo e tradução.</p>}
-            {selectedVerse && <p className="mt-4 text-xs text-slate-500">Versículo {selectedVerse} selecionado. Use copiar ou Raio‑X para continuar o estudo.</p>}
+            {selectedVerse && <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-slate-500"><span>Versículo {selectedVerse} selecionado.</span><button type="button" onClick={() => void saveSelectedVerse()} className="px-3 py-1.5 rounded-lg bg-slate-900 text-white font-bold">Salvar nas notas</button><button type="button" onClick={() => openXray(selectedVerse)} className="px-3 py-1.5 rounded-lg bg-amber-100 text-amber-900 font-bold">Abrir no Raio‑X</button></div>}
           </div>
         </div>
       ) : (
