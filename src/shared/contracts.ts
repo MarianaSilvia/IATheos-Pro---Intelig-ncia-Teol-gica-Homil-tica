@@ -106,7 +106,7 @@ export const xraySchema = section({
 });
 export const editorStudySchema = section({
   title: text(300),
-  reference: z.string().trim().max(300),
+  reference: text(300),
   additionalReferences: z.array(text(300)).max(30),
   content: text(50000),
   context: section({
