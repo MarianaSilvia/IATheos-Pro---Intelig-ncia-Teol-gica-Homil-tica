@@ -11,7 +11,7 @@ const DashboardView = lazy(() =>
     default: m.DashboardView,
   })),
 );
-import { DashboardModals } from "./components/DashboardModals";
+const DashboardModals = lazy(() => import("./components/DashboardModals").then((m) => ({ default: m.DashboardModals })));
 const SermonView = lazy(() =>
   import("./components/SermonView").then((m) => ({ default: m.SermonView })),
 );
@@ -28,7 +28,7 @@ const BibleAndHarpView = lazy(() =>
     default: m.BibleAndHarpViewConnected,
   })),
 );
-import { StoreViewRestored } from "./components/StoreViewRestored";
+const StoreViewRestored = lazy(() => import("./components/StoreViewRestored").then((m) => ({ default: m.StoreViewRestored })));
 const AdminPanelView = lazy(() =>
   import("./components/AdminPanelView").then((m) => ({
     default: m.AdminPanelView,
@@ -39,12 +39,10 @@ const TheologicalChatView = lazy(() =>
     default: m.TheologicalChatView,
   })),
 );
-import {
-  SavedLibraryView,
-  type SavedItem,
-} from "./components/SavedLibraryView";
-import { PulpitModeModal } from "./components/PulpitModeModal";
-import { PdfReaderModal } from "./components/PdfReaderModal";
+import type { SavedItem } from "./components/SavedLibraryView";
+const SavedLibraryView = lazy(() => import("./components/SavedLibraryView").then((m) => ({ default: m.SavedLibraryView })));
+const PulpitModeModal = lazy(() => import("./components/PulpitModeModal").then((m) => ({ default: m.PulpitModeModal })));
+const PdfReaderModal = lazy(() => import("./components/PdfReaderModal").then((m) => ({ default: m.PdfReaderModal })));
 import { LandingPage } from "./components/LandingPage/LandingPage";
 import type { DigitalProduct } from "./utils/ecosystem";
 import { firstNameFromIdentity } from "./utils/dashboard";
@@ -443,24 +441,26 @@ function Workspace({
           )}
         </Suspense>
       </main>
-      <DashboardModals
-        modalType={modal}
-        onClose={() => setModal(null)}
-        onNavigateToSermon={(text, theme) => {
-          setModal(null);
-          void generateSermon({ biblicalText: text, theme });
-        }}
-        onNavigateToXray={(verse) => {
-          setModal(null);
-          void generateXray(verse);
-        }}
-        initialSearch=""
-        contextReference={contextReference}
-      />
-      {pulpit && sermon && (
+      <Suspense fallback={null}>
+        <DashboardModals
+          modalType={modal}
+          onClose={() => setModal(null)}
+          onNavigateToSermon={(text, theme) => {
+            setModal(null);
+            void generateSermon({ biblicalText: text, theme });
+          }}
+          onNavigateToXray={(verse) => {
+            setModal(null);
+            void generateXray(verse);
+          }}
+          initialSearch=""
+          contextReference={contextReference}
+        />
+      </Suspense>
+      {pulpit && sermon && <Suspense fallback={null}>
         <PulpitModeModal sermon={sermon} onClose={() => setPulpit(false)} />
-      )}
-      {reader && (
+      </Suspense>}
+      {reader && <Suspense fallback={null}>
         <PdfReaderModal
           product={reader}
           onClose={() => {
@@ -468,7 +468,7 @@ function Workspace({
             void catalog.reload();
           }}
         />
-      )}
+      </Suspense>}
       <footer className="text-center p-8 text-slate-500 no-print">
         Verbo Norte · Estudos e preparo ministerial
       </footer>

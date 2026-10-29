@@ -17,6 +17,7 @@
 - CI do GitHub com lint, testes unitários, integração da API e build.
 - Webhook InfinitePay exige assinatura HMAC válida; requisições sem segredo ou assinatura são rejeitadas.
 - Política de privacidade, termos, aviso de IA e política de acesso estão acessíveis no rodapé da landing page.
+- Loja, pesquisa, caderno e modais de uso eventual são carregados sob demanda para reduzir o JavaScript inicial.
 
 ## Evidências de validação
 
@@ -32,6 +33,7 @@
 - Comparação só aparece quando as duas versões estão disponíveis para o capítulo.
 - Conteúdo gerado pelo Gemini exige revisão ministerial.
 - O modo offline cobre interface, recursos estáticos e capítulos públicos marcados pelo usuário; não armazena notas, assinaturas, compras ou APIs privadas.
+- O bundle inicial ainda supera 500 KB; a divisão por módulos reduziu o tamanho inicial, mas uma otimização adicional de dependências continua recomendada.
 - Testes SQL do Supabase exigem Docker/Podman e `supabase start` localmente.
 - Comunidade, gamificação, áudio, slides automáticos, geração de imagens e aplicativos nativos permanecem fora desta fase.
 
