@@ -33,6 +33,7 @@ Use este roteiro em uma janela anônima e em uma conta autenticada de teste. Nã
 - [ ] Abrir uma ferramenta pelo Editor, fechar usando **Voltar ao Editor** e confirmar que o texto e as alterações locais continuam presentes.
 - [ ] Editar o estudo, sem salvar manualmente, clicar em Bíblia/Raio-X/Dicionário/Concordância e confirmar que a alteração é sincronizada antes da navegação.
 - [ ] Editar o estudo e clicar em outra seção pelo menu; confirmar que a navegação é bloqueada temporariamente até o salvamento automático e não perde o conteúdo.
+- [ ] Com alterações pendentes, recarregar/fechar a janela e confirmar que o navegador solicita confirmação antes de descartar o estudo.
 - [ ] No Editor, inserir uma passagem, uma referência adicional e uma **Nota pessoal**.
 - [ ] Aguardar o salvamento automático, recarregar a aplicação e abrir o filtro **Editados** no Caderno.
 - [ ] Voltar do Editor diretamente para o Caderno e confirmar que a lista é recarregada, sem precisar sair da conta.

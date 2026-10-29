@@ -142,6 +142,15 @@ export function EditorView({ source, savedStudy, initialReference = "", activeRe
     const timer = window.setTimeout(() => { void save(); }, 1400);
     return () => window.clearTimeout(timer);
   }, [dirty, title, reference, content, additionalReferences, authorAudience, historicalContext, literaryContext, keyTerms, peoplePlacesEvents]);
+  useEffect(() => {
+    if (!dirty) return;
+    const warnBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warnBeforeUnload);
+    return () => window.removeEventListener("beforeunload", warnBeforeUnload);
+  }, [dirty]);
   const references = additionalReferences.split(/[;,\n]/).map((item) => item.trim()).filter(Boolean);
   const addReference = () => {
     const next = referenceInput.trim();
