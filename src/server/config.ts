@@ -1,4 +1,7 @@
 import "dotenv/config";
+export function resolveHost(nodeEnv: string | undefined, configuredHost: string | undefined): string {
+  return configuredHost || (nodeEnv === "production" ? "0.0.0.0" : "127.0.0.1");
+}
 const url = process.env.SUPABASE_URL || "http://127.0.0.1:54321";
 const parsed = new URL(url);
 const local = ["localhost", "127.0.0.1", "[::1]"].includes(parsed.hostname);
@@ -8,7 +11,7 @@ export const config = {
   port: Number(process.env.PORT || 3000),
   // Keep local development on loopback while production hosts bind all interfaces.
   // HOST remains configurable for platforms that provide their own binding.
-  host: process.env.HOST || (process.env.NODE_ENV === "production" ? "0.0.0.0" : "127.0.0.1"),
+  host: resolveHost(process.env.NODE_ENV, process.env.HOST),
   model: process.env.GEMINI_MODEL || "gemini-2.5-flash", apiKey: process.env.GEMINI_API_KEY,
   infinitePayApiKey: process.env.INFINITEPAY_API_KEY,
   infinitePayHandle: process.env.INFINITEPAY_HANDLE,
