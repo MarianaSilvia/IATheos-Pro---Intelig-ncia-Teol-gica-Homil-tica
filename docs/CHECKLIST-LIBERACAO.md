@@ -2,7 +2,7 @@
 
 Este checklist separa evidência automatizada de validação manual. Nenhum item manual deve ser marcado por inferência.
 
-## Comprovado no commit `797d767`
+## Comprovado no commit informado pelo comando `git rev-parse --short HEAD`
 
 - [x] Preflight local sem exibir segredos.
 - [x] TypeScript (`npm run lint`).

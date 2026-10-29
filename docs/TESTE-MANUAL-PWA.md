@@ -4,7 +4,7 @@ Use este roteiro em uma janela anônima e em uma conta autenticada de teste. Nã
 
 ## Estado da homologação
 
-- Último commit preparado: `c6e71da`.
+- Commit a homologar: confirme antes do teste com `git rev-parse --short HEAD`.
 - Verificação automática: preflight, TypeScript, 42 testes unitários, 3 testes de integração e build aprovados.
 - Homologação no navegador: pendente; os itens abaixo só devem ser marcados após observar o comportamento em Chrome ou Edge.
 - Os testes automatizados não substituem a confirmação de instalação, desligamento da rede, cache local e troca de conta.
