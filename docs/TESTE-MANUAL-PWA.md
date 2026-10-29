@@ -27,6 +27,7 @@ Use este roteiro em uma janela anônima e em uma conta autenticada de teste. Nã
 - [ ] Na comparação, usar **Enviar ao Editor** e confirmar que as duas traduções chegam preenchidas no novo estudo.
 - [ ] Salvar o versículo como nota e confirmar a mensagem de sucesso.
 - [ ] Abrir o Editor e confirmar que referência e texto são preenchidos.
+- [ ] No Editor, usar **Abrir na Bíblia** e confirmar que a referência ativa é restaurada no leitor.
 - [ ] No Editor, inserir uma passagem, uma referência adicional e uma **Nota pessoal**.
 - [ ] Aguardar o salvamento automático, recarregar a aplicação e abrir o filtro **Editados** no Caderno.
 - [ ] Voltar do Editor diretamente para o Caderno e confirmar que a lista é recarregada, sem precisar sair da conta.
