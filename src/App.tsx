@@ -48,6 +48,7 @@ import { PdfReaderModal } from "./components/PdfReaderModal";
 import { LandingPage } from "./components/LandingPage/LandingPage";
 import type { DigitalProduct } from "./utils/ecosystem";
 import { firstNameFromIdentity } from "./utils/dashboard";
+import { OfflineNotice } from "./components/OfflineNotice";
 const EditorView = lazy(() => import("./components/EditorView").then((m) => ({ default: m.EditorView })));
 export default function App() {
   const { session, loading, error, signingIn, loginAdmin, loginBuyer, setBuyerPassword, requestMagicLink, logout, refresh } =
@@ -69,7 +70,7 @@ export default function App() {
     );
   if (!session)
     return (
-      <LandingPage
+      <><OfflineNotice /><LandingPage
         signingIn={signingIn}
         products={publicProducts}
         plans={subscriptionPlans}
@@ -80,16 +81,16 @@ export default function App() {
         onAdminLogin={async (email, password) => { await loginAdmin(email, password); }}
         error={error}
         onRetry={() => void refresh()}
-      />
+      /></>
     );
   return (
-    <Workspace
+    <><OfflineNotice /><Workspace
       key={session.uid}
       session={session}
       forcePasswordSetup={setupPasswordFromLink}
       onSetPassword={async (password) => { await setBuyerPassword(password); }}
       logout={() => void logout()}
-    />
+    /></>
   );
 }
 function Workspace({
