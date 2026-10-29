@@ -41,3 +41,5 @@
 5. Executar teste final de PWA em desktop e celular.
 6. Só então definir hospedagem definitiva e publicar.
 
+O roteiro detalhado para executar essa validação está em `docs/TESTE-MANUAL-PWA.md`.
+
