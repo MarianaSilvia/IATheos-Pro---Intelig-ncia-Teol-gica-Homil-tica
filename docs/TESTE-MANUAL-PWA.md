@@ -2,6 +2,13 @@
 
 Use este roteiro em uma janela anônima e em uma conta autenticada de teste. Não use dados reais de compradores durante a homologação.
 
+## Estado da homologação
+
+- Último commit preparado: `c6e71da`.
+- Verificação automática: preflight, TypeScript, 42 testes unitários, 3 testes de integração e build aprovados.
+- Homologação no navegador: pendente; os itens abaixo só devem ser marcados após observar o comportamento em Chrome ou Edge.
+- Os testes automatizados não substituem a confirmação de instalação, desligamento da rede, cache local e troca de conta.
+
 ## 1. Instalação e conexão
 
 - [ ] Abrir a aplicação em Chrome ou Edge com HTTPS ou `localhost`.
