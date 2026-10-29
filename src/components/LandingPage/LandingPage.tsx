@@ -12,6 +12,7 @@ import { PricingSectionRestored } from './PricingSectionRestored.tsx';
 import { ClientAccessSectionRestored } from './ClientAccessSectionRestored.tsx';
 import { ClientAccessModalRestored } from './ClientAccessModalRestored.tsx';
 import { Footer } from './Footer.tsx';
+import { LegalModal, type LegalPage } from './LegalModal.tsx';
 
 interface LandingPageProps {
   products: Array<{ id: string; title: string; price: number }>;
@@ -35,6 +36,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 }) => {
   const [clientLoginModalOpen, setClientLoginModalOpen] = useState(false);
   const [adminLoginOpen, setAdminLoginOpen] = useState(false);
+  const [legalPage, setLegalPage] = useState<LegalPage | null>(null);
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
@@ -88,6 +90,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         onOpenClientLogin={() => setClientLoginModalOpen(true)}
         onGoToPricing={() => scrollToSection('precos')}
         onEnterApp={() => setAdminLoginOpen(true)}
+        onOpenLegal={setLegalPage}
       />
 
       {/* Client Access Modal (Triggered from Navbar or CTAs) */}
@@ -101,6 +104,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         }}
       />
       {adminLoginOpen && <AdminLoginModal onClose={() => setAdminLoginOpen(false)} onSubmit={onAdminLogin} />}
+      {legalPage && <LegalModal page={legalPage} onClose={() => setLegalPage(null)} />}
     </div>
   );
 };

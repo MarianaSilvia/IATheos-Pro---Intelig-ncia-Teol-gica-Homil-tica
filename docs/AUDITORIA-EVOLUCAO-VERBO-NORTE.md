@@ -16,6 +16,7 @@
 - Progresso de leitura sem fallback em `localStorage`; a fonte de verdade é a API autenticada por usuário.
 - CI do GitHub com lint, testes unitários, integração da API e build.
 - Webhook InfinitePay exige assinatura HMAC válida; requisições sem segredo ou assinatura são rejeitadas.
+- Política de privacidade, termos, aviso de IA e política de acesso estão acessíveis no rodapé da landing page.
 
 ## Evidências de validação
 

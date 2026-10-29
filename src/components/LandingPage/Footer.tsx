@@ -10,12 +10,14 @@ interface FooterProps {
   onOpenClientLogin: () => void;
   onGoToPricing: () => void;
   onEnterApp: () => void;
+  onOpenLegal: (page: 'privacy' | 'terms' | 'ai' | 'access') => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
   onOpenClientLogin,
   onGoToPricing,
   onEnterApp,
+  onOpenLegal,
 }) => {
   return (
     <footer className="bg-slate-950 border-t border-slate-900 text-slate-400 py-16">
@@ -60,6 +62,13 @@ export const Footer: React.FC<FooterProps> = ({
               Acessar Painel
             </button>
           </div>
+        </div>
+
+        <div className="flex flex-wrap gap-x-6 gap-y-2 border-b border-slate-900 pb-8 text-xs text-slate-400">
+          <button type="button" onClick={() => onOpenLegal('privacy')} className="hover:text-amber-400">Política de privacidade</button>
+          <button type="button" onClick={() => onOpenLegal('terms')} className="hover:text-amber-400">Termos de uso</button>
+          <button type="button" onClick={() => onOpenLegal('ai')} className="hover:text-amber-400">Aviso sobre IA</button>
+          <button type="button" onClick={() => onOpenLegal('access')} className="hover:text-amber-400">Acesso, estorno e revogação</button>
         </div>
 
         {/* Biblical Quote & Copyright */}
