@@ -11,6 +11,7 @@
 - Editor Ministerial com blocos reordenáveis, referências adicionais e painel de contexto.
 - Contexto de estudo com autor/público, histórico, literário, termos e personagens/lugares/eventos.
 - PWA com cache seguro da interface e aviso de conexão offline.
+- Leitura offline explícita: o usuário pode guardar a referência pública de um capítulo e sua tradução neste dispositivo.
 - Rotas privadas sem cache global; dados pessoais permanecem dependentes da API autenticada.
 - CI do GitHub com lint, testes unitários, integração da API e build.
 
@@ -27,7 +28,7 @@
 - Bíblia, Harpa e concordância continuam com acervo parcial.
 - Comparação só aparece quando as duas versões estão disponíveis para o capítulo.
 - Conteúdo gerado pelo Gemini exige revisão ministerial.
-- O modo offline cobre interface e recursos estáticos, não notas, assinaturas, compras ou APIs privadas.
+- O modo offline cobre interface, recursos estáticos e capítulos públicos marcados pelo usuário; não armazena notas, assinaturas, compras ou APIs privadas.
 - Testes SQL do Supabase exigem Docker/Podman e `supabase start` localmente.
 - Comunidade, gamificação, áudio, slides automáticos, geração de imagens e aplicativos nativos permanecem fora desta fase.
 

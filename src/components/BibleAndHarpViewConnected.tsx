@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from "react";
-import { BookOpen, Check, Copy, Eye, Music, Search, Sparkles } from "lucide-react";
+import { BookOpen, Check, Copy, Download, Eye, Music, Search, Sparkles } from "lucide-react";
 import { BIBLE_BOOKS } from "../utils/bibleProgress";
 import { INITIAL_HYMNS, searchHymns } from "../utils/ecosystem";
 import { findBibleChapter } from "../utils/bibleContent";
 import { api } from "../lib/api";
 import { INITIAL_CONCORDANCE_ENTRIES, normalizeReferenceSearch } from "../utils/dashboard";
+import { readOfflineBibleChapters, toggleOfflineBibleChapter, offlineBibleKey, writeOfflineBibleChapters, type OfflineBibleChapter } from "../utils/offlineBible";
 
 const TRANSLATIONS = ["ARC", "NAA", "NVI", "KJF"] as const;
 
@@ -40,6 +41,7 @@ export function BibleAndHarpViewConnected({
   const [search, setSearch] = useState("");
   const [hymn, setHymn] = useState(INITIAL_HYMNS[0]);
   const [message, setMessage] = useState("");
+  const [offlineChapters, setOfflineChapters] = useState<OfflineBibleChapter[]>(() => readOfflineBibleChapters());
 
   const selectedBook = BIBLE_BOOKS.find((item) => item.name === book) ?? BIBLE_BOOKS[0];
   const data = findBibleChapter(book, chapter, translation);
@@ -107,6 +109,20 @@ export function BibleAndHarpViewConnected({
     setSelectedVerse(null);
   }
 
+  const currentOfflineChapter: OfflineBibleChapter = { book, chapter, translation };
+  const currentOfflineKey = offlineBibleKey(currentOfflineChapter);
+  const isCurrentChapterOffline = offlineChapters.some((item) => offlineBibleKey(item) === currentOfflineKey);
+
+  function toggleCurrentChapterOffline() {
+    const next = toggleOfflineBibleChapter(offlineChapters, currentOfflineChapter);
+    if (!writeOfflineBibleChapters(next)) {
+      setMessage("Não foi possível guardar este capítulo para uso offline.");
+      return;
+    }
+    setOfflineChapters(next);
+    setMessage(next.some((item) => offlineBibleKey(item) === currentOfflineKey) ? "Capítulo disponível offline neste dispositivo." : "Capítulo removido do uso offline.");
+  }
+
   function openXray(verse: number) {
     onSendToVerseXray(`${book} ${chapter}:${verse}`);
   }
@@ -151,6 +167,9 @@ export function BibleAndHarpViewConnected({
             </label>
             <button type="button" onClick={() => setCompareOpen((value) => !value)} className="px-3 py-2 rounded-xl border border-amber-300 text-amber-800 text-sm font-bold">
               {compareOpen ? "Fechar comparação" : "Comparar versões"}
+            </button>
+            <button type="button" disabled={!data} onClick={toggleCurrentChapterOffline} className={`px-3 py-2 rounded-xl border text-sm font-bold disabled:opacity-50 ${isCurrentChapterOffline ? "border-emerald-300 bg-emerald-50 text-emerald-800" : "border-slate-300 text-slate-700"}`} title="Guarda apenas a referência e a tradução local disponível; não armazena dados privados">
+              <Download className="w-4 h-4 inline mr-1" />{isCurrentChapterOffline ? "Disponível offline" : "Disponibilizar offline"}
             </button>
             <div className="ml-auto flex items-center gap-2 text-xs text-slate-500">
               Fonte <button type="button" onClick={() => setFontSize((value) => Math.max(13, value - 1))} className="px-2 py-1 border rounded">A-</button>
