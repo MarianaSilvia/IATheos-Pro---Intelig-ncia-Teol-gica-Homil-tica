@@ -188,6 +188,22 @@ export function AdminPanelView({
             <h2 className="font-bold text-indigo-950">Acompanhamento comercial</h2>
             <p className="text-sm text-indigo-900 mt-1">Há {metrics.totalUsers} contas cadastradas. Os números acima consideram apenas pedidos confirmados pela InfinitePay; pedidos pendentes não liberam acesso.</p>
           </article>
+          <article className="sm:col-span-2 lg:col-span-3 bg-white border rounded-2xl p-5 shadow-sm" aria-labelledby="subscription-chart-title">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 id="subscription-chart-title" className="font-bold text-slate-900">Distribuição das assinaturas</h2>
+                <p className="text-sm text-slate-500 mt-1">Comparação dos pedidos de plano confirmados.</p>
+              </div>
+              <span className="text-xs text-slate-500">{metrics.monthly + metrics.annual} assinatura{metrics.monthly + metrics.annual === 1 ? "" : "s"}</span>
+            </div>
+            {metrics.monthly + metrics.annual === 0 ? <p className="text-sm text-slate-500 mt-5">Ainda não há assinaturas confirmadas para comparar.</p> : <div className="mt-5 space-y-4">
+              {[{label:"Mensal",value:metrics.monthly,color:"bg-indigo-600"},{label:"Anual",value:metrics.annual,color:"bg-amber-500"}].map((item) => {
+                const total = metrics.monthly + metrics.annual;
+                const percentage = Math.round((item.value / total) * 100);
+                return <div key={item.label} className="space-y-1.5"><div className="flex justify-between text-sm"><span className="font-semibold text-slate-700">Plano {item.label}</span><span className="text-slate-500">{item.value} · {percentage}%</span></div><div className="h-3 rounded-full bg-slate-100 overflow-hidden" role="img" aria-label={`${item.label}: ${item.value} assinaturas, ${percentage}%`}><div className={`h-full rounded-full ${item.color} transition-all`} style={{width:`${Math.max(percentage, item.value > 0 ? 4 : 0)}%`}} /></div></div>;
+              })}
+            </div>}
+          </article>
         </section>
       )}
       {adminTab === "subscribers" && (
