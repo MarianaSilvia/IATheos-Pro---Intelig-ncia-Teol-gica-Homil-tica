@@ -14,6 +14,10 @@ select public.sync_profile();
 select 1 / (not public.is_admin())::integer as normal_not_admin;
 insert into public.notes(user_id,id,title,content) values(auth.uid(),'note','Nota','Conteúdo');
 insert into public.reading(user_id,chapter_key) values(auth.uid(),'gn:1');
+do $$ begin
+ begin insert into public.reading(user_id,chapter_key) values(auth.uid(),'gn:99');raise exception 'invalid chapter accepted';exception when check_violation then null;end;
+ begin insert into public.studies(user_id,id,type,title,reference,content) values(auth.uid(),'study','xray','Estudo','João 3:16','{"id":"other","verseReference":"João 3:16"}');raise exception 'study identity bypass';exception when check_violation then null;end;
+end $$;
 delete from public.reading where user_id=auth.uid();
 select 1 / ((select count(*) from public.reading)=0)::integer as empty_progress;
 set local request.jwt.claims='{"sub":"00000000-0000-4000-8000-000000000003","role":"authenticated"}';
