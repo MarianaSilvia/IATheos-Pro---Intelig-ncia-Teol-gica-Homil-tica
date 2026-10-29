@@ -59,6 +59,7 @@ export function EditorView({ source, savedStudy, initialReference = "", activeRe
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const [syncState, setSyncState] = useState<"idle" | "pending" | "saving" | "saved" | "error">("idle");
   const [error, setError] = useState("");
   const [organizeOpen, setOrganizeOpen] = useState(false);
   const [blocks, setBlocks] = useState<EditorBlock[]>([]);
@@ -82,21 +83,26 @@ export function EditorView({ source, savedStudy, initialReference = "", activeRe
     createdAt.current = savedStudy?.createdAt ?? new Date().toISOString();
     setSaved(false);
     setDirty(false);
+    setSyncState("idle");
     setError("");
   }, [seed]);
 
   const markDirty = () => {
     setSaved(false);
     setDirty(true);
+    setSyncState("pending");
+    setError("");
   };
 
   const save = async () => {
     if (busy || !title.trim() || !content.trim()) return;
     if (!reference.trim()) {
       setError("Informe uma referência ou texto-base antes de salvar o estudo.");
+      setSyncState("error");
       return;
     }
     setBusy(true);
+    setSyncState("saving");
     setError("");
     try {
       const cleanContent = content.replace(/\n\n<!-- verbo-norte-context -->[\s\S]*$/, "").trim();
@@ -117,8 +123,10 @@ export function EditorView({ source, savedStudy, initialReference = "", activeRe
       });
       setSaved(true);
       setDirty(false);
+      setSyncState("saved");
     } catch (e) {
       setError((e as Error).message);
+      setSyncState("error");
     } finally {
       setBusy(false);
     }
@@ -214,10 +222,10 @@ export function EditorView({ source, savedStudy, initialReference = "", activeRe
           <button type="button" disabled={busy} onClick={() => void save()} className="rounded-xl bg-amber-600 text-white px-4 py-2 flex items-center gap-2 disabled:opacity-50"><Save className="w-4 h-4" /> {busy ? "Salvando…" : saved ? "Salvo" : "Salvar"}</button>
         </div>
       </div>
-      {error && <p role="alert" className="rounded-xl bg-red-50 text-red-800 p-3">{error} <button className="underline" onClick={() => void save()}>Tentar novamente</button></p>}
-      {busy && <p role="status" className="rounded-xl bg-amber-50 text-amber-800 p-3">Sincronizando alterações…</p>}
-      {!busy && dirty && <p role="status" className="rounded-xl bg-slate-50 text-slate-700 p-3">Alterações pendentes. Salvamento automático em andamento…</p>}
-      {saved && !dirty && <p role="status" className="rounded-xl bg-emerald-50 text-emerald-800 p-3 flex items-center gap-2"><Check className="w-4 h-4" /> Estudo salvo no caderno ministerial.</p>}
+      {syncState === "error" && error && <p role="alert" className="rounded-xl bg-red-50 text-red-800 p-3">Falha ao sincronizar: {error} <button className="underline font-semibold" onClick={() => void save()}>Tentar novamente</button></p>}
+      {syncState === "saving" && <p role="status" className="rounded-xl bg-amber-50 text-amber-800 p-3">Salvando alterações no Caderno…</p>}
+      {syncState === "pending" && dirty && <p role="status" className="rounded-xl bg-slate-50 text-slate-700 p-3">Alterações pendentes. Salvamento automático em andamento…</p>}
+      {syncState === "saved" && saved && !dirty && <p role="status" className="rounded-xl bg-emerald-50 text-emerald-800 p-3 flex items-center gap-2"><Check className="w-4 h-4" /> Sincronizado no Caderno Ministerial.</p>}
       {organizeOpen && <section className="bg-slate-50 rounded-2xl border p-4 space-y-3 no-print"><div className="flex items-center justify-between"><div><h2 className="font-bold">Blocos do estudo</h2><p className="text-xs text-slate-600">Reordene os tópicos e edite cada seção sem perder o Markdown salvo.</p></div><div className="flex flex-wrap gap-2"><button type="button" onClick={addPrivateNoteBlock} className="rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-900 px-3 py-2 text-sm font-semibold">+ Nota pessoal</button><button type="button" onClick={addBlock} className="rounded-lg bg-slate-900 text-white px-3 py-2 text-sm flex items-center gap-1"><Plus className="w-4 h-4" /> Novo bloco</button></div></div>{blocks.map((block, index) => <article key={`${index}-${block.title}`} className={`bg-white rounded-xl border p-3 space-y-2 ${block.title === "Nota pessoal" ? "border-indigo-200 bg-indigo-50/30" : ""}`}><div className="flex items-center gap-2"><input aria-label={`Título do bloco ${index + 1}`} value={block.title} onChange={(event) => updateBlock(index, { title: event.target.value })} className="flex-1 rounded-lg border p-2 font-semibold" /><button type="button" disabled={index === 0} onClick={() => moveBlock(index, -1)} className="p-2 border rounded-lg disabled:opacity-40" title="Mover para cima"><ArrowUp className="w-4 h-4" /></button><button type="button" disabled={index === blocks.length - 1} onClick={() => moveBlock(index, 1)} className="p-2 border rounded-lg disabled:opacity-40" title="Mover para baixo"><ArrowDown className="w-4 h-4" /></button></div><textarea aria-label={`Conteúdo do bloco ${index + 1}`} value={block.body} onChange={(event) => updateBlock(index, { body: event.target.value })} className="w-full min-h-24 rounded-lg border p-3 text-sm" /></article>)}</section>}
       {contextOpen && <section className="bg-indigo-50/60 rounded-2xl border border-indigo-100 p-4 space-y-3 no-print"><div><h2 className="font-bold text-indigo-950">Contexto do estudo</h2><p className="text-xs text-slate-600">Registre informações confirmadas ou suas próprias observações. Revise antes de usar publicamente.</p></div><div className="grid md:grid-cols-2 gap-3"><label className="text-sm font-semibold">Autor e público<textarea value={authorAudience} onChange={(event) => { setAuthorAudience(event.target.value); markDirty(); }} placeholder="Ex.: autoria, destinatários e público da mensagem" className="mt-1 w-full min-h-20 rounded-lg border p-2 text-sm" /></label><label className="text-sm font-semibold">Contexto histórico<textarea value={historicalContext} onChange={(event) => { setHistoricalContext(event.target.value); markDirty(); }} placeholder="Período, situação e fatos relevantes" className="mt-1 w-full min-h-20 rounded-lg border p-2 text-sm" /></label><label className="text-sm font-semibold">Contexto literário<textarea value={literaryContext} onChange={(event) => { setLiteraryContext(event.target.value); markDirty(); }} placeholder="Gênero, estrutura e contexto imediato" className="mt-1 w-full min-h-20 rounded-lg border p-2 text-sm" /></label><label className="text-sm font-semibold">Termos importantes<textarea value={keyTerms} onChange={(event) => { setKeyTerms(event.target.value); markDirty(); }} placeholder="Palavras, conceitos ou termos originais confirmados" className="mt-1 w-full min-h-20 rounded-lg border p-2 text-sm" /></label></div><label className="block text-sm font-semibold">Personagens, lugares e eventos<textarea value={peoplePlacesEvents} onChange={(event) => { setPeoplePlacesEvents(event.target.value); markDirty(); }} placeholder="Registre somente informações verificadas" className="mt-1 w-full min-h-20 rounded-lg border p-2 text-sm" /></label></section>}
       <div className="bg-white rounded-3xl border shadow-sm p-5 sm:p-8 space-y-4">
