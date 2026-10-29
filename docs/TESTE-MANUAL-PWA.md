@@ -31,6 +31,7 @@ Use este roteiro em uma janela anônima e em uma conta autenticada de teste. Nã
 - [ ] Aguardar o salvamento automático, recarregar a aplicação e abrir o filtro **Editados** no Caderno.
 - [ ] Voltar do Editor diretamente para o Caderno e confirmar que a lista é recarregada, sem precisar sair da conta.
 - [ ] Reabrir o estudo editado e confirmar que blocos, referências e campos de contexto foram restaurados.
+- [ ] Abrir um estudo salvo a partir do Caderno e confirmar que a passagem ativa do workspace acompanha a referência do estudo.
 - [ ] Confirmar com outra conta que o estudo editado não aparece.
 - [ ] Marcar o capítulo como **Disponibilizar offline**, sair e reabrir o PWA sem rede.
 - [ ] Confirmar que o texto dos versículos marcados continua disponível offline e que o cache não inclui notas ou dados privados.

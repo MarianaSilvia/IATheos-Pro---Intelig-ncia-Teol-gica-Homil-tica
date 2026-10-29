@@ -259,11 +259,13 @@ function Workspace({
       setXray(item.data as VerseXray);
       setTab("xray");
     } else {
+      const editorData = item.data as EditorStudy;
       setSermon(null);
       setLesson(null);
       setXray(null);
       setEditorDraft(null);
-      setEditorStudy(item.data as EditorStudy);
+      setEditorStudy(editorData);
+      setActiveContext(editorData.reference);
       setTab("editor");
     }
   };
