@@ -123,6 +123,25 @@ export function BibleAndHarpViewConnected({
     setMessage(next.some((item) => offlineBibleKey(item) === currentOfflineKey) ? "Capítulo disponível offline neste dispositivo." : "Capítulo removido do uso offline.");
   }
 
+  function removeOfflineChapter(chapterToRemove: OfflineBibleChapter) {
+    const next = offlineChapters.filter((item) => offlineBibleKey(item) !== offlineBibleKey(chapterToRemove));
+    if (!writeOfflineBibleChapters(next)) {
+      setMessage("Não foi possível atualizar os capítulos offline.");
+      return;
+    }
+    setOfflineChapters(next);
+    setMessage("Capítulo removido do uso offline.");
+  }
+
+  function openOfflineChapter(chapterToOpen: OfflineBibleChapter) {
+    setTab("bible");
+    setBook(chapterToOpen.book);
+    setChapter(chapterToOpen.chapter);
+    setTranslation(chapterToOpen.translation as (typeof TRANSLATIONS)[number]);
+    setSelectedVerse(null);
+    setMessage(`Abrindo ${chapterToOpen.book} ${chapterToOpen.chapter} · ${chapterToOpen.translation}.`);
+  }
+
   function openXray(verse: number) {
     onSendToVerseXray(`${book} ${chapter}:${verse}`);
   }
@@ -146,6 +165,14 @@ export function BibleAndHarpViewConnected({
         Bíblia e Harpa usam somente o conteúdo disponível e autorizado. Combinações ausentes são informadas sem inventar texto.
       </div>
       {message && <p role="status" className="text-sm text-emerald-700">{message}</p>}
+
+      {offlineChapters.length > 0 && <section aria-label="Capítulos disponíveis offline" className="bg-white rounded-2xl border border-emerald-200 p-4 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div><h2 className="font-bold text-emerald-900">Leitura offline neste dispositivo</h2><p className="text-xs text-slate-600">Somente referências públicas e traduções locais são guardadas.</p></div>
+          <span className="rounded-full bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-800">{offlineChapters.length} capítulo{offlineChapters.length === 1 ? "" : "s"}</span>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">{offlineChapters.map((item) => <div key={offlineBibleKey(item)} className="flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50/60 pl-2 text-xs text-emerald-950"><button type="button" className="py-1 font-semibold underline" onClick={() => openOfflineChapter(item)}>{item.book} {item.chapter} · {item.translation}</button><button type="button" className="px-2 py-1 text-emerald-700" aria-label={`Remover ${item.book} ${item.chapter} do offline`} onClick={() => removeOfflineChapter(item)}>×</button></div>)}</div>
+      </section>}
 
       {tab === "bible" ? (
         <div className="space-y-6">
