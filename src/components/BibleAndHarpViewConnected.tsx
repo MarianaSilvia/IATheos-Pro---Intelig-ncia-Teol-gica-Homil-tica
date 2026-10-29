@@ -49,7 +49,7 @@ export function BibleAndHarpViewConnected({
     if (!data || selectedVerse === null) return [];
     const verseText = data.verses.find((verse) => verse.number === selectedVerse)?.text ?? "";
     const normalizedText = normalizeReferenceSearch(verseText);
-    return Object.values(INITIAL_CONCORDANCE_ENTRIES).flatMap((entry) => entry.verses.map((verse) => verse.reference)).filter((reference, index, list) => list.indexOf(reference) === index && normalizeReferenceSearch(reference) !== normalizeReferenceSearch(`${book} ${chapter}:${selectedVerse}`) && normalizedText.split(" ").some((word) => word.length >= 5 && normalizeReferenceSearch(reference).includes(word))).slice(0, 6);
+    return Object.entries(INITIAL_CONCORDANCE_ENTRIES).filter(([term, entry]) => normalizedText.includes(normalizeReferenceSearch(term)) || normalizedText.includes(normalizeReferenceSearch(entry.word))).flatMap(([, entry]) => entry.verses.map((verse) => verse.reference)).filter((reference, index, list) => list.indexOf(reference) === index && normalizeReferenceSearch(reference) !== normalizeReferenceSearch(`${book} ${chapter}:${selectedVerse}`)).slice(0, 6);
   }, [book, chapter, data, selectedVerse]);
 
   async function copy(text: string) {
