@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDown, ArrowUp, Check, FilePenLine, FileText, Plus, Printer, Save } from "lucide-react";
 import { api } from "../lib/api";
 import type { EbdLesson, SermonOutline, VerseXray } from "../utils/theology";
@@ -58,6 +58,7 @@ export function EditorView({ source, initialReference = "", initialText = "", in
   const [error, setError] = useState("");
   const [organizeOpen, setOrganizeOpen] = useState(false);
   const [blocks, setBlocks] = useState<EditorBlock[]>([]);
+  const studyId = useRef(source && "id" in source ? source.id : crypto.randomUUID());
   const seed = useMemo(() => seedTitle + seedReference + seedContent, [seedTitle, seedReference, seedContent]);
 
   useEffect(() => {
@@ -72,6 +73,7 @@ export function EditorView({ source, initialReference = "", initialText = "", in
     setKeyTerms("");
     setPeoplePlacesEvents("");
     setContextOpen(initialContextOpen);
+    studyId.current = source && "id" in source ? source.id : crypto.randomUUID();
     setSaved(false);
     setError("");
   }, [seed]);
@@ -90,7 +92,7 @@ export function EditorView({ source, initialReference = "", initialText = "", in
         ["Personagens, lugares e eventos", peoplePlacesEvents],
       ].filter(([, value]) => value.trim()).map(([label, value]) => `### ${label}\n\n${value.trim()}`);
       const contentWithContext = contextLines.length > 0 ? `${cleanContent}\n\n<!-- verbo-norte-context -->\n## Contexto do estudo\n\n${contextLines.join("\n\n")}` : cleanContent;
-      await api(`/notes/${crypto.randomUUID()}`, {
+      await api(`/notes/${studyId.current}`, {
         method: "PUT",
         body: JSON.stringify({ title: title.trim(), biblicalReference: [reference.trim(), additionalReferences.trim()].filter(Boolean).join("; "), content: contentWithContext }),
       });
