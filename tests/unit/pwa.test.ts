@@ -24,5 +24,7 @@ test("PWA manifest identifies Verbo Norte and includes install icons", async () 
 test("service worker never caches private API requests", async () => {
   const serviceWorker = await readFile(path.join(root, "public", "sw.js"), "utf8");
   assert.match(serviceWorker, /url\.pathname\.startsWith\("\/api\/"\)/);
+  assert.match(serviceWorker, /event\.request\.destination/);
+  assert.match(serviceWorker, /if \(!staticRequest\) return/);
 });
 

@@ -6,6 +6,8 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin || url.pathname.startsWith("/api/")) return;
+  const staticRequest = event.request.mode === "navigate" || ["script", "style", "image", "font", "manifest"].includes(event.request.destination);
+  if (!staticRequest) return;
   event.respondWith((async () => {
     try {
       const response = await fetch(event.request);

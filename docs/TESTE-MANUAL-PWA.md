@@ -10,6 +10,7 @@ Use este roteiro em uma janela anônima e em uma conta autenticada de teste. Nã
 - [ ] Desligar a rede e confirmar o aviso de modo offline.
 - [ ] Confirmar que a landing page, a navegação local e a Bíblia disponível no acervo continuam abrindo.
 - [ ] Confirmar que login, notas, IA, loja, assinatura e APIs privadas exibem indisponibilidade sem liberar acesso.
+- [ ] No painel de rede, confirmar que o service worker só armazena navegação e recursos estáticos; respostas JSON ou APIs não devem entrar no cache.
 - [ ] Religar a rede e confirmar que a aplicação volta a sincronizar sem recarregar dados de outra conta.
 
 ## 2. Fluxo Bíblia → estudo
