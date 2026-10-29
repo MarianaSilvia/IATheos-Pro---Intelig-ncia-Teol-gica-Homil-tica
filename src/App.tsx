@@ -49,6 +49,7 @@ import { firstNameFromIdentity } from "./utils/dashboard";
 import { OfflineNotice } from "./components/OfflineNotice";
 import { InstallPwaButton } from "./components/InstallPwaButton";
 import { ModuleErrorBoundary } from "./components/ModuleErrorBoundary";
+import { readStudyContext, writeStudyContext } from "./utils/studyContext";
 const EditorView = lazy(() => import("./components/EditorView").then((m) => ({ default: m.EditorView })));
 export default function App() {
   const { session, loading, error, signingIn, loginAdmin, loginBuyer, setBuyerPassword, requestMagicLink, logout, refresh } =
@@ -116,7 +117,7 @@ function Workspace({
     "themes" | "dictionary" | "concordance" | "notes" | null
   >(null);
   const [bible, setBible] = useState({ book: "Romanos", chapter: 5 });
-  const [contextReference, setContextReference] = useState("");
+  const [contextReference, setContextReference] = useState(() => readStudyContext(session.uid)?.reference ?? "");
   const [editorDraft, setEditorDraft] = useState<{ reference: string; text: string; contextOpen?: boolean } | null>(null);
   const [access, setAccess] = useState(session);
   const [passwordSetupOpen, setPasswordSetupOpen] = useState(forcePasswordSetup || (!session.isAdmin && !session.passwordInitialized));
@@ -125,6 +126,12 @@ function Workspace({
   const [passwordBusy, setPasswordBusy] = useState(false);
   const [passwordError, setPasswordError] = useState("");
   useEffect(() => setAccess(session), [session]);
+  useEffect(() => {
+    setContextReference(readStudyContext(session.uid)?.reference ?? "");
+  }, [session.uid]);
+  useEffect(() => {
+    writeStudyContext(session.uid, contextReference ? { reference: contextReference } : null);
+  }, [contextReference, session.uid]);
   useEffect(() => setPasswordSetupOpen(forcePasswordSetup || (!session.isAdmin && !session.passwordInitialized)), [forcePasswordSetup, session.isAdmin, session.passwordInitialized]);
   const library = useLibrary();
   const catalog = useResource<DigitalProduct[]>("/products", []);
