@@ -585,6 +585,7 @@ export function BibleAndHarpViewConnected({
                 <div className="mt-4 flex flex-wrap gap-2">
                   <button type="button" onClick={() => void copy(comparisonPassageText())} className="rounded-xl border border-indigo-300 bg-white px-3 py-2 text-sm font-bold text-indigo-900">Copiar comparação</button>
                   <button type="button" disabled={comparisonSaving} onClick={() => void saveComparison()} className="rounded-xl bg-indigo-700 px-3 py-2 text-sm font-bold text-white disabled:opacity-50">{comparisonSaving ? "Salvando…" : "Salvar nas notas"}</button>
+                  {onSendToEditor && <button type="button" onClick={() => onSendToEditor(formatVerseReference(book, chapter, selectedVerses), comparisonPassageText())} className="rounded-xl bg-emerald-700 px-3 py-2 text-sm font-bold text-white">Enviar ao Editor</button>}
                 </div>
                 </>
               ) : (
