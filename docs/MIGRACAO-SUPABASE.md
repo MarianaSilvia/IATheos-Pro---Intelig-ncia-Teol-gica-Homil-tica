@@ -4,7 +4,7 @@ Destino criado: **QI Store Pro**, ref `idrumlpdobiackcnhdas`, organização **Ma
 
 ## Alterações
 
-- Firebase Auth substituído por Supabase Auth, Google OAuth e PKCE. Estados de carregamento, erro, logout e troca de conta mantidos. A API valida o token por `getUser` e consulta o papel no banco, sem confiar em metadados editáveis.
+- Firebase Auth substituído por Supabase Auth. O administrador usa e-mail e senha; compradores usam link mágico para o primeiro acesso e senha depois da ativação. Google OAuth permanece desativado. Estados de carregamento, erro, logout e troca de conta são mantidos. A API valida o token por `getUser` e consulta o papel no banco, sem confiar em metadados editáveis.
 - Firestore substituído por tabelas PostgreSQL: perfis, estudos, notas, progresso por capítulo, catálogo, assinaturas, direitos, auditoria, eventos de geração e pedidos. Tabelas expostas possuem RLS e privilégios mínimos.
 - Rotinas transacionais cuidam de renovação, concessão, arquivamento e limite da IA. Concessão/renovação anual acrescenta 365 dias à maior data entre agora e a validade atual.
 - PDFs não são armazenados. A tabela privada `product_links` contém apenas endereços HTTPS. Catálogo e logs administrativos não retornam os links. Após autorização, `/api/products/:id/link` entrega o endereço sem cache compartilhado. A interface abre a nuvem externa com `noopener noreferrer` e sem referenciador.
@@ -17,7 +17,7 @@ Destino criado: **QI Store Pro**, ref `idrumlpdobiackcnhdas`, organização **Ma
 
 A migração não copia dados nem identidades do Firebase automaticamente. O novo projeto foi iniciado vazio. Testes SQL foram revertidos e não deixaram contas ou produtos artificiais. Usuários entrarão pelo novo Auth e receberão novos UUIDs.
 
-Login real depende de configurar o provedor Google e redirects no painel e concluir um login real. A primeira permissão administrativa depende desse UUID. Gemini depende de chave privada no servidor e da chave do Gemini. Segredos não foram criados artificialmente nem publicados.
+Login real depende de configurar SMTP próprio, a URL pública e os redirects exatos no painel, além de concluir um primeiro acesso real. A primeira permissão administrativa depende do UUID criado no novo Auth. Gemini depende de chave privada no servidor e da chave do Gemini. Segredos não foram criados artificialmente nem publicados.
 
 Escolher o provedor de pagamento e a nuvem externa é uma etapa seguinte. O adaptador deverá validar assinatura do webhook, consultar o pagamento no provedor, comparar pedido/valor/moeda e somente então chamar a rotina de confirmação no servidor. O pedido deve nascer no servidor com valor do catálogo. Estornos e revogações precisarão de política definida antes da ativação da cobrança. Não há webhook genérico que aceite `paid` do navegador.
 
