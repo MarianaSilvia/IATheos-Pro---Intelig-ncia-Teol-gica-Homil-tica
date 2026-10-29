@@ -518,7 +518,7 @@ function Workspace({
             setModal("concordance");
           }}
           onSaveReferenceNote={(reference, content, title) => {
-            void run(async () => {
+            return run(async () => {
               await api(`/notes/${crypto.randomUUID()}`, {
                 method: "PUT",
                 body: JSON.stringify({ title: title || reference, biblicalReference: reference, content }),
