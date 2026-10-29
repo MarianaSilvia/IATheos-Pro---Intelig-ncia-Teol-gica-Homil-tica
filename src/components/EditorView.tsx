@@ -47,6 +47,12 @@ export function EditorView({ source, initialReference = "", initialText = "", on
   const [content, setContent] = useState(seedContent);
   const [additionalReferences, setAdditionalReferences] = useState("");
   const [referenceInput, setReferenceInput] = useState("");
+  const [contextOpen, setContextOpen] = useState(false);
+  const [authorAudience, setAuthorAudience] = useState("");
+  const [historicalContext, setHistoricalContext] = useState("");
+  const [literaryContext, setLiteraryContext] = useState("");
+  const [keyTerms, setKeyTerms] = useState("");
+  const [peoplePlacesEvents, setPeoplePlacesEvents] = useState("");
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
@@ -60,6 +66,11 @@ export function EditorView({ source, initialReference = "", initialText = "", on
     setContent(seedContent);
     setAdditionalReferences("");
     setReferenceInput("");
+    setAuthorAudience("");
+    setHistoricalContext("");
+    setLiteraryContext("");
+    setKeyTerms("");
+    setPeoplePlacesEvents("");
     setSaved(false);
     setError("");
   }, [seed]);
@@ -69,9 +80,18 @@ export function EditorView({ source, initialReference = "", initialText = "", on
     setBusy(true);
     setError("");
     try {
+      const cleanContent = content.replace(/\n\n<!-- verbo-norte-context -->[\s\S]*$/, "").trim();
+      const contextLines = [
+        ["Autor e público", authorAudience],
+        ["Contexto histórico", historicalContext],
+        ["Contexto literário", literaryContext],
+        ["Termos importantes", keyTerms],
+        ["Personagens, lugares e eventos", peoplePlacesEvents],
+      ].filter(([, value]) => value.trim()).map(([label, value]) => `### ${label}\n\n${value.trim()}`);
+      const contentWithContext = contextLines.length > 0 ? `${cleanContent}\n\n<!-- verbo-norte-context -->\n## Contexto do estudo\n\n${contextLines.join("\n\n")}` : cleanContent;
       await api(`/notes/${crypto.randomUUID()}`, {
         method: "PUT",
-        body: JSON.stringify({ title: title.trim(), biblicalReference: [reference.trim(), additionalReferences.trim()].filter(Boolean).join("; "), content: content.trim() }),
+        body: JSON.stringify({ title: title.trim(), biblicalReference: [reference.trim(), additionalReferences.trim()].filter(Boolean).join("; "), content: contentWithContext }),
       });
       setSaved(true);
     } catch (e) {
@@ -125,6 +145,7 @@ export function EditorView({ source, initialReference = "", initialText = "", on
         </div>
         <div className="flex gap-2 no-print">
           <button type="button" onClick={openOrganizer} className="rounded-xl border px-4 py-2 flex items-center gap-2"><FilePenLine className="w-4 h-4" /> {organizeOpen ? "Fechar blocos" : "Organizar blocos"}</button>
+          <button type="button" onClick={() => setContextOpen((value) => !value)} className="rounded-xl border px-4 py-2 flex items-center gap-2">{contextOpen ? "Fechar contexto" : "Contexto do estudo"}</button>
           <button type="button" onClick={() => window.print()} className="rounded-xl border px-4 py-2 flex items-center gap-2"><Printer className="w-4 h-4" /> Imprimir</button>
           <button type="button" disabled={busy} onClick={() => void save()} className="rounded-xl bg-amber-600 text-white px-4 py-2 flex items-center gap-2 disabled:opacity-50"><Save className="w-4 h-4" /> {busy ? "Salvando…" : saved ? "Salvo" : "Salvar"}</button>
         </div>
@@ -132,6 +153,7 @@ export function EditorView({ source, initialReference = "", initialText = "", on
       {error && <p role="alert" className="rounded-xl bg-red-50 text-red-800 p-3">{error} <button className="underline" onClick={() => void save()}>Tentar novamente</button></p>}
       {saved && <p role="status" className="rounded-xl bg-emerald-50 text-emerald-800 p-3 flex items-center gap-2"><Check className="w-4 h-4" /> Estudo salvo no caderno ministerial.</p>}
       {organizeOpen && <section className="bg-slate-50 rounded-2xl border p-4 space-y-3 no-print"><div className="flex items-center justify-between"><div><h2 className="font-bold">Blocos do estudo</h2><p className="text-xs text-slate-600">Reordene os tópicos e edite cada seção sem perder o Markdown salvo.</p></div><button type="button" onClick={addBlock} className="rounded-lg bg-slate-900 text-white px-3 py-2 text-sm flex items-center gap-1"><Plus className="w-4 h-4" /> Novo bloco</button></div>{blocks.map((block, index) => <article key={`${index}-${block.title}`} className="bg-white rounded-xl border p-3 space-y-2"><div className="flex items-center gap-2"><input aria-label={`Título do bloco ${index + 1}`} value={block.title} onChange={(event) => updateBlock(index, { title: event.target.value })} className="flex-1 rounded-lg border p-2 font-semibold" /><button type="button" disabled={index === 0} onClick={() => moveBlock(index, -1)} className="p-2 border rounded-lg disabled:opacity-40" title="Mover para cima"><ArrowUp className="w-4 h-4" /></button><button type="button" disabled={index === blocks.length - 1} onClick={() => moveBlock(index, 1)} className="p-2 border rounded-lg disabled:opacity-40" title="Mover para baixo"><ArrowDown className="w-4 h-4" /></button></div><textarea aria-label={`Conteúdo do bloco ${index + 1}`} value={block.body} onChange={(event) => updateBlock(index, { body: event.target.value })} className="w-full min-h-24 rounded-lg border p-3 text-sm" /></article>)}</section>}
+      {contextOpen && <section className="bg-indigo-50/60 rounded-2xl border border-indigo-100 p-4 space-y-3 no-print"><div><h2 className="font-bold text-indigo-950">Contexto do estudo</h2><p className="text-xs text-slate-600">Registre informações confirmadas ou suas próprias observações. Revise antes de usar publicamente.</p></div><div className="grid md:grid-cols-2 gap-3"><label className="text-sm font-semibold">Autor e público<textarea value={authorAudience} onChange={(event) => { setAuthorAudience(event.target.value); setSaved(false); }} placeholder="Ex.: autoria, destinatários e público da mensagem" className="mt-1 w-full min-h-20 rounded-lg border p-2 text-sm" /></label><label className="text-sm font-semibold">Contexto histórico<textarea value={historicalContext} onChange={(event) => { setHistoricalContext(event.target.value); setSaved(false); }} placeholder="Período, situação e fatos relevantes" className="mt-1 w-full min-h-20 rounded-lg border p-2 text-sm" /></label><label className="text-sm font-semibold">Contexto literário<textarea value={literaryContext} onChange={(event) => { setLiteraryContext(event.target.value); setSaved(false); }} placeholder="Gênero, estrutura e contexto imediato" className="mt-1 w-full min-h-20 rounded-lg border p-2 text-sm" /></label><label className="text-sm font-semibold">Termos importantes<textarea value={keyTerms} onChange={(event) => { setKeyTerms(event.target.value); setSaved(false); }} placeholder="Palavras, conceitos ou termos originais confirmados" className="mt-1 w-full min-h-20 rounded-lg border p-2 text-sm" /></label></div><label className="block text-sm font-semibold">Personagens, lugares e eventos<textarea value={peoplePlacesEvents} onChange={(event) => { setPeoplePlacesEvents(event.target.value); setSaved(false); }} placeholder="Registre somente informações verificadas" className="mt-1 w-full min-h-20 rounded-lg border p-2 text-sm" /></label></section>}
       <div className="bg-white rounded-3xl border shadow-sm p-5 sm:p-8 space-y-4">
         <label className="block text-sm font-semibold">Título<input value={title} onChange={(event) => { setTitle(event.target.value); setSaved(false); }} maxLength={300} className="mt-1 block w-full rounded-xl border p-3 font-serif text-lg" /></label>
         <label className="block text-sm font-semibold">Texto ou referência bíblica<input value={reference} onChange={(event) => { setReference(event.target.value); setSaved(false); }} maxLength={300} className="mt-1 block w-full rounded-xl border p-3" /></label>
