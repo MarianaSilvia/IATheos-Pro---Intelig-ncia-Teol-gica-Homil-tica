@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { BookOpen, Check, Copy, Download, Eye, Music, Search, Sparkles } from "lucide-react";
-import { BIBLE_BOOKS } from "../utils/bibleProgress";
+import { BIBLE_BOOKS, formatChapterKey } from "../utils/bibleProgress";
 import { INITIAL_HYMNS, searchHymns } from "../utils/ecosystem";
 import { findBibleChapter } from "../utils/bibleContent";
 import { api } from "../lib/api";
@@ -43,6 +43,8 @@ export function BibleAndHarpViewConnected({
   const [hymn, setHymn] = useState(INITIAL_HYMNS[0]);
   const [message, setMessage] = useState("");
   const [offlineChapters, setOfflineChapters] = useState<OfflineBibleChapter[]>(() => readOfflineBibleChapters());
+  const [chapterRead, setChapterRead] = useState(false);
+  const [readingBusy, setReadingBusy] = useState(false);
 
   const selectedBook = BIBLE_BOOKS.find((item) => item.name === book) ?? BIBLE_BOOKS[0];
   const cachedOfflineChapter = offlineChapters.find((item) => item.book === book && item.chapter === chapter && item.translation === translation);
@@ -56,6 +58,15 @@ export function BibleAndHarpViewConnected({
     const currentReference = normalizeReferenceSearch(formatVerseReference(book, chapter, selectedVerses));
     return Object.entries(INITIAL_CONCORDANCE_ENTRIES).filter(([term, entry]) => normalizedText.includes(normalizeReferenceSearch(term)) || normalizedText.includes(normalizeReferenceSearch(entry.word))).flatMap(([, entry]) => entry.verses.map((verse) => verse.reference)).filter((reference, index, list) => list.indexOf(reference) === index && normalizeReferenceSearch(reference) !== currentReference).slice(0, 6);
   }, [book, chapter, data, selectedVerses]);
+
+  useEffect(() => {
+    let active = true;
+    setChapterRead(false);
+    void api<string[]>("/reading").then((completed) => {
+      if (active) setChapterRead(completed.includes(formatChapterKey(selectedBook.id, chapter)));
+    }).catch(() => undefined);
+    return () => { active = false; };
+  }, [chapter, selectedBook.id]);
 
   async function copy(text: string) {
     try {
@@ -125,6 +136,24 @@ export function BibleAndHarpViewConnected({
     }
     setOfflineChapters(next);
     setMessage(next.some((item) => offlineBibleKey(item) === currentOfflineKey) ? "Capítulo disponível offline neste dispositivo." : "Capítulo removido do uso offline.");
+  }
+
+  async function toggleChapterRead() {
+    if (readingBusy) return;
+    setReadingBusy(true);
+    const completed = !chapterRead;
+    try {
+      await api(`/reading/${encodeURIComponent(formatChapterKey(selectedBook.id, chapter))}`, {
+        method: "PUT",
+        body: JSON.stringify({ completed }),
+      });
+      setChapterRead(completed);
+      setMessage(completed ? "Capítulo marcado como lido." : "Capítulo retirado do progresso.");
+    } catch {
+      setMessage("Não foi possível atualizar o progresso. Tente novamente.");
+    } finally {
+      setReadingBusy(false);
+    }
   }
 
   function removeOfflineChapter(chapterToRemove: OfflineBibleChapter) {
@@ -201,6 +230,9 @@ export function BibleAndHarpViewConnected({
             </button>
             <button type="button" disabled={!data} onClick={toggleCurrentChapterOffline} className={`px-3 py-2 rounded-xl border text-sm font-bold disabled:opacity-50 ${isCurrentChapterOffline ? "border-emerald-300 bg-emerald-50 text-emerald-800" : "border-slate-300 text-slate-700"}`} title="Guarda o texto público local disponível; não armazena dados privados">
               <Download className="w-4 h-4 inline mr-1" />{isCurrentChapterOffline ? "Disponível offline" : "Disponibilizar offline"}
+            </button>
+            <button type="button" disabled={readingBusy} onClick={() => void toggleChapterRead()} className={`px-3 py-2 rounded-xl border text-sm font-bold disabled:opacity-50 ${chapterRead ? "border-emerald-300 bg-emerald-50 text-emerald-800" : "border-slate-300 text-slate-700"}`}>
+              <Check className="w-4 h-4 inline mr-1" />{chapterRead ? "Capítulo lido" : "Marcar como lido"}
             </button>
             <div className="ml-auto flex items-center gap-2 text-xs text-slate-500">
               Fonte <button type="button" onClick={() => setFontSize((value) => Math.max(13, value - 1))} className="px-2 py-1 border rounded">A-</button>
