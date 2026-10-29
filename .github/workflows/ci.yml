@@ -13,6 +13,13 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Start Supabase local emulators
+        run: npm run supabase:start
+      - name: Validate Supabase RLS and database rules
+        run: npm run supabase:test
+      - name: Stop Supabase local emulators
+        if: always()
+        run: npm run supabase:stop
       - run: npm run lint
       - run: npm test
       - run: npm run test:integration
