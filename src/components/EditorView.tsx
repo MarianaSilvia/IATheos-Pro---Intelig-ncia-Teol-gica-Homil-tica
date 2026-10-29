@@ -204,7 +204,7 @@ export function EditorView({ source, savedStudy, initialReference = "", activeRe
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-amber-700">Editor ministerial</span>
           <h1 className="text-3xl font-serif font-bold">Organize sua mensagem</h1>
-          <p className="text-sm text-slate-600">Edite um estudo gerado ou comece do zero. O conteúdo é salvo como nota privada.</p>
+          <p className="text-sm text-slate-600">Edite um estudo gerado ou comece do zero. O conteúdo é salvo como estudo privado no Caderno Ministerial.</p>
         </div>
         <div className="flex gap-2 no-print">
           <button type="button" onClick={openOrganizer} className="rounded-xl border px-4 py-2 flex items-center gap-2"><FilePenLine className="w-4 h-4" /> {organizeOpen ? "Fechar blocos" : "Organizar blocos"}</button>
