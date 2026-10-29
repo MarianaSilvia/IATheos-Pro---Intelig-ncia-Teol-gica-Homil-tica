@@ -107,6 +107,13 @@ function Workspace({
   onSetPassword: (password: string) => Promise<void>;
   logout: () => void;
 }) {
+  const persistedStudyContext = readStudyContext(session.uid);
+  const persistedReference = persistedStudyContext?.reference ?? "";
+  const parsedPersistedReference = parseBibleReference(persistedReference);
+  const persistedBook = parsedPersistedReference && BIBLE_BOOKS.some((item) => item.name === parsedPersistedReference.book)
+    ? parsedPersistedReference.book
+    : "Romanos";
+  const persistedChapter = parsedPersistedReference?.chapter ?? 5;
   const [tab, setTab] = useState<TabType>("dashboard");
   const [sermon, setSermon] = useState<SermonOutline | null>(null);
   const [lesson, setLesson] = useState<EbdLesson | null>(null);
@@ -118,8 +125,8 @@ function Workspace({
   const [modal, setModal] = useState<
     "themes" | "dictionary" | "concordance" | "notes" | null
   >(null);
-  const [bible, setBible] = useState({ book: "Romanos", chapter: 5 });
-  const [contextReference, setContextReference] = useState(() => readStudyContext(session.uid)?.reference ?? "");
+  const [bible, setBible] = useState({ book: persistedBook, chapter: persistedChapter });
+  const [contextReference, setContextReference] = useState(persistedReference);
   const [editorDraft, setEditorDraft] = useState<{ reference: string; text: string; contextOpen?: boolean } | null>(null);
   const [access, setAccess] = useState(session);
   const [passwordSetupOpen, setPasswordSetupOpen] = useState(forcePasswordSetup || (!session.isAdmin && !session.passwordInitialized));

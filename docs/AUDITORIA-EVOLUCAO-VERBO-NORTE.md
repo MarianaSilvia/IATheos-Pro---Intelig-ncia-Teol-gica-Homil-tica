@@ -4,11 +4,12 @@
 
 - Leitor bíblico com livro, capítulo, tradução e tamanho de fonte.
 - Comparação entre traduções que existem no acervo local.
-- Seleção de versículo com passagem ativa persistente no workspace.
+- Seleção de um ou vários versículos com passagem ativa persistente por usuário.
 - Ações conectadas para notas, Raio-X, Sermão, EBD, Editor, Dicionário e Concordância.
+- Referências do Editor com atalhos para Bíblia, Raio-X, Dicionário e Concordância.
 - Referências relacionadas somente do acervo local de concordância parcial.
 - Harpa Cristã com busca, cópia, salvamento em notas e abertura no Editor.
-- Editor Ministerial com blocos reordenáveis, referências adicionais e painel de contexto.
+- Editor Ministerial com blocos reordenáveis, referências adicionais, painel de contexto e salvamento automático sem duplicação.
 - Contexto de estudo com autor/público, histórico, literário, termos e personagens/lugares/eventos.
 - PWA com cache seguro da interface e aviso de conexão offline.
 - Leitura offline explícita: o usuário pode guardar a referência pública de um capítulo e sua tradução neste dispositivo.
@@ -26,7 +27,7 @@
 ## Evidências de validação
 
 - `npm run lint` aprovado.
-- `npm test` aprovado com 26 testes.
+- `npm test` aprovado com 37 testes.
 - `npm run test:integration` aprovado com 3 testes.
 - `npm run build` aprovado.
 - Commits publicados continuamente no branch `main`.
