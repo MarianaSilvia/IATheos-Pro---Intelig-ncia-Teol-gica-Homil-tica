@@ -15,6 +15,7 @@
 - Rotas privadas sem cache global; dados pessoais permanecem dependentes da API autenticada.
 - Progresso de leitura sem fallback em `localStorage`; a fonte de verdade é a API autenticada por usuário.
 - CI do GitHub com lint, testes unitários, integração da API e build.
+- Webhook InfinitePay exige assinatura HMAC válida; requisições sem segredo ou assinatura são rejeitadas.
 
 ## Evidências de validação
 

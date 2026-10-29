@@ -8,6 +8,7 @@ import { serviceDatabase } from "./supabase.ts";
 import { config } from "./config.ts";
 import crypto from "node:crypto";
 import { INITIAL_CONCORDANCE_ENTRIES, searchConcordance } from "../utils/dashboard.ts";
+import { hasValidInfinitePaySignature } from "./payment.ts";
 const router=Router();
 const phoneSchema=z.string().trim().transform((value)=>value.replace(/\D/g,"")).refine((value)=>value.startsWith("55")?/^55[1-9][0-9]{9,10}$/.test(value):/^[1-9][0-9]{9,10}$/.test(value),"Informe um celular válido com DDD (11 dígitos; com 55, use 13 dígitos).").transform((value)=>value.startsWith("55")?value:`55${value}`);
 const applicationOrigin=()=>config.local?config.publicUrl:"https://ia-theos-pro-intelig-ncia-teol-gica.vercel.app";
@@ -74,8 +75,7 @@ router.post("/subscription-interest",asyncRoute(async(req,res)=>{
 router.post("/webhooks/infinitepay",asyncRoute(async(req,res)=>{
  if(!config.infinitePayApiKey||!config.infinitePayHandle){res.status(503).json({error:"InfinitePay não configurada."});return;}
  const supplied=String(req.header("x-infinitepay-signature")||"");
- const expected=crypto.createHmac("sha256",config.infinitePayWebhookSecret||"").update((req as any).rawBody||"").digest("hex");
- if(supplied&&config.infinitePayWebhookSecret&&(supplied.length!==expected.length||!crypto.timingSafeEqual(Buffer.from(supplied),Buffer.from(expected)))){res.status(401).json({error:"Webhook não autorizado."});return;}
+ if(!hasValidInfinitePaySignature((req as any).rawBody||"",supplied,config.infinitePayWebhookSecret||"")){res.status(401).json({error:"Webhook não autorizado."});return;}
  const data=z.object({order_nsu:z.string().uuid(),transaction_nsu:z.string().min(1).max(200),amount:z.coerce.number().int().nonnegative().optional(),paid_amount:z.coerce.number().int().nonnegative().optional(),invoice_slug:z.string().min(1).max(200).optional(),slug:z.string().min(1).max(200).optional(),status:z.string().optional()}).passthrough().parse(req.body);
  if(data.status&&!["paid","settled"].includes(data.status)){res.status(200).json({ok:true,ignored:true});return;}
  const db=serviceDatabase();
