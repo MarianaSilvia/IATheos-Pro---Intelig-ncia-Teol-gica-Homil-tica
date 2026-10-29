@@ -154,6 +154,7 @@ export interface Session {
   displayName: string;
   isAdmin: boolean;
   isProSubscriber: boolean;
+  passwordInitialized?: boolean;
   subscription: Subscription | null;
 }
 export interface Note {

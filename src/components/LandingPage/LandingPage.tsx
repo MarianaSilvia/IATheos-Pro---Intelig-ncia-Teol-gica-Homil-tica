@@ -19,6 +19,7 @@ interface LandingPageProps {
   onInterest: (email: string, productId: string) => Promise<void>;
   onSubscriptionInterest: (email: string, phone: string, planId: string) => Promise<void>;
   onLoginWithEmail: (email: string) => Promise<void>;
+  onLoginWithPassword: (email: string, password: string) => Promise<void>;
   onAdminLogin: (email: string, password: string) => Promise<void>;
   error: string;
   onRetry: () => void;
@@ -29,6 +30,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   plans,
   onSubscriptionInterest,
   onLoginWithEmail,
+  onLoginWithPassword,
   onAdminLogin,
 }) => {
   const [clientLoginModalOpen, setClientLoginModalOpen] = useState(false);
@@ -76,6 +78,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         {/* 6. Área de Login do Cliente (Acesso por E-mail) */}
         <ClientAccessSectionRestored
           onLoginWithEmail={onLoginWithEmail}
+          onLoginWithPassword={onLoginWithPassword}
           onGoToPricing={() => scrollToSection('precos')}
         />
       </main>

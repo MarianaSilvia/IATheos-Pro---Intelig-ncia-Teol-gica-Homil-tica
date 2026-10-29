@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction, RequestHandler } from "express";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { ZodError } from "zod";
 import { userDatabase } from "./supabase.ts";
-export interface Identity { uid: string; email: string; name: string; admin: boolean }
+export interface Identity { uid: string; email: string; name: string; admin: boolean; passwordInitialized: boolean }
 export interface AuthRequest extends Request { user: Identity; db: SupabaseClient }
 export class HttpError extends Error { constructor(public status: number, message: string) { super(message); } }
 export function checked<T>(result: { data: T; error: any }): NonNullable<T> {
@@ -22,7 +22,7 @@ export const requireAuth:RequestHandler=async(req,res,next)=> {
     const {data,error}=await db.auth.getUser(match[1]);
     if(error||!data.user) { res.status(401).json({error:"Sessão inválida. Entre novamente."}); return; }
     const admin=checked(await db.rpc("is_admin"));
-    Object.assign(req,{db,user:{uid:data.user.id,email:data.user.email||"",name:String(data.user.user_metadata?.full_name||"").slice(0,100),admin:admin===true}}); next();
+    Object.assign(req,{db,user:{uid:data.user.id,email:data.user.email||"",name:String(data.user.user_metadata?.full_name||"").slice(0,100),admin:admin===true,passwordInitialized:data.user.user_metadata?.password_initialized===true}}); next();
   } catch(error) { next(error); }
 };
 export const requireAdmin:RequestHandler=(req,res,next)=> {

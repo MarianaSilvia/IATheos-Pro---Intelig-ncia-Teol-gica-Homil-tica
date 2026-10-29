@@ -48,7 +48,7 @@ import { PdfReaderModal } from "./components/PdfReaderModal";
 import { LandingPage } from "./components/LandingPage/LandingPage";
 import type { DigitalProduct } from "./utils/ecosystem";
 export default function App() {
-  const { session, loading, error, signingIn, loginAdmin, requestMagicLink, logout, refresh } =
+  const { session, loading, error, signingIn, loginAdmin, loginBuyer, setBuyerPassword, requestMagicLink, logout, refresh } =
     useSession();
   const [publicProducts, setPublicProducts] = useState<Array<{id:string;title:string;price:number}>>([]);
   const [subscriptionPlans, setSubscriptionPlans] = useState<Array<{id:string;name:string;price:number;durationDays:number}>>([]);
@@ -73,6 +73,7 @@ export default function App() {
         onInterest={async (email, productId) => { const response = await fetch("/api/purchase-interest", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, productId, consent: true }) }); const body = await response.json().catch(() => ({})); if (!response.ok) throw new Error(body.error || "Não foi possível iniciar o pedido."); if (body.checkoutUrl) window.location.assign(body.checkoutUrl); }}
         onSubscriptionInterest={async (email, phone, planId) => { const response = await fetch("/api/subscription-interest", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, phone, planId, consent: true }) }); const body = await response.json().catch(() => ({})); if (!response.ok) throw new Error(body.error || "Não foi possível iniciar a assinatura."); if (body.checkoutUrl) window.location.assign(body.checkoutUrl); }}
         onLoginWithEmail={async (email) => { await requestMagicLink(email); }}
+        onLoginWithPassword={async (email, password) => { await loginBuyer(email, password); }}
         onAdminLogin={async (email, password) => { await loginAdmin(email, password); }}
         error={error}
         onRetry={() => void refresh()}
@@ -82,15 +83,18 @@ export default function App() {
     <Workspace
       key={session.uid}
       session={session}
+      onSetPassword={async (password) => { await setBuyerPassword(password); }}
       logout={() => void logout()}
     />
   );
 }
 function Workspace({
   session,
+  onSetPassword,
   logout,
 }: {
   session: Session;
+  onSetPassword: (password: string) => Promise<void>;
   logout: () => void;
 }) {
   const [tab, setTab] = useState<TabType>("dashboard");
@@ -106,7 +110,13 @@ function Workspace({
   >(null);
   const [bible, setBible] = useState({ book: "Romanos", chapter: 5 });
   const [access, setAccess] = useState(session);
+  const [passwordSetupOpen, setPasswordSetupOpen] = useState(!session.isAdmin && !session.passwordInitialized);
+  const [newPassword, setNewPassword] = useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
+  const [passwordBusy, setPasswordBusy] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
   useEffect(() => setAccess(session), [session]);
+  useEffect(() => setPasswordSetupOpen(!session.isAdmin && !session.passwordInitialized), [session.isAdmin, session.passwordInitialized]);
   const library = useLibrary();
   const catalog = useResource<DigitalProduct[]>("/products", []);
   const run = async (action: () => Promise<unknown>, success?: string) => {
@@ -240,6 +250,18 @@ function Workspace({
           <button onClick={logout}>Sair</button>
         </div>
       </div>
+      {passwordSetupOpen && !access.isAdmin && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <form onSubmit={async (event) => { event.preventDefault(); setPasswordError(""); if (newPassword.length < 8) { setPasswordError("A senha deve ter pelo menos 8 caracteres."); return; } if (newPassword !== passwordConfirmation) { setPasswordError("As senhas não coincidem."); return; } setPasswordBusy(true); try { await onSetPassword(newPassword); setPasswordSetupOpen(false); setNewPassword(""); setPasswordConfirmation(""); setMessage("Senha criada. Nos próximos acessos, use seu e-mail e senha."); } catch (error) { setPasswordError((error as Error).message); } finally { setPasswordBusy(false); } }} className="bg-white text-slate-900 rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl">
+            <h2 className="text-xl font-bold">Crie sua senha de acesso</h2>
+            <p className="text-sm text-slate-600">Este é seu primeiro acesso. Defina uma senha pessoal para não depender de novos e-mails mágicos.</p>
+            <input required minLength={8} type="password" autoComplete="new-password" placeholder="Nova senha" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} className="block w-full border p-3 rounded-xl" />
+            <input required minLength={8} type="password" autoComplete="new-password" placeholder="Confirme a senha" value={passwordConfirmation} onChange={(event) => setPasswordConfirmation(event.target.value)} className="block w-full border p-3 rounded-xl" />
+            {passwordError && <p role="alert" className="text-red-700 text-sm">{passwordError}</p>}
+            <button disabled={passwordBusy} className="w-full bg-amber-600 text-white p-3 rounded-xl font-bold">{passwordBusy ? "Salvando…" : "Salvar senha"}</button>
+          </form>
+        </div>
+      )}
       {!access.isProSubscriber && (
         <p className="bg-amber-100 p-4">
           Solicite ao administrador a confirmação da assinatura ou a concessão

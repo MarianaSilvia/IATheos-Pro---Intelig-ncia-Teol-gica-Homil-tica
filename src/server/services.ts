@@ -5,7 +5,7 @@ export function subscriptionData(row:any):Subscription|null { return row?{status
 export async function subscriptionFor(db:SupabaseClient,uid:string) {return subscriptionData(checked(await db.from("subscriptions").select("status,expires_at").eq("user_id",uid).maybeSingle()));}
 export async function sessionFor(db:SupabaseClient,user:Identity) {
   const [subscription,profile]=await Promise.all([subscriptionFor(db,user.uid),db.from("profiles").select("display_name").eq("user_id",user.uid).maybeSingle().then(checked)]);
-  return {uid:user.uid,email:user.email,displayName:profile?.display_name||user.name||user.email,isAdmin:user.admin,isProSubscriber:user.admin||hasActiveSubscription(subscription),subscription};
+  return {uid:user.uid,email:user.email,displayName:profile?.display_name||user.name||user.email,isAdmin:user.admin,isProSubscriber:user.admin||hasActiveSubscription(subscription),passwordInitialized:user.passwordInitialized,subscription};
 }
 export async function requirePro(db:SupabaseClient,user:Identity) {
   if(!user.admin&&!hasActiveSubscription(await subscriptionFor(db,user.uid)))throw new HttpError(403,"Seu acesso está inativo. Solicite a liberação ao administrador.");

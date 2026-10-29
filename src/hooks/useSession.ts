@@ -35,6 +35,8 @@ export function useSession(){
  };
  return {session,loading,error,signingIn,refresh,
   loginAdmin:async(email:string,password:string)=>runAuth(()=>authClient().auth.signInWithPassword({email,password})),
+  loginBuyer:async(email:string,password:string)=>runAuth(()=>authClient().auth.signInWithPassword({email,password})),
+  setBuyerPassword:async(password:string)=>{const client=authClient();const {data,error}=await client.auth.updateUser({password,data:{...( (await client.auth.getUser()).data.user?.user_metadata||{}),password_initialized:true}});if(error)throw error;if(!data.user)throw new Error("Sessão não encontrada.");await refresh();},
   requestMagicLink:async(email:string)=>runAuth(()=>authClient().auth.signInWithOtp({email,options:{shouldCreateUser:false,emailRedirectTo:magicLinkRedirect()}})),
   logout:async()=>{version.current++;setSession(null);identity.current=null;try{const {error}=await authClient().auth.signOut();if(error)throw error;}catch(e){setError((e as Error).message);}}
  };
