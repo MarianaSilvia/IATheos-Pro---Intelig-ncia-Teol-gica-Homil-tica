@@ -9,7 +9,6 @@ import {
 } from "../../src/shared/contracts.ts";
 import { INITIAL_SERMON } from "../fixtures/theology.ts";
 import { findBibleChapter } from "../../src/utils/bibleContent.ts";
-import { loadCompletedChapters } from "../../src/utils/bibleProgress.ts";
 import { generateLast7DaysActivities } from "../../src/utils/activityMetrics.ts";
 test("renewal preserves remaining time; suspended and expired access is denied", () => {
   const now = Date.parse("2026-01-01T00:00:00Z");
@@ -77,14 +76,7 @@ test("Bible lookup never returns a different chapter or translation", () => {
   assert.equal(findBibleChapter("João", 3, "UNKNOWN"), null);
   assert.equal(findBibleChapter("Romanos", 1, "NAA"), null);
 });
-test("empty stored progress stays empty; activity starts at zero", () => {
-  const original = (globalThis as any).window;
-  (globalThis as any).window = { localStorage: { getItem: () => "[]" } };
-  try {
-    assert.deepEqual(loadCompletedChapters(), []);
-  } finally {
-    (globalThis as any).window = original;
-  }
+test("activity starts at zero without a local progress fallback", () => {
   const date = new Date("2026-10-27T12:00:00Z");
   assert.equal(
     generateLast7DaysActivities(date).reduce((s, d) => s + d.total, 0),

@@ -13,6 +13,7 @@
 - PWA com cache seguro da interface e aviso de conexão offline.
 - Leitura offline explícita: o usuário pode guardar a referência pública de um capítulo e sua tradução neste dispositivo.
 - Rotas privadas sem cache global; dados pessoais permanecem dependentes da API autenticada.
+- Progresso de leitura sem fallback em `localStorage`; a fonte de verdade é a API autenticada por usuário.
 - CI do GitHub com lint, testes unitários, integração da API e build.
 
 ## Evidências de validação

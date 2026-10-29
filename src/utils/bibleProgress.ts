@@ -601,29 +601,3 @@ export function setBookAllChapters(
   return Array.from(set);
 }
 
-const STORAGE_KEY = "iatheos_bible_chapters_completed_v1";
-
-export function loadCompletedChapters(): string[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) {
-        return parsed;
-      }
-    }
-  } catch {
-    // fallback
-  }
-  return [];
-}
-
-export function saveCompletedChapters(keys: string[]): void {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(keys));
-  } catch {
-    // ignore
-  }
-}
