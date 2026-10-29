@@ -50,6 +50,8 @@ import { OfflineNotice } from "./components/OfflineNotice";
 import { InstallPwaButton } from "./components/InstallPwaButton";
 import { ModuleErrorBoundary } from "./components/ModuleErrorBoundary";
 import { readStudyContext, writeStudyContext } from "./utils/studyContext";
+import { BIBLE_BOOKS } from "./utils/bibleProgress";
+import { parseBibleReference } from "./utils/bibleSelection";
 const EditorView = lazy(() => import("./components/EditorView").then((m) => ({ default: m.EditorView })));
 export default function App() {
   const { session, loading, error, signingIn, loginAdmin, loginBuyer, setBuyerPassword, requestMagicLink, logout, refresh } =
@@ -195,6 +197,17 @@ function Workspace({
   const startEditorFromBible = (verseReference: string, verseText: string) => {
     setEditorDraft({ reference: verseReference, text: verseText, contextOpen: true });
     setTab("editor");
+  };
+  const openBibleReference = (reference: string) => {
+    const parsed = parseBibleReference(reference);
+    const book = parsed && BIBLE_BOOKS.some((item) => item.name === parsed.book) ? parsed.book : null;
+    if (!parsed || !book) {
+      setMessage("Esta referência não está em um formato reconhecido pelo leitor bíblico.");
+      return;
+    }
+    setBible({ book, chapter: parsed.chapter });
+    setContextReference(reference);
+    setTab("bible_harp");
   };
   const openCurrentResultInEditor = () => {
     setEditorDraft(null);
@@ -441,7 +454,7 @@ function Workspace({
               />
             </>
           )}
-          {tab === "editor" && <EditorView source={sermon || lesson || xray} initialReference={editorDraft?.reference} initialText={editorDraft?.text} initialContextOpen={editorDraft?.contextOpen} onOpenReference={(reference) => void generateXray(reference)} />}
+          {tab === "editor" && <EditorView source={sermon || lesson || xray} initialReference={editorDraft?.reference} initialText={editorDraft?.text} initialContextOpen={editorDraft?.contextOpen} onOpenReference={(reference) => void generateXray(reference)} onOpenBible={openBibleReference} onOpenDictionary={(reference) => { setContextReference(reference); setModal("dictionary"); }} onOpenConcordance={(reference) => { setContextReference(reference); setModal("concordance"); }} />}
           {tab === "admin" && access.isAdmin && (
             <AdminPanelView
               products={catalog.data}

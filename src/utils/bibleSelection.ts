@@ -13,3 +13,10 @@ export function formatVerseReference(book: string, chapter: number, verses: numb
   return `${book} ${chapter}:${ordered[0]}${contiguous ? `-${ordered[ordered.length - 1]}` : `,${ordered.slice(1).join(",")}`}`;
 }
 
+export function parseBibleReference(reference: string): { book: string; chapter: number } | null {
+  const match = reference.trim().match(/^(.+?)\s+(\d+)(?::[\d,\-\s]+)?$/);
+  if (!match) return null;
+  const chapter = Number(match[2]);
+  return Number.isInteger(chapter) && chapter > 0 ? { book: match[1].trim(), chapter } : null;
+}
+
