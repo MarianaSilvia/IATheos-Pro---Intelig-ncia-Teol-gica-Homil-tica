@@ -65,6 +65,7 @@ export const EbdView: React.FC<EbdViewProps> = ({
   const [isCopied, setIsCopied] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
   const [source, setSource] = useState<{ mimeType: "application/pdf" | "image/jpeg" | "image/png" | "image/webp"; data: string; name: string } | null>(null);
+  const [sourceError, setSourceError] = useState("");
 
   const handleCopy = async () => {
     const md = formatEbdToMarkdown(currentLesson);
@@ -227,8 +228,9 @@ export const EbdView: React.FC<EbdViewProps> = ({
 
             <div className="md:col-span-2 lg:col-span-4 rounded-xl border border-dashed border-emerald-300 bg-emerald-50/60 p-4">
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Revista ou material de apoio (opcional)</label>
-              <input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" capture="environment" className="block w-full text-sm" onChange={(event) => { const file = event.target.files?.[0]; if (!file) return; if (file.size > 3 * 1024 * 1024) { setSource(null); event.currentTarget.value = ""; return; } const reader = new FileReader(); reader.onload = () => { const value = String(reader.result); const comma = value.indexOf(","); if (comma > 0) setSource({ mimeType: file.type as any, data: value.slice(comma + 1), name: file.name }); }; reader.readAsDataURL(file); }} />
-              <p className="text-xs text-slate-500 mt-1">PDF ou imagem até 3 MB. O conteúdo é usado somente nesta geração e não fica público.</p>
+              <input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" capture="environment" aria-describedby="ebd-source-help" className="block w-full text-sm" onChange={(event) => { const file = event.target.files?.[0]; if (!file) return; setSourceError(""); setSource(null); const allowed = ["application/pdf", "image/jpeg", "image/png", "image/webp"]; if (!allowed.includes(file.type)) { setSourceError("Escolha um PDF ou uma imagem JPG, PNG ou WebP."); event.currentTarget.value = ""; return; } if (file.size > 3 * 1024 * 1024) { setSourceError("O material deve ter no máximo 3 MB. Reduza o arquivo e tente novamente."); event.currentTarget.value = ""; return; } const reader = new FileReader(); reader.onload = () => { const value = String(reader.result); const comma = value.indexOf(","); if (comma > 0) setSource({ mimeType: file.type as any, data: value.slice(comma + 1), name: file.name }); else setSourceError("Não foi possível preparar o material para a IA."); }; reader.onerror = () => setSourceError("Não foi possível ler o arquivo. Tente novamente."); reader.readAsDataURL(file); }} />
+              <p id="ebd-source-help" className="text-xs text-slate-500 mt-1">PDF ou imagem até 3 MB. O conteúdo é usado somente nesta geração e não fica público.</p>
+              {sourceError && <p role="alert" className="text-xs text-red-700 mt-1">{sourceError}</p>}
               {source && <p className="text-xs text-emerald-700 mt-1">Material selecionado: {source.name}</p>}
             </div>
 
