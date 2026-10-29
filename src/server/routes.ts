@@ -26,7 +26,7 @@ async function ensureBuyerAccount(db: ReturnType<typeof serviceDatabase>, orderI
  return email;
 }
 router.post("/webhooks/payment",(_req,res)=>{res.status(410).json({error:"Use o webhook oficial da InfinitePay."});});
-router.get("/health",(_req,res)=>{res.json({status:"ok",backend:"supabase",paymentsEnabled:Boolean(config.infinitePayApiKey),delivery:"external-link"});});
+router.get("/health",(_req,res)=>{res.json({status:"ok",backend:"supabase",paymentsEnabled:Boolean(config.infinitePayApiKey),delivery:"external-link",version:config.deploymentVersion});});
 router.get("/public/products",asyncRoute(async(_req,res)=>{
  const db=serviceDatabase(); const rows=checked(await db.from("products").select("id,details,archived,has_link").eq("archived",false).eq("has_link",true));
  res.json(rows.map((p:any)=>({id:p.id,...p.details,archived:false,hasLink:true})));

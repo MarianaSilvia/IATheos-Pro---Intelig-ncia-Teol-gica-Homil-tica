@@ -24,4 +24,5 @@ export const config = {
   // automatically, which prevents auth/payment links from falling back to
   // localhost when a deployment was created without an explicit domain.
   publicUrl: resolvePublicUrl(process.env.PUBLIC_URL, process.env.VERCEL_URL, "http://localhost:3000"),
+  deploymentVersion: (process.env.VERCEL_GIT_COMMIT_SHA || process.env.GIT_COMMIT_SHA || "local").slice(0, 12),
 };
