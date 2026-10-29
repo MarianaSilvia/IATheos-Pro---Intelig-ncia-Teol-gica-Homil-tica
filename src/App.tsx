@@ -533,6 +533,7 @@ function Workspace({
           }}
           initialSearch={researchInitialSearch}
           contextReference={contextReference}
+          returnToEditor={tab === "editor"}
         />
       </Suspense>
       {pulpit && sermon && <Suspense fallback={null}>

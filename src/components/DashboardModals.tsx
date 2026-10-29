@@ -24,6 +24,7 @@ export function DashboardModals({
   onSaveReferenceNote,
   initialSearch = "",
   contextReference = "",
+  returnToEditor = false,
 }: {
   modalType: "themes" | "dictionary" | "concordance" | "notes" | null;
   onClose: () => void;
@@ -34,6 +35,7 @@ export function DashboardModals({
   onSaveReferenceNote?: (reference: string, content: string, title?: string) => void | Promise<void>;
   initialSearch?: string;
   contextReference?: string;
+  returnToEditor?: boolean;
 }) {
   const [search, setSearch] = useState(initialSearch);
   const [dictionaryMode, setDictionaryMode] = useState<"biblical" | "general">("biblical");
@@ -97,9 +99,12 @@ export function DashboardModals({
       <div className="bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-auto p-6 space-y-4">
         <div className="flex justify-between">
           <h2 className="font-serif text-2xl">Ferramentas de estudo</h2>
-          <button onClick={onClose} autoFocus>
-            Fechar
-          </button>
+          <div className="flex items-center gap-3">
+            {returnToEditor && <button type="button" onClick={onClose} className="text-indigo-700 font-semibold underline">Voltar ao Editor</button>}
+            <button onClick={onClose} autoFocus>
+              Fechar
+            </button>
+          </div>
         </div>
         {modalType === "notes" ? (
           <NotesPanel />
