@@ -130,6 +130,7 @@ function Workspace({
   const [contextReference, setContextReference] = useState(persistedReference);
   const [editorDraft, setEditorDraft] = useState<{ reference: string; text: string; contextOpen?: boolean } | null>(null);
   const [editorStudy, setEditorStudy] = useState<EditorStudy | null>(null);
+  const [editorDirty, setEditorDirty] = useState(false);
   const [access, setAccess] = useState(session);
   const [passwordSetupOpen, setPasswordSetupOpen] = useState(forcePasswordSetup || (!session.isAdmin && !session.passwordInitialized));
   const [newPassword, setNewPassword] = useState("");
@@ -164,6 +165,13 @@ function Workspace({
     } catch (e) {
       setMessage((e as Error).message);
     }
+  };
+  const navigateTab = (nextTab: TabType) => {
+    if (tab === "editor" && nextTab !== "editor" && editorDirty) {
+      setMessage("Aguarde o salvamento automático do Editor antes de sair deste estudo.");
+      return;
+    }
+    setTab(nextTab);
   };
   const generate = async (type: "sermon" | "ebd" | "xray", params: unknown) => {
     if (busy) return;
@@ -306,7 +314,7 @@ function Workspace({
     <div className="min-h-screen bg-slate-100 text-slate-900">
       <Navbar
         activeTab={tab}
-        setActiveTab={setTab}
+        setActiveTab={navigateTab}
         onOpenPulpitMode={() =>
           sermon
             ? setPulpit(true)
@@ -492,7 +500,7 @@ function Workspace({
               />
             </>
           )}
-          {tab === "editor" && <EditorView source={editorStudy ? null : sermon || lesson || xray} savedStudy={editorStudy ?? undefined} initialReference={editorDraft?.reference} activeReference={contextReference} initialText={editorDraft?.text} initialContextOpen={editorDraft?.contextOpen} onOpenReference={(reference) => void generateXray(reference)} onOpenBible={openBibleReference} onOpenDictionary={(reference) => { setActiveContext(reference); setResearchInitialSearch(""); setModal("dictionary"); }} onOpenConcordance={(reference) => { setActiveContext(reference); setResearchInitialSearch(""); setModal("concordance"); }} />}
+          {tab === "editor" && <EditorView source={editorStudy ? null : sermon || lesson || xray} savedStudy={editorStudy ?? undefined} initialReference={editorDraft?.reference} activeReference={contextReference} initialText={editorDraft?.text} initialContextOpen={editorDraft?.contextOpen} onDirtyChange={setEditorDirty} onOpenReference={(reference) => void generateXray(reference)} onOpenBible={openBibleReference} onOpenDictionary={(reference) => { setActiveContext(reference); setResearchInitialSearch(""); setModal("dictionary"); }} onOpenConcordance={(reference) => { setActiveContext(reference); setResearchInitialSearch(""); setModal("concordance"); }} />}
           {tab === "admin" && access.isAdmin && (
             <AdminPanelView
               products={catalog.data}

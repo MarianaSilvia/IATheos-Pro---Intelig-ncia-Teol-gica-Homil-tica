@@ -32,6 +32,7 @@ Use este roteiro em uma janela anônima e em uma conta autenticada de teste. Nã
 - [ ] Abrir Dicionário/Concordância após outra pesquisa e confirmar que o campo de busca começa limpo, sem carregar termo de outra consulta.
 - [ ] Abrir uma ferramenta pelo Editor, fechar usando **Voltar ao Editor** e confirmar que o texto e as alterações locais continuam presentes.
 - [ ] Editar o estudo, sem salvar manualmente, clicar em Bíblia/Raio-X/Dicionário/Concordância e confirmar que a alteração é sincronizada antes da navegação.
+- [ ] Editar o estudo e clicar em outra seção pelo menu; confirmar que a navegação aguarda o salvamento automático e não perde o conteúdo.
 - [ ] No Editor, inserir uma passagem, uma referência adicional e uma **Nota pessoal**.
 - [ ] Aguardar o salvamento automático, recarregar a aplicação e abrir o filtro **Editados** no Caderno.
 - [ ] Voltar do Editor diretamente para o Caderno e confirmar que a lista é recarregada, sem precisar sair da conta.

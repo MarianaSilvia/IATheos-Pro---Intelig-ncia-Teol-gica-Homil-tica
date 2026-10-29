@@ -39,7 +39,7 @@ function sourceMarkdown(source: StudySource): string {
   return formatVerseXrayToMarkdown(source);
 }
 
-export function EditorView({ source, savedStudy, initialReference = "", activeReference = "", initialText = "", initialContextOpen = false, onOpenReference, onOpenBible, onOpenDictionary, onOpenConcordance }: { source: StudySource; savedStudy?: EditorStudy; initialReference?: string; activeReference?: string; initialText?: string; initialContextOpen?: boolean; onOpenReference?: (reference: string) => void; onOpenBible?: (reference: string) => void; onOpenDictionary?: (reference: string) => void; onOpenConcordance?: (reference: string) => void }) {
+export function EditorView({ source, savedStudy, initialReference = "", activeReference = "", initialText = "", initialContextOpen = false, onOpenReference, onOpenBible, onOpenDictionary, onOpenConcordance, onDirtyChange }: { source: StudySource; savedStudy?: EditorStudy; initialReference?: string; activeReference?: string; initialText?: string; initialContextOpen?: boolean; onOpenReference?: (reference: string) => void; onOpenBible?: (reference: string) => void; onOpenDictionary?: (reference: string) => void; onOpenConcordance?: (reference: string) => void; onDirtyChange?: (dirty: boolean) => void }) {
   const connectedReferenceRef = useRef(initialReference || activeReference);
   const connectedReference = connectedReferenceRef.current;
   const seedTitle = savedStudy?.title ?? (source ? sourceTitle(source) : connectedReference ? `Estudo de ${connectedReference}` : sourceTitle(source));
@@ -83,6 +83,7 @@ export function EditorView({ source, savedStudy, initialReference = "", activeRe
     createdAt.current = savedStudy?.createdAt ?? new Date().toISOString();
     setSaved(false);
     setDirty(false);
+    onDirtyChange?.(false);
     setSyncState("idle");
     setError("");
   }, [seed]);
@@ -90,6 +91,7 @@ export function EditorView({ source, savedStudy, initialReference = "", activeRe
   const markDirty = () => {
     setSaved(false);
     setDirty(true);
+    onDirtyChange?.(true);
     setSyncState("pending");
     setError("");
   };
@@ -123,6 +125,7 @@ export function EditorView({ source, savedStudy, initialReference = "", activeRe
       });
       setSaved(true);
       setDirty(false);
+      onDirtyChange?.(false);
       setSyncState("saved");
       return true;
     } catch (e) {
