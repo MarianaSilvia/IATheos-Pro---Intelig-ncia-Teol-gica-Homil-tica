@@ -17,6 +17,7 @@ Use este roteiro em uma janela anônima e em uma conta autenticada de teste. Nã
 - [ ] Escolher livro, capítulo e tradução disponíveis.
 - [ ] Selecionar um ou vários versículos e confirmar a passagem ativa como intervalo/lista.
 - [ ] Abrir Raio-X, Sermão, EBD, Dicionário e Concordância a partir da passagem.
+- [ ] Fechar uma ferramenta, voltar ao leitor e confirmar que a seleção de versículos continua destacada como intervalo ou lista.
 - [ ] Confirmar que a referência é preservada e que nenhuma ferramenta inventa texto ausente.
 - [ ] Comparar duas traduções quando ambas estiverem disponíveis.
 - [ ] Salvar o versículo como nota e confirmar a mensagem de sucesso.
@@ -29,6 +30,14 @@ Use este roteiro em uma janela anônima e em uma conta autenticada de teste. Nã
 - [ ] Confirmar que o texto dos versículos marcados continua disponível offline e que o cache não inclui notas ou dados privados.
 - [ ] Reabrir o capítulo pela lista de capítulos offline e removê-lo depois do teste.
 - [ ] Marcar mais de um capítulo, usar **Limpar cache** e confirmar que a lista fica vazia.
+
+### 2.1 Pesquisa bíblica e geral
+
+- [ ] Pesquisar um termo no **Dicionário bíblico** e confirmar a origem “Acervo Verbo Norte”.
+- [ ] Alternar para **Dicionário geral** e testar “contexto”, “discernimento” ou “resiliência”, conferindo categoria e sinônimos.
+- [ ] Pesquisar um termo geral ausente e confirmar que a consulta ao Gemini aparece identificada como IA e sujeita a revisão.
+- [ ] Pesquisar “graça”, “GRACA” e “graças” na Concordância e confirmar a mesma entrada quando disponível.
+- [ ] Em uma referência do Dicionário/Concordância, testar os atalhos **Bíblia** e **Raio-X**.
 
 ## 3. Integridade e segurança
 

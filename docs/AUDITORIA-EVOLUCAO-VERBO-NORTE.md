@@ -7,7 +7,9 @@
 - Leitor bíblico com livro, capítulo, tradução e tamanho de fonte.
 - Comparação entre traduções que existem no acervo local.
 - Seleção de um ou vários versículos com passagem ativa persistente por usuário.
+- Seleção ativa restaurada no leitor como versículo, intervalo ou lista ao retornar de outra ferramenta.
 - Ações conectadas para notas, Raio-X, Sermão, EBD, Editor, Dicionário e Concordância.
+- Referências do Dicionário e da Concordância podem abrir diretamente Bíblia ou Raio-X.
 - Referências do Editor com atalhos para Bíblia, Raio-X, Dicionário e Concordância.
 - Referências relacionadas somente do acervo local de concordância parcial.
 - Harpa Cristã com busca, cópia, salvamento em notas e abertura no Editor.
@@ -33,7 +35,7 @@
 ## Evidências de validação
 
 - `npm run lint` aprovado.
-- `npm test` aprovado com 40 testes.
+- `npm test` aprovado com 42 testes.
 - `npm run test:integration` aprovado com 3 testes.
 - `npm run build` aprovado.
 - Commits publicados continuamente no branch `main`.
@@ -44,7 +46,7 @@
 - Comparação só aparece quando as duas versões estão disponíveis para o capítulo.
 - Conteúdo gerado pelo Gemini exige revisão ministerial.
 - O modo offline cobre interface, recursos estáticos e capítulos públicos marcados pelo usuário; não armazena notas, assinaturas, compras ou APIs privadas.
-- O bundle inicial ainda supera 500 KB; a divisão por módulos reduziu o tamanho inicial, mas uma otimização adicional de dependências continua recomendada.
+- O bundle inicial está abaixo de 500 KB; a divisão por módulos ainda pode ser refinada em uma etapa posterior.
 - Testes SQL do Supabase exigem Docker/Podman e `supabase start` localmente.
 - Comunidade, gamificação, áudio, slides automáticos, geração de imagens e aplicativos nativos permanecem fora desta fase.
 
