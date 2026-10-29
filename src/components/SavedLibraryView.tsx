@@ -60,6 +60,7 @@ export const SavedLibraryView: React.FC<SavedLibraryViewProps> = ({
     "all",
   );
   const [search, setSearch] = useState("");
+  const [sort, setSort] = useState<"recent" | "oldest" | "title">("recent");
 
   const filteredItems = savedItems.filter((item) => {
     const matchesFilter = filter === "all" || item.type === filter;
@@ -69,6 +70,11 @@ export const SavedLibraryView: React.FC<SavedLibraryViewProps> = ({
       : [item.title, item.reference, JSON.stringify(item.data)].join(" ");
     const matchesSearch = searchableText.toLocaleLowerCase().includes(search.toLocaleLowerCase());
     return matchesFilter && matchesSearch;
+  }).sort((a, b) => {
+    if (sort === "title") return a.title.localeCompare(b.title, "pt-BR");
+    const timeA = Date.parse(a.savedAt) || 0;
+    const timeB = Date.parse(b.savedAt) || 0;
+    return sort === "recent" ? timeB - timeA : timeA - timeB;
   });
 
   return (
@@ -166,6 +172,14 @@ export const SavedLibraryView: React.FC<SavedLibraryViewProps> = ({
             <FilePenLine className="w-3.5 h-3.5 inline mr-1" /> Editados
           </button>
         </div>
+        <label className="sm:w-44 text-xs font-semibold text-slate-600">
+          Ordenar
+          <select aria-label="Ordenar estudos" value={sort} onChange={(event) => setSort(event.target.value as typeof sort)} className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold">
+            <option value="recent">Mais recentes</option>
+            <option value="oldest">Mais antigos</option>
+            <option value="title">Título</option>
+          </select>
+        </label>
       </div>
 
       {/* Grid of Saved Items */}
@@ -215,7 +229,7 @@ export const SavedLibraryView: React.FC<SavedLibraryViewProps> = ({
                           : "Editor"}
                   </span>
                   <span className="text-[11px] text-slate-400">
-                    {new Date(item.savedAt).toLocaleDateString("pt-BR")}
+                    Sincronizado {new Date(item.savedAt).toLocaleDateString("pt-BR")}
                   </span>
                 </div>
 
