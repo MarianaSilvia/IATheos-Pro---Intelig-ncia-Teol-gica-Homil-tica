@@ -1,14 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   INITIAL_BIBLICAL_THEMES,
   INITIAL_DICTIONARY_ENTRIES,
-  INITIAL_CONCORDANCE_ENTRIES,
+  buildThemeApproaches,
   searchBiblicalThemes,
   searchDictionary,
 } from "../utils/dashboard";
 import { useResource } from "../hooks/useResource";
 import { api } from "../lib/api";
 import type { Note } from "../shared/contracts";
+type ThemeOptions = { theme: string; source: "catalog" | "ai"; needsReview: boolean; options: Array<{ id: string; approach: string; title: string; biblicalText: string; objective: string; targetAudience: string; description: string }> };
+type DictionaryResult = { term: string; mode: "biblical" | "general"; category: string; definition: string; synonyms: string[]; originalTerm?: string; scriptureReferences: string[]; source: "catalog" | "ai"; needsReview: boolean };
+type ConcordanceData = { word: string; totalOccurrences: number; availableOccurrences: number; oldTestament: number; newTestament: number; verses: Array<{ reference: string; snippet: string; testament: "AT" | "NT" }>; available: boolean };
 export function DashboardModals({
   modalType,
   onClose,
@@ -21,7 +24,45 @@ export function DashboardModals({
   onNavigateToXray: (verse: string) => void;
 }) {
   const [search, setSearch] = useState("");
+  const [dictionaryMode, setDictionaryMode] = useState<"biblical" | "general">("biblical");
+  const [themeOptions, setThemeOptions] = useState<Record<string, ThemeOptions>>({});
+  const [dictionaryResult, setDictionaryResult] = useState<DictionaryResult | null>(null);
+  const [concordance, setConcordance] = useState<ConcordanceData | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    setSearch("");
+    setDictionaryMode("biblical");
+    setThemeOptions({});
+    setDictionaryResult(null);
+    setConcordance(null);
+    setError("");
+  }, [modalType]);
+  const runThemeSearch = async () => {
+    if (!search.trim()) return;
+    setBusy(true); setError("");
+    try { const result = await api<ThemeOptions>("/theology/theme-options", { method: "POST", body: JSON.stringify({ theme: search.trim() }) }); setThemeOptions((current) => ({ ...current, [search.trim().toLowerCase()]: result })); }
+    catch (e) { setError((e as Error).message); }
+    finally { setBusy(false); }
+  };
+  const runDictionarySearch = async () => {
+    if (!search.trim()) return;
+    setBusy(true); setError("");
+    try { setDictionaryResult(await api<DictionaryResult>("/theology/dictionary", { method: "POST", body: JSON.stringify({ term: search.trim(), mode: dictionaryMode }) })); }
+    catch (e) { setError((e as Error).message); }
+    finally { setBusy(false); }
+  };
+  const runConcordanceSearch = async () => {
+    if (!search.trim()) return;
+    setBusy(true); setError("");
+    try { setConcordance(await api<ConcordanceData>(`/reference/concordance?q=${encodeURIComponent(search.trim())}`)); }
+    catch (e) { setError((e as Error).message); }
+    finally { setBusy(false); }
+  };
   if (!modalType) return null;
+  const localThemes = searchBiblicalThemes(INITIAL_BIBLICAL_THEMES, search);
+  const localDictionary = dictionaryMode === "biblical" ? searchDictionary(INITIAL_DICTIONARY_ENTRIES, search) : [];
+  const cachedTheme = themeOptions[search.trim().toLowerCase()];
   return (
     <div
       role="dialog"
@@ -40,62 +81,21 @@ export function DashboardModals({
           <NotesPanel />
         ) : (
           <>
-            <p className="text-sm text-slate-500">
-              Acervo de referência parcial.
-            </p>
-            <label>
-              Buscar
-              <input
-                className="block border p-3 w-full rounded-xl"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </label>
-            {modalType === "themes" &&
-              searchBiblicalThemes(INITIAL_BIBLICAL_THEMES, search).map((t) => (
-                <article key={t.id} className="border rounded-xl p-4">
-                  <h3 className="font-bold">{t.name}</h3>
-                  <p>{t.description}</p>
-                  <button
-                    className="text-amber-700 underline"
-                    onClick={() =>
-                      onNavigateToSermon(t.primaryVerses[0].reference, t.name)
-                    }
-                  >
-                    Preparar pregação
-                  </button>
-                </article>
-              ))}
-            {modalType === "dictionary" &&
-              searchDictionary(INITIAL_DICTIONARY_ENTRIES, search).map((d) => (
-                <article key={d.term} className="border rounded-xl p-4">
-                  <h3 className="font-bold">{d.term}</h3>
-                  <p>{d.definition}</p>
-                  {d.scriptureReferences.map((v) => (
-                    <button
-                      key={v}
-                      className="m-2 text-amber-700 underline"
-                      onClick={() => onNavigateToXray(v)}
-                    >
-                      {v}
-                    </button>
-                  ))}
-                </article>
-              ))}
-            {modalType === "concordance" &&
-              (INITIAL_CONCORDANCE_ENTRIES[
-                search.trim().toLowerCase()
-              ]?.verses.map((v) => (
-                <article key={v.reference} className="border p-4 rounded-xl">
-                  <button
-                    className="text-amber-700 underline"
-                    onClick={() => onNavigateToXray(v.reference)}
-                  >
-                    {v.reference}
-                  </button>
-                  <p>{v.snippet}</p>
-                </article>
-              )) || <p>Nenhum resultado neste acervo parcial.</p>)}
+            <p className="text-sm text-slate-500">Acervo parcial verificado. Consultas ausentes podem usar o Gemini no servidor.</p>
+            {modalType === "dictionary" && <div className="flex gap-2"><button type="button" className={`px-3 py-2 rounded-xl text-sm ${dictionaryMode === "biblical" ? "bg-amber-600 text-white" : "border"}`} onClick={() => { setDictionaryMode("biblical"); setDictionaryResult(null); }}>Dicionário bíblico</button><button type="button" className={`px-3 py-2 rounded-xl text-sm ${dictionaryMode === "general" ? "bg-amber-600 text-white" : "border"}`} onClick={() => { setDictionaryMode("general"); setDictionaryResult(null); }}>Dicionário geral</button></div>}
+            <form onSubmit={(event) => { event.preventDefault(); if (modalType === "themes") void runThemeSearch(); else if (modalType === "dictionary") void runDictionarySearch(); else if (modalType === "concordance") void runConcordanceSearch(); }}>
+              <label>Buscar<input className="block border p-3 w-full rounded-xl" value={search} onChange={(e) => { setSearch(e.target.value); setError(""); setConcordance(null); setDictionaryResult(null); }} placeholder={modalType === "themes" ? "Ex.: ansiedade, família, esperança" : modalType === "dictionary" ? "Ex.: graça, discipulado ou uma palavra geral" : "Ex.: graça, esperança ou shalom"} /></label>
+              <button disabled={busy || !search.trim()} className="mt-3 bg-slate-900 text-white rounded-xl px-4 py-2 disabled:opacity-50">{busy ? "Consultando…" : "Pesquisar"}</button>
+            </form>
+            {error && <p role="alert" className="rounded-xl bg-red-50 text-red-800 p-3">{error} <button className="underline" onClick={() => { if (modalType === "themes") void runThemeSearch(); else if (modalType === "dictionary") void runDictionarySearch(); else void runConcordanceSearch(); }}>Tentar novamente</button></p>}
+            {modalType === "themes" && localThemes.map((theme) => { const options = cachedTheme?.theme === theme.name ? cachedTheme.options : buildThemeApproaches(theme); return <article key={theme.id} className="border rounded-xl p-4 space-y-3"><h3 className="font-bold">{theme.name}</h3><p>{theme.description}</p><div className="grid sm:grid-cols-2 gap-3">{options.map((option) => <div key={option.id} className="border rounded-xl p-3 bg-slate-50"><span className="text-xs font-bold uppercase text-amber-700">{option.approach}</span><h4 className="font-semibold mt-1">{option.title}</h4><p className="text-sm mt-1">{option.description}</p><p className="text-xs text-slate-600 mt-2"><strong>Texto:</strong> {option.biblicalText}</p><p className="text-xs text-slate-600"><strong>Objetivo:</strong> {option.objective}</p><p className="text-xs text-slate-600"><strong>Público:</strong> {option.targetAudience}</p><button className="text-amber-700 underline text-sm mt-2" onClick={() => onNavigateToSermon(option.biblicalText, option.title)}>Preparar pregação</button></div>)}</div></article>; })}
+            {modalType === "themes" && !localThemes.length && !cachedTheme && search.trim() && <div className="border rounded-xl p-4"><p>Nenhum tema encontrado no acervo local.</p><button disabled={busy} className="text-amber-700 underline mt-2" onClick={() => void runThemeSearch()}>Gerar opções com Gemini</button></div>}
+            {modalType === "themes" && cachedTheme && !localThemes.length && <article className="border rounded-xl p-4 space-y-3"><div className="flex justify-between"><h3 className="font-bold">{cachedTheme.theme}</h3><span className="text-xs text-indigo-700">Sugestão gerada por IA · revise</span></div><div className="grid sm:grid-cols-2 gap-3">{cachedTheme.options.map((option) => <div key={option.id} className="border rounded-xl p-3"><span className="text-xs font-bold uppercase text-amber-700">{option.approach}</span><h4 className="font-semibold">{option.title}</h4><p className="text-sm">{option.description}</p><p className="text-xs mt-2"><strong>Texto:</strong> {option.biblicalText}</p><button className="text-amber-700 underline text-sm mt-2" onClick={() => onNavigateToSermon(option.biblicalText, option.title)}>Preparar pregação</button></div>)}</div></article>}
+            {modalType === "dictionary" && localDictionary.map((entry) => <article key={entry.term} className="border rounded-xl p-4"><div className="flex justify-between gap-3"><h3 className="font-bold">{entry.term}</h3><span className="text-xs text-emerald-700">Acervo Verbo Norte</span></div><p className="mt-2">{entry.definition}</p>{entry.originalTerm && <p className="text-sm text-slate-600 mt-2">Original: {entry.originalTerm}</p>}{entry.scriptureReferences.map((v) => <button key={v} className="m-2 text-amber-700 underline" onClick={() => onNavigateToXray(v)}>{v}</button>)}</article>)}
+            {modalType === "dictionary" && !localDictionary.length && search.trim() && !dictionaryResult && <div className="border rounded-xl p-4"><p>Nenhuma entrada encontrada no acervo local.</p><button className="text-amber-700 underline mt-2" disabled={busy} onClick={() => void runDictionarySearch()}>Consultar Gemini</button></div>}
+            {modalType === "dictionary" && dictionaryResult && <article className="border rounded-xl p-4"><div className="flex justify-between gap-3"><h3 className="font-bold">{dictionaryResult.term}</h3><span className="text-xs text-indigo-700">{dictionaryResult.source === "ai" ? "Definição gerada por IA · revise" : "Acervo Verbo Norte"}</span></div><p className="mt-2">{dictionaryResult.definition}</p>{dictionaryResult.synonyms.length > 0 && <p className="text-sm mt-2"><strong>Sinônimos:</strong> {dictionaryResult.synonyms.join(", ")}</p>}{dictionaryResult.originalTerm && <p className="text-sm text-slate-600 mt-2">Original: {dictionaryResult.originalTerm}</p>}{dictionaryResult.scriptureReferences.map((v) => <button key={v} className="m-2 text-amber-700 underline" onClick={() => onNavigateToXray(v)}>{v}</button>)}</article>}
+            {modalType === "concordance" && concordance && (concordance.available ? <><div className="rounded-xl bg-slate-50 p-4 text-sm">{concordance.word}: <strong>{concordance.availableOccurrences}</strong> ocorrências disponíveis · AT: {concordance.oldTestament} · NT: {concordance.newTestament}</div>{concordance.verses.map((verse) => <article key={verse.reference} className="border p-4 rounded-xl"><button className="text-amber-700 underline" onClick={() => onNavigateToXray(verse.reference)}>{verse.reference}</button><span className="ml-2 text-xs text-slate-500">{verse.testament}</span><p>{verse.snippet}</p></article>)}</> : <p>Esta palavra ainda não está disponível na concordância parcial.</p>)}
+            {modalType === "concordance" && !concordance && !search.trim() && <p>Digite uma palavra para pesquisar na concordância parcial.</p>}
           </>
         )}
       </div>

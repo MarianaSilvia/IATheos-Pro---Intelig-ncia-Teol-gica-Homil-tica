@@ -109,6 +109,44 @@ export const generatedSchemas = {
   ebd: ebdSchema,
   xray: xraySchema,
 };
+export const themeApproachSchema = section({
+  id: text(80),
+  approach: z.enum(["Expositivo", "Temático", "Devocional", "EBD/Pastoral"]),
+  title: text(300),
+  biblicalText: text(300),
+  objective: text(2000),
+  targetAudience: text(200),
+  description: text(3000),
+});
+export const themeOptionsSchema = section({
+  theme: text(300),
+  source: z.enum(["catalog", "ai"]),
+  needsReview: z.boolean(),
+  options: z.array(themeApproachSchema).min(1).max(8),
+});
+export const dictionaryResultSchema = section({
+  term: text(300),
+  mode: z.enum(["biblical", "general"]),
+  category: text(120),
+  definition: text(5000),
+  synonyms: z.array(text(120)).max(20),
+  originalTerm: z.string().trim().max(300).optional(),
+  scriptureReferences: z.array(text(300)).max(20),
+  source: z.enum(["catalog", "ai"]),
+  needsReview: z.boolean(),
+});
+export const concordanceResultSchema = section({
+  word: text(300),
+  totalOccurrences: z.number().int().nonnegative(),
+  availableOccurrences: z.number().int().nonnegative(),
+  oldTestament: z.number().int().nonnegative(),
+  newTestament: z.number().int().nonnegative(),
+  verses: z.array(section({
+    reference: text(300),
+    snippet: text(5000),
+    testament: z.enum(["AT", "NT"]),
+  })).max(100),
+});
 export const externalLinkSchema = z.url().max(4096).refine((value) => {
   const url = new URL(value);
   return url.protocol === "https:" && !url.username && !url.password && !["localhost","127.0.0.1","[::1]"].includes(url.hostname);

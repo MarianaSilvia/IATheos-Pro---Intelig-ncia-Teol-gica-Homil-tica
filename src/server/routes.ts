@@ -1,12 +1,13 @@
 import { Router } from "express";
 import { z } from "zod";
 import { asyncRoute, requireAuth, requireAdmin, HttpError, checked } from "./http.ts";
-import { sessionFor, subscriptionData } from "./services.ts";
+import { sessionFor, subscriptionData, requirePro } from "./services.ts";
 import { generatedSchemas, idSchema, noteSchema, productSchema, studyType, subscriptionActionSchema, externalLinkSchema } from "../shared/contracts.ts";
 import { BIBLE_BOOKS } from "../utils/bibleProgress.ts";
 import { serviceDatabase } from "./supabase.ts";
 import { config } from "./config.ts";
 import crypto from "node:crypto";
+import { INITIAL_CONCORDANCE_ENTRIES, searchConcordance } from "../utils/dashboard.ts";
 const router=Router();
 const phoneSchema=z.string().trim().transform((value)=>value.replace(/\D/g,"")).refine((value)=>value.startsWith("55")?/^55[1-9][0-9]{9,10}$/.test(value):/^[1-9][0-9]{9,10}$/.test(value),"Informe um celular válido com DDD (11 dígitos; com 55, use 13 dígitos).").transform((value)=>value.startsWith("55")?value:`55${value}`);
 const applicationOrigin=()=>config.local?config.publicUrl:"https://ia-theos-pro-intelig-ncia-teol-gica.vercel.app";
@@ -90,6 +91,15 @@ router.post("/webhooks/infinitepay",asyncRoute(async(req,res)=>{
  res.status(200).json({ok:true});
 }));
 router.use(requireAuth);
+router.get("/reference/concordance",asyncRoute(async(req,res)=>{
+ await requirePro(req.db,req.user);
+ const query=z.string().trim().min(1).max(120).parse(String(req.query.q||""));
+ const result=searchConcordance(INITIAL_CONCORDANCE_ENTRIES,query);
+ if(!result){res.json({word:query,totalOccurrences:0,availableOccurrences:0,oldTestament:0,newTestament:0,verses:[],available:false});return;}
+ const oldTestament=result.verses.filter((verse)=>verse.testament==="AT").length;
+ const newTestament=result.verses.filter((verse)=>verse.testament==="NT").length;
+ res.json({word:result.word,totalOccurrences:result.verses.length,availableOccurrences:result.verses.length,oldTestament,newTestament,verses:result.verses,available:true});
+}));
 router.get("/session",asyncRoute(async(req,res)=>{res.json(await sessionFor(req.db,req.user));}));
 router.post("/users/sync",asyncRoute(async(req,res)=>{checked(await req.db.rpc("sync_profile"));res.json(await sessionFor(req.db,req.user));}));
 router.patch("/profile",asyncRoute(async(req,res)=>{

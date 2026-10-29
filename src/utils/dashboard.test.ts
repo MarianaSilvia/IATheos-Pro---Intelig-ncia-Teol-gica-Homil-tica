@@ -14,6 +14,8 @@ import {
   INITIAL_BIBLICAL_THEMES,
   INITIAL_DICTIONARY_ENTRIES,
   INITIAL_CONCORDANCE_ENTRIES,
+  buildThemeApproaches,
+  searchConcordance,
 } from "./dashboard.ts";
 
 test("Reading progress calculation", () => {
@@ -62,4 +64,20 @@ test("Biblical concordance entries exist", () => {
   assert.ok(graca);
   assert.ok(graca.totalOccurrences > 100);
   assert.ok(graca.verses.length >= 2);
+});
+
+test("Theme catalog exposes four preparation approaches", () => {
+  const options = buildThemeApproaches(INITIAL_BIBLICAL_THEMES[0]);
+  assert.equal(options.length, 4);
+  assert.deepEqual(options.map((option) => option.approach), ["Expositivo", "Temático", "Devocional", "EBD/Pastoral"]);
+  assert.ok(options.every((option) => option.biblicalText.length > 0));
+});
+
+test("Reference searches normalize accents and partial terms", () => {
+  assert.equal(searchBiblicalThemes(INITIAL_BIBLICAL_THEMES, "  ANSIEDADE ").length, 1);
+  assert.equal(searchDictionary(INITIAL_DICTIONARY_ENTRIES, "KOINO").length, 1);
+  const result = searchConcordance(INITIAL_CONCORDANCE_ENTRIES, "GRACA");
+  assert.ok(result);
+  assert.equal(result?.word, "Graça");
+  assert.equal(searchConcordance(INITIAL_CONCORDANCE_ENTRIES, "termo-inexistente"), null);
 });

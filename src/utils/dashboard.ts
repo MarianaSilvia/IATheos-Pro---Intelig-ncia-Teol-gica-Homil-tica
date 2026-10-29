@@ -48,6 +48,30 @@ export interface ConcordanceResult {
   }>;
 }
 
+export interface ThemeApproach {
+  id: string;
+  approach: "Expositivo" | "Temático" | "Devocional" | "EBD/Pastoral";
+  title: string;
+  biblicalText: string;
+  objective: string;
+  targetAudience: string;
+  description: string;
+}
+
+export function normalizeReferenceSearch(value: string): string {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+export function buildThemeApproaches(theme: BiblicalTheme): ThemeApproach[] {
+  const [first, second, third] = theme.primaryVerses;
+  return [
+    { id: `${theme.id}-expositivo`, approach: "Expositivo", title: `${theme.name}: exposição do texto`, biblicalText: first.reference, objective: `Expor o sentido e a aplicação de ${first.reference} no contexto da vida cristã.`, targetAudience: "Culto geral", description: theme.description },
+    { id: `${theme.id}-tematico`, approach: "Temático", title: `${theme.name}: princípios para hoje`, biblicalText: `${first.reference}; ${second?.reference || first.reference}`, objective: `Organizar os principais princípios bíblicos relacionados a ${theme.name.toLowerCase()}.`, targetAudience: "Jovens e adultos", description: theme.studyPrompt },
+    { id: `${theme.id}-devocional`, approach: "Devocional", title: `${theme.name}: uma palavra para o coração`, biblicalText: second?.reference || first.reference, objective: "Conduzir a uma reflexão pessoal, oração e prática da Palavra.", targetAudience: "Pequenos grupos e devocionais", description: theme.description },
+    { id: `${theme.id}-ebd`, approach: "EBD/Pastoral", title: `${theme.name}: aula e aplicação pastoral`, biblicalText: third?.reference || second?.reference || first.reference, objective: "Transformar o tema em uma aula participativa com perguntas e aplicações.", targetAudience: "EBD e liderança", description: theme.studyPrompt },
+  ];
+}
+
 export interface CommunityPost {
   id: string;
   authorName: string;
@@ -338,17 +362,17 @@ export function searchBiblicalThemes(
   themes: BiblicalTheme[],
   query: string,
 ): BiblicalTheme[] {
-  const q = query.trim().toLowerCase();
+  const q = normalizeReferenceSearch(query);
   if (!q) return themes;
   return themes.filter(
     (t) =>
-      t.name.toLowerCase().includes(q) ||
-      t.description.toLowerCase().includes(q) ||
-      t.category.toLowerCase().includes(q) ||
+      normalizeReferenceSearch(t.name).includes(q) ||
+      normalizeReferenceSearch(t.description).includes(q) ||
+      normalizeReferenceSearch(t.category).includes(q) ||
       t.primaryVerses.some(
         (v) =>
-          v.reference.toLowerCase().includes(q) ||
-          v.text.toLowerCase().includes(q),
+          normalizeReferenceSearch(v.reference).includes(q) ||
+          normalizeReferenceSearch(v.text).includes(q),
       ),
   );
 }
@@ -357,15 +381,28 @@ export function searchDictionary(
   entries: DictionaryEntry[],
   query: string,
 ): DictionaryEntry[] {
-  const q = query.trim().toLowerCase();
+  const q = normalizeReferenceSearch(query);
   if (!q) return entries;
   return entries.filter(
     (e) =>
-      e.term.toLowerCase().includes(q) ||
-      e.definition.toLowerCase().includes(q) ||
-      e.category.toLowerCase().includes(q) ||
-      e.originalTerm?.toLowerCase().includes(q),
+      normalizeReferenceSearch(e.term).includes(q) ||
+      normalizeReferenceSearch(e.definition).includes(q) ||
+      normalizeReferenceSearch(e.category).includes(q) ||
+      normalizeReferenceSearch(e.originalTerm || "").includes(q),
   );
+}
+
+export function searchConcordance(
+  entries: Record<string, ConcordanceResult>,
+  query: string,
+): ConcordanceResult | null {
+  const q = normalizeReferenceSearch(query);
+  if (!q) return null;
+  const entry = Object.entries(entries).find(([key, value]) =>
+    normalizeReferenceSearch(key).includes(q) || normalizeReferenceSearch(value.word).includes(q),
+  )?.[1];
+  if (!entry) return null;
+  return { ...entry, verses: entry.verses.filter((verse) => normalizeReferenceSearch(`${verse.reference} ${verse.snippet}`).includes(q) || normalizeReferenceSearch(entry.word).includes(q)) };
 }
 
 export function toggleReadingCompleted(
