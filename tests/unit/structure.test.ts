@@ -4,6 +4,7 @@ import {
   productSchema,
   noteSchema,
   sermonSchema,
+  editorStudySchema,
   hasActiveSubscription,
   renewalExpiry,
 } from "../../src/shared/contracts.ts";
@@ -69,6 +70,23 @@ test("schemas accept free products and reject privilege injection, malformed AI 
       .success,
     false,
   );
+});
+test("editor studies preserve private blocks, references and context", () => {
+  const result = editorStudySchema.parse({
+    title: "Estudo salvo",
+    reference: "Romanos 5:3-5",
+    additionalReferences: ["Tiago 1:2-4"],
+    content: "# Estudo salvo\n\nConteúdo",
+    context: {
+      authorAudience: "Igreja local",
+      historicalContext: "",
+      literaryContext: "",
+      keyTerms: "perseverança",
+      peoplePlacesEvents: "",
+    },
+  });
+  assert.equal(result.additionalReferences[0], "Tiago 1:2-4");
+  assert.equal(editorStudySchema.safeParse({ ...result, ownerId: "other" }).success, false);
 });
 test("Bible lookup never returns a different chapter or translation", () => {
   assert.equal(findBibleChapter("Romanos", 5, "NAA")?.chapter, 5);

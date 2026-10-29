@@ -3,6 +3,7 @@ import { ArrowDown, ArrowUp, Check, FilePenLine, FileText, Plus, Printer, Save }
 import { api } from "../lib/api";
 import type { EbdLesson, SermonOutline, VerseXray } from "../utils/theology";
 import { formatEbdToMarkdown, formatSermonToMarkdown, formatVerseXrayToMarkdown } from "../utils/theology";
+import type { EditorStudy } from "./SavedLibraryView";
 
 type StudySource = SermonOutline | EbdLesson | VerseXray | null;
 type EditorBlock = { title: string; body: string };
@@ -38,45 +39,47 @@ function sourceMarkdown(source: StudySource): string {
   return formatVerseXrayToMarkdown(source);
 }
 
-export function EditorView({ source, initialReference = "", activeReference = "", initialText = "", initialContextOpen = false, onOpenReference, onOpenBible, onOpenDictionary, onOpenConcordance }: { source: StudySource; initialReference?: string; activeReference?: string; initialText?: string; initialContextOpen?: boolean; onOpenReference?: (reference: string) => void; onOpenBible?: (reference: string) => void; onOpenDictionary?: (reference: string) => void; onOpenConcordance?: (reference: string) => void }) {
+export function EditorView({ source, savedStudy, initialReference = "", activeReference = "", initialText = "", initialContextOpen = false, onOpenReference, onOpenBible, onOpenDictionary, onOpenConcordance }: { source: StudySource; savedStudy?: EditorStudy; initialReference?: string; activeReference?: string; initialText?: string; initialContextOpen?: boolean; onOpenReference?: (reference: string) => void; onOpenBible?: (reference: string) => void; onOpenDictionary?: (reference: string) => void; onOpenConcordance?: (reference: string) => void }) {
   const connectedReferenceRef = useRef(initialReference || activeReference);
   const connectedReference = connectedReferenceRef.current;
-  const seedTitle = source ? sourceTitle(source) : connectedReference ? `Estudo de ${connectedReference}` : sourceTitle(source);
-  const seedReference = source ? sourceReference(source) : connectedReference;
-  const seedContent = source ? sourceMarkdown(source) : initialText ? `# Estudo de ${connectedReference}\n\nTexto-base:\n\n${initialText}\n\n## Observações\n\n` : sourceMarkdown(source);
+  const seedTitle = savedStudy?.title ?? (source ? sourceTitle(source) : connectedReference ? `Estudo de ${connectedReference}` : sourceTitle(source));
+  const seedReference = savedStudy?.reference ?? (source ? sourceReference(source) : connectedReference);
+  const seedContent = savedStudy?.content ?? (source ? sourceMarkdown(source) : initialText ? `# Estudo de ${connectedReference}\n\nTexto-base:\n\n${initialText}\n\n## Observações\n\n` : sourceMarkdown(source));
   const [title, setTitle] = useState(seedTitle);
   const [reference, setReference] = useState(seedReference);
   const [content, setContent] = useState(seedContent);
-  const [additionalReferences, setAdditionalReferences] = useState("");
+  const [additionalReferences, setAdditionalReferences] = useState(savedStudy?.additionalReferences.join("; ") ?? "");
   const [referenceInput, setReferenceInput] = useState("");
   const [contextOpen, setContextOpen] = useState(initialContextOpen);
-  const [authorAudience, setAuthorAudience] = useState("");
-  const [historicalContext, setHistoricalContext] = useState("");
-  const [literaryContext, setLiteraryContext] = useState("");
-  const [keyTerms, setKeyTerms] = useState("");
-  const [peoplePlacesEvents, setPeoplePlacesEvents] = useState("");
+  const [authorAudience, setAuthorAudience] = useState(savedStudy?.context.authorAudience ?? "");
+  const [historicalContext, setHistoricalContext] = useState(savedStudy?.context.historicalContext ?? "");
+  const [literaryContext, setLiteraryContext] = useState(savedStudy?.context.literaryContext ?? "");
+  const [keyTerms, setKeyTerms] = useState(savedStudy?.context.keyTerms ?? "");
+  const [peoplePlacesEvents, setPeoplePlacesEvents] = useState(savedStudy?.context.peoplePlacesEvents ?? "");
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [error, setError] = useState("");
   const [organizeOpen, setOrganizeOpen] = useState(false);
   const [blocks, setBlocks] = useState<EditorBlock[]>([]);
-  const studyId = useRef(source && "id" in source ? source.id : crypto.randomUUID());
-  const seed = useMemo(() => seedTitle + seedReference + seedContent, [seedTitle, seedReference, seedContent]);
+  const studyId = useRef(savedStudy?.id ?? (source && "id" in source ? `editor-${source.id}` : crypto.randomUUID()));
+  const createdAt = useRef(savedStudy?.createdAt ?? new Date().toISOString());
+  const seed = useMemo(() => seedTitle + seedReference + seedContent + (savedStudy?.id ?? ""), [seedTitle, seedReference, seedContent, savedStudy?.id]);
 
   useEffect(() => {
     setTitle(seedTitle);
     setReference(seedReference);
     setContent(seedContent);
-    setAdditionalReferences("");
+    setAdditionalReferences(savedStudy?.additionalReferences.join("; ") ?? "");
     setReferenceInput("");
-    setAuthorAudience("");
-    setHistoricalContext("");
-    setLiteraryContext("");
-    setKeyTerms("");
-    setPeoplePlacesEvents("");
+    setAuthorAudience(savedStudy?.context.authorAudience ?? "");
+    setHistoricalContext(savedStudy?.context.historicalContext ?? "");
+    setLiteraryContext(savedStudy?.context.literaryContext ?? "");
+    setKeyTerms(savedStudy?.context.keyTerms ?? "");
+    setPeoplePlacesEvents(savedStudy?.context.peoplePlacesEvents ?? "");
     setContextOpen(initialContextOpen);
-    studyId.current = source && "id" in source ? source.id : crypto.randomUUID();
+    studyId.current = savedStudy?.id ?? (source && "id" in source ? `editor-${source.id}` : crypto.randomUUID());
+    createdAt.current = savedStudy?.createdAt ?? new Date().toISOString();
     setSaved(false);
     setDirty(false);
     setError("");
@@ -93,17 +96,20 @@ export function EditorView({ source, initialReference = "", activeReference = ""
     setError("");
     try {
       const cleanContent = content.replace(/\n\n<!-- verbo-norte-context -->[\s\S]*$/, "").trim();
-      const contextLines = [
-        ["Autor e público", authorAudience],
-        ["Contexto histórico", historicalContext],
-        ["Contexto literário", literaryContext],
-        ["Termos importantes", keyTerms],
-        ["Personagens, lugares e eventos", peoplePlacesEvents],
-      ].filter(([, value]) => value.trim()).map(([label, value]) => `### ${label}\n\n${value.trim()}`);
-      const contentWithContext = contextLines.length > 0 ? `${cleanContent}\n\n<!-- verbo-norte-context -->\n## Contexto do estudo\n\n${contextLines.join("\n\n")}` : cleanContent;
-      await api(`/notes/${studyId.current}`, {
+      await api(`/studies/${studyId.current}`, {
         method: "PUT",
-        body: JSON.stringify({ title: title.trim(), biblicalReference: [reference.trim(), additionalReferences.trim()].filter(Boolean).join("; "), content: contentWithContext }),
+        body: JSON.stringify({
+          type: "editor",
+          data: {
+            id: studyId.current,
+            createdAt: createdAt.current,
+            title: title.trim(),
+            reference: reference.trim(),
+            additionalReferences: references,
+            content: cleanContent,
+            context: { authorAudience, historicalContext, literaryContext, keyTerms, peoplePlacesEvents },
+          },
+        }),
       });
       setSaved(true);
       setDirty(false);

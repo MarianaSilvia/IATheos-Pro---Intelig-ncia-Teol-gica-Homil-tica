@@ -14,6 +14,7 @@ select public.sync_profile();
 select 1 / (not public.is_admin())::integer as normal_not_admin;
 insert into public.notes(user_id,id,title,content) values(auth.uid(),'note','Nota','Conteúdo');
 insert into public.reading(user_id,chapter_key) values(auth.uid(),'gn:1');
+insert into public.studies(user_id,id,type,title,reference,content) values(auth.uid(),'editor-study','editor','Estudo editado','Romanos 5:3-5','{"id":"editor-study","createdAt":"2026-10-29T00:00:00.000Z","title":"Estudo editado","reference":"Romanos 5:3-5","additionalReferences":[],"content":"# Estudo","context":{"authorAudience":"","historicalContext":"","literaryContext":"","keyTerms":"","peoplePlacesEvents":""}}');
 do $$ begin
  begin insert into public.reading(user_id,chapter_key) values(auth.uid(),'gn:99');raise exception 'invalid chapter accepted';exception when check_violation then null;end;
  begin insert into public.studies(user_id,id,type,title,reference,content) values(auth.uid(),'study','xray','Estudo','João 3:16','{"id":"other","verseReference":"João 3:16"}');raise exception 'study identity bypass';exception when check_violation then null;end;

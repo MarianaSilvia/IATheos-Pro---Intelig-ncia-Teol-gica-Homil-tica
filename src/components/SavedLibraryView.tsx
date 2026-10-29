@@ -15,15 +15,32 @@ import {
   Search,
   Download,
   BookOpen,
+  FilePenLine,
 } from "lucide-react";
 
 export interface SavedItem {
   id: string;
-  type: "sermon" | "ebd" | "xray";
+  type: "sermon" | "ebd" | "xray" | "editor";
   title: string;
   reference: string;
   savedAt: string;
-  data: SermonOutline | EbdLesson | VerseXray;
+  data: SermonOutline | EbdLesson | VerseXray | EditorStudy;
+}
+
+export interface EditorStudy {
+  id: string;
+  createdAt: string;
+  title: string;
+  reference: string;
+  additionalReferences: string[];
+  content: string;
+  context: {
+    authorAudience: string;
+    historicalContext: string;
+    literaryContext: string;
+    keyTerms: string;
+    peoplePlacesEvents: string;
+  };
 }
 
 interface SavedLibraryViewProps {
@@ -39,7 +56,7 @@ export const SavedLibraryView: React.FC<SavedLibraryViewProps> = ({
   onDeleteItem,
   onExportAll,
 }) => {
-  const [filter, setFilter] = useState<"all" | "sermon" | "ebd" | "xray">(
+  const [filter, setFilter] = useState<"all" | "sermon" | "ebd" | "xray" | "editor">(
     "all",
   );
   const [search, setSearch] = useState("");
@@ -136,6 +153,16 @@ export const SavedLibraryView: React.FC<SavedLibraryViewProps> = ({
           >
             <Microscope className="w-3.5 h-3.5" /> Raio-X
           </button>
+          <button
+            onClick={() => setFilter("editor")}
+            className={`px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors ${
+              filter === "editor"
+                ? "bg-violet-600 text-white shadow-sm"
+                : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+            }`}
+          >
+            <FilePenLine className="w-3.5 h-3.5 inline mr-1" /> Editados
+          </button>
         </div>
       </div>
 
@@ -166,7 +193,9 @@ export const SavedLibraryView: React.FC<SavedLibraryViewProps> = ({
                         ? "bg-amber-100 text-amber-800"
                         : item.type === "ebd"
                           ? "bg-emerald-100 text-emerald-800"
-                          : "bg-indigo-100 text-indigo-800"
+                          : item.type === "xray"
+                            ? "bg-indigo-100 text-indigo-800"
+                            : "bg-violet-100 text-violet-800"
                     }`}
                   >
                     {item.type === "sermon" && <Scroll className="w-3 h-3" />}
@@ -174,11 +203,14 @@ export const SavedLibraryView: React.FC<SavedLibraryViewProps> = ({
                       <GraduationCap className="w-3 h-3" />
                     )}
                     {item.type === "xray" && <Microscope className="w-3 h-3" />}
+                    {item.type === "editor" && <FilePenLine className="w-3 h-3" />}
                     {item.type === "sermon"
                       ? "Pregação"
                       : item.type === "ebd"
                         ? "Aula EBD"
-                        : "Raio-X"}
+                        : item.type === "xray"
+                          ? "Raio-X"
+                          : "Editor"}
                   </span>
                   <span className="text-[11px] text-slate-400">
                     {new Date(item.savedAt).toLocaleDateString("pt-BR")}

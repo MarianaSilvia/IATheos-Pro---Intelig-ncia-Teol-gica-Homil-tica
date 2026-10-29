@@ -2,7 +2,7 @@ import { z } from "zod";
 const text = (max = 12000) => z.string().trim().min(1).max(max);
 const list = (schema: z.ZodType = text()) => z.array(schema).min(1).max(30);
 const section = <T extends z.ZodRawShape>(shape: T) => z.object(shape).strict();
-export const studyType = z.enum(["sermon", "ebd", "xray"]);
+export const studyType = z.enum(["sermon", "ebd", "xray", "editor"]);
 export const sermonSchema = section({
   title: text(300),
   biblicalText: text(300),
@@ -104,10 +104,27 @@ export const xraySchema = section({
     pastoralEncouragement: text(),
   }),
 });
+export const editorStudySchema = section({
+  title: text(300),
+  reference: z.string().trim().max(300),
+  additionalReferences: z.array(text(300)).max(30),
+  content: text(50000),
+  context: section({
+    authorAudience: z.string().trim().max(5000),
+    historicalContext: z.string().trim().max(5000),
+    literaryContext: z.string().trim().max(5000),
+    keyTerms: z.string().trim().max(5000),
+    peoplePlacesEvents: z.string().trim().max(5000),
+  }),
+});
 export const generatedSchemas = {
   sermon: sermonSchema,
   ebd: ebdSchema,
   xray: xraySchema,
+};
+export const studySchemas = {
+  ...generatedSchemas,
+  editor: editorStudySchema,
 };
 export const themeApproachSchema = section({
   id: text(80),

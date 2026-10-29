@@ -2,7 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { asyncRoute, requireAuth, requireAdmin, HttpError, checked } from "./http.ts";
 import { sessionFor, subscriptionData, requirePro } from "./services.ts";
-import { generatedSchemas, idSchema, noteSchema, productSchema, studyType, subscriptionActionSchema, externalLinkSchema } from "../shared/contracts.ts";
+import { generatedSchemas, idSchema, noteSchema, productSchema, studySchemas, studyType, subscriptionActionSchema, externalLinkSchema } from "../shared/contracts.ts";
 import { BIBLE_BOOKS } from "../utils/bibleProgress.ts";
 import { serviceDatabase } from "./supabase.ts";
 import { config } from "./config.ts";
@@ -146,9 +146,9 @@ router.get("/studies",asyncRoute(async(req,res)=>{
 }));
 router.put("/studies/:id",asyncRoute(async(req,res)=>{
  const id=idSchema.parse(req.params.id);const input=z.object({type:studyType,data:z.unknown()}).strict().parse(req.body);
- const data:any=generatedSchemas[input.type].extend({id:idSchema,createdAt:z.iso.datetime()}).parse(input.data);
+ const data:any=studySchemas[input.type].extend({id:idSchema,createdAt:z.iso.datetime()}).parse(input.data);
  if(data.id!==id||Buffer.byteLength(JSON.stringify(data))>200000)throw new HttpError(400,"Identificador incompatível ou estudo acima do limite.");
- checked(await req.db.from("studies").upsert({user_id:req.user.uid,id,type:input.type,title:data.title||`Raio-X: ${data.verseReference}`,reference:data.biblicalText||data.verseReference,content:data},{onConflict:"user_id,id"}));res.json({ok:true});
+ checked(await req.db.from("studies").upsert({user_id:req.user.uid,id,type:input.type,title:data.title||`Raio-X: ${data.verseReference || data.reference}`,reference:data.biblicalText||data.verseReference||data.reference,content:data},{onConflict:"user_id,id"}));res.json({ok:true});
 }));
 router.delete("/studies/:id",asyncRoute(async(req,res)=>{checked(await req.db.from("studies").delete().eq("user_id",req.user.uid).eq("id",idSchema.parse(req.params.id)));res.json({ok:true});}));
 router.get("/notes",asyncRoute(async(req,res)=>{

@@ -39,7 +39,7 @@ const TheologicalChatView = lazy(() =>
     default: m.TheologicalChatView,
   })),
 );
-import type { SavedItem } from "./components/SavedLibraryView";
+import type { EditorStudy, SavedItem } from "./components/SavedLibraryView";
 const SavedLibraryView = lazy(() => import("./components/SavedLibraryView").then((m) => ({ default: m.SavedLibraryView })));
 const PulpitModeModal = lazy(() => import("./components/PulpitModeModal").then((m) => ({ default: m.PulpitModeModal })));
 const PdfReaderModal = lazy(() => import("./components/PdfReaderModal").then((m) => ({ default: m.PdfReaderModal })));
@@ -128,6 +128,7 @@ function Workspace({
   const [bible, setBible] = useState({ book: persistedBook, chapter: persistedChapter });
   const [contextReference, setContextReference] = useState(persistedReference);
   const [editorDraft, setEditorDraft] = useState<{ reference: string; text: string; contextOpen?: boolean } | null>(null);
+  const [editorStudy, setEditorStudy] = useState<EditorStudy | null>(null);
   const [access, setAccess] = useState(session);
   const [passwordSetupOpen, setPasswordSetupOpen] = useState(forcePasswordSetup || (!session.isAdmin && !session.passwordInitialized));
   const [newPassword, setNewPassword] = useState("");
@@ -210,6 +211,7 @@ function Workspace({
     setTab("ebd");
   };
   const startEditorFromBible = (verseReference: string, verseText: string) => {
+    setEditorStudy(null);
     setEditorDraft({ reference: verseReference, text: verseText, contextOpen: true });
     setTab("editor");
   };
@@ -226,6 +228,7 @@ function Workspace({
     setTab("bible_harp");
   };
   const openCurrentResultInEditor = () => {
+    setEditorStudy(null);
     setEditorDraft(null);
     setTab("editor");
   };
@@ -239,14 +242,24 @@ function Workspace({
     );
   const select = (item: SavedItem) => {
     if (item.type === "sermon") {
+      setEditorStudy(null);
       setSermon(item.data as SermonOutline);
       setTab("sermons");
     } else if (item.type === "ebd") {
+      setEditorStudy(null);
       setLesson(item.data as EbdLesson);
       setTab("ebd");
-    } else {
+    } else if (item.type === "xray") {
+      setEditorStudy(null);
       setXray(item.data as VerseXray);
       setTab("xray");
+    } else {
+      setSermon(null);
+      setLesson(null);
+      setXray(null);
+      setEditorDraft(null);
+      setEditorStudy(item.data as EditorStudy);
+      setTab("editor");
     }
   };
   const exportAll = () => {
@@ -471,7 +484,7 @@ function Workspace({
               />
             </>
           )}
-          {tab === "editor" && <EditorView source={sermon || lesson || xray} initialReference={editorDraft?.reference} activeReference={contextReference} initialText={editorDraft?.text} initialContextOpen={editorDraft?.contextOpen} onOpenReference={(reference) => void generateXray(reference)} onOpenBible={openBibleReference} onOpenDictionary={(reference) => { setActiveContext(reference); setModal("dictionary"); }} onOpenConcordance={(reference) => { setActiveContext(reference); setModal("concordance"); }} />}
+          {tab === "editor" && <EditorView source={editorStudy ? null : sermon || lesson || xray} savedStudy={editorStudy ?? undefined} initialReference={editorDraft?.reference} activeReference={contextReference} initialText={editorDraft?.text} initialContextOpen={editorDraft?.contextOpen} onOpenReference={(reference) => void generateXray(reference)} onOpenBible={openBibleReference} onOpenDictionary={(reference) => { setActiveContext(reference); setModal("dictionary"); }} onOpenConcordance={(reference) => { setActiveContext(reference); setModal("concordance"); }} />}
           {tab === "admin" && access.isAdmin && (
             <AdminPanelView
               products={catalog.data}
