@@ -1,26 +1,30 @@
-name: CI
+name: Verbo Norte CI
+
 on:
   push:
     branches: [main]
   pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      - name: Start Supabase local emulators
-        run: npm run supabase:start
-      - name: Validate Supabase RLS and database rules
-        run: npm run supabase:test
-      - name: Stop Supabase local emulators
-        if: always()
-        run: npm run supabase:stop
-      - run: npm run lint
-      - run: npm test
-      - run: npm run test:integration
-      - run: npm run build
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify project
+        run: npm run verify
