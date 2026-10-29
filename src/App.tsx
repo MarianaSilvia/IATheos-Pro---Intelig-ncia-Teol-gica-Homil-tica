@@ -212,6 +212,7 @@ function Workspace({
   };
   const startEditorFromBible = (verseReference: string, verseText: string) => {
     setEditorStudy(null);
+    setActiveContext(verseReference);
     setEditorDraft({ reference: verseReference, text: verseText, contextOpen: true });
     setTab("editor");
   };
