@@ -215,7 +215,10 @@ export function EditorView({ source, savedStudy, initialReference = "", activeRe
           <p className="text-sm text-slate-600">Edite um estudo gerado ou comece do zero. O conteúdo é salvo como estudo privado no Caderno Ministerial.</p>
         </div>
         <div className="flex gap-2 no-print">
-          {reference.trim() && onOpenBible && <button type="button" onClick={() => onOpenBible(reference.trim())} className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-emerald-900 flex items-center gap-2"><BookOpen className="w-4 h-4" /> Abrir na Bíblia</button>}
+          {reference.trim() && onOpenBible && <button type="button" onClick={() => onOpenBible(reference.trim())} className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-emerald-900 flex items-center gap-2"><BookOpen className="w-4 h-4" /> Bíblia</button>}
+          {reference.trim() && onOpenReference && <button type="button" onClick={() => onOpenReference(reference.trim())} className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-amber-900">Raio‑X</button>}
+          {reference.trim() && onOpenDictionary && <button type="button" onClick={() => onOpenDictionary(reference.trim())} className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2 text-indigo-900">Dicionário</button>}
+          {reference.trim() && onOpenConcordance && <button type="button" onClick={() => onOpenConcordance(reference.trim())} className="rounded-xl border border-violet-200 bg-violet-50 px-4 py-2 text-violet-900">Concordância</button>}
           <button type="button" onClick={openOrganizer} className="rounded-xl border px-4 py-2 flex items-center gap-2"><FilePenLine className="w-4 h-4" /> {organizeOpen ? "Fechar blocos" : "Organizar blocos"}</button>
           {reference.trim() && <button type="button" onClick={insertReferenceBlock} className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2 text-indigo-900">Inserir passagem</button>}
           <button type="button" onClick={() => setContextOpen((value) => !value)} className="rounded-xl border px-4 py-2 flex items-center gap-2">{contextOpen ? "Fechar contexto" : "Contexto do estudo"}</button>
