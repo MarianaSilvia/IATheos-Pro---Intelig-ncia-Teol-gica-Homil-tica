@@ -13,10 +13,12 @@ import {
   toggleReadingCompleted,
   INITIAL_BIBLICAL_THEMES,
   INITIAL_DICTIONARY_ENTRIES,
+  INITIAL_GENERAL_DICTIONARY_ENTRIES,
   INITIAL_CONCORDANCE_ENTRIES,
   buildThemeApproaches,
   searchConcordance,
   firstNameFromIdentity,
+  searchGeneralDictionary,
 } from "./dashboard.ts";
 
 test("Reading progress calculation", () => {
@@ -58,6 +60,13 @@ test("Theological dictionary search", () => {
 
   const koinonia = searchDictionary(INITIAL_DICTIONARY_ENTRIES, "comunhão");
   assert.ok(koinonia.length >= 1);
+});
+
+test("General dictionary searches the local editorial catalog", () => {
+  const result = searchGeneralDictionary(INITIAL_GENERAL_DICTIONARY_ENTRIES, "RESILIENCIA");
+  assert.equal(result.length, 1);
+  assert.equal(result[0].category, "Comportamento");
+  assert.equal(searchGeneralDictionary(INITIAL_GENERAL_DICTIONARY_ENTRIES, "termo inexistente").length, 0);
 });
 
 test("Biblical concordance entries exist", () => {

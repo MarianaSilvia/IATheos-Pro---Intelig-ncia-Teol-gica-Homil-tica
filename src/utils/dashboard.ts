@@ -38,6 +38,13 @@ export interface DictionaryEntry {
   scriptureReferences: string[];
 }
 
+export interface GeneralDictionaryEntry {
+  term: string;
+  category: string;
+  definition: string;
+  synonyms: string[];
+}
+
 export interface ConcordanceResult {
   word: string;
   totalOccurrences: number;
@@ -268,6 +275,35 @@ export const INITIAL_DICTIONARY_ENTRIES: DictionaryEntry[] = [
   },
 ];
 
+/**
+ * Pequeno acervo editorial para termos gerais usados no estudo.
+ * Consultas fora desta lista continuam podendo usar o Gemini no servidor,
+ * sempre identificadas como conteúdo gerado por IA.
+ */
+export const INITIAL_GENERAL_DICTIONARY_ENTRIES: GeneralDictionaryEntry[] = [
+  {
+    term: "Contexto",
+    category: "Estudo e linguagem",
+    definition:
+      "Conjunto de circunstâncias, informações e relações que ajudam a compreender o sentido de uma palavra, texto ou acontecimento.",
+    synonyms: ["cenário", "conjuntura", "ambiente"],
+  },
+  {
+    term: "Discernimento",
+    category: "Comportamento",
+    definition:
+      "Capacidade de distinguir, avaliar e escolher entre possibilidades com atenção aos fatos, às consequências e aos valores envolvidos.",
+    synonyms: ["critério", "juízo", "clareza"],
+  },
+  {
+    term: "Resiliência",
+    category: "Comportamento",
+    definition:
+      "Capacidade de atravessar dificuldades, adaptar-se às circunstâncias e retomar um caminho de ação sem ignorar os aprendizados do processo.",
+    synonyms: ["adaptação", "superação", "perseverança"],
+  },
+];
+
 export const INITIAL_CONCORDANCE_ENTRIES: Record<string, ConcordanceResult> = {
   graça: {
     word: "Graça",
@@ -397,6 +433,20 @@ export function searchDictionary(
       normalizeReferenceSearch(e.category).includes(q) ||
       normalizeReferenceSearch(e.originalTerm || "").includes(q),
   );
+}
+
+export function searchGeneralDictionary(
+  entries: GeneralDictionaryEntry[],
+  query: string,
+): GeneralDictionaryEntry[] {
+  const normalized = normalizeReferenceSearch(query);
+  if (!normalized) return [];
+  return entries.filter((entry) => {
+    const haystack = [entry.term, entry.category, entry.definition, ...entry.synonyms]
+      .map(normalizeReferenceSearch)
+      .join(" ");
+    return haystack.includes(normalized);
+  });
 }
 
 export function searchConcordance(
