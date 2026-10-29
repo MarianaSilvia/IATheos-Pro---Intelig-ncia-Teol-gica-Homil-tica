@@ -662,7 +662,7 @@ export function BibleAndHarpViewConnected({
                         title="Abrir no Raio-X"
                       >
                         <Eye className="w-3 h-3 inline mr-1" />
-                        Raio-X
+                        Explicar com IA
                       </button>
                     </div>
                   </div>
@@ -743,7 +743,7 @@ export function BibleAndHarpViewConnected({
                     onClick={() => openXray(selectedVerses)}
                     className="rounded-lg bg-amber-100 text-amber-900 px-3 py-1.5 font-bold"
                   >
-                    Raio‑X
+                    Raio‑X / explicar com IA
                   </button>
                   {onOpenBible && <button type="button" onClick={() => onOpenBible(formatVerseReference(book, chapter, selectedVerses))} className="rounded-lg bg-emerald-100 text-emerald-900 px-3 py-1.5 font-bold">Bíblia</button>}
                   {onSendToSermon && (
