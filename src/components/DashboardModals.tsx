@@ -18,12 +18,14 @@ export function DashboardModals({
   onNavigateToSermon,
   onNavigateToXray,
   initialSearch = "",
+  contextReference = "",
 }: {
   modalType: "themes" | "dictionary" | "concordance" | "notes" | null;
   onClose: () => void;
   onNavigateToSermon: (text: string, theme: string) => void;
   onNavigateToXray: (verse: string) => void;
   initialSearch?: string;
+  contextReference?: string;
 }) {
   const [search, setSearch] = useState(initialSearch);
   const [dictionaryMode, setDictionaryMode] = useState<"biblical" | "general">("biblical");
@@ -84,6 +86,7 @@ export function DashboardModals({
         ) : (
           <>
             <p className="text-sm text-slate-500">Acervo parcial verificado. Consultas ausentes podem usar o Gemini no servidor.</p>
+            {contextReference && <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-3 text-sm text-indigo-950"><strong>Passagem ativa:</strong> {contextReference}. Digite abaixo o termo que deseja pesquisar.</div>}
             {modalType === "dictionary" && <div className="flex gap-2"><button type="button" className={`px-3 py-2 rounded-xl text-sm ${dictionaryMode === "biblical" ? "bg-amber-600 text-white" : "border"}`} onClick={() => { setDictionaryMode("biblical"); setDictionaryResult(null); }}>Dicionário bíblico</button><button type="button" className={`px-3 py-2 rounded-xl text-sm ${dictionaryMode === "general" ? "bg-amber-600 text-white" : "border"}`} onClick={() => { setDictionaryMode("general"); setDictionaryResult(null); }}>Dicionário geral</button></div>}
             <form onSubmit={(event) => { event.preventDefault(); if (modalType === "themes") void runThemeSearch(); else if (modalType === "dictionary") void runDictionarySearch(); else if (modalType === "concordance") void runConcordanceSearch(); }}>
               <label>Buscar<input className="block border p-3 w-full rounded-xl" value={search} onChange={(e) => { setSearch(e.target.value); setError(""); setConcordance(null); setDictionaryResult(null); }} placeholder={modalType === "themes" ? "Ex.: ansiedade, família, esperança" : modalType === "dictionary" ? "Ex.: graça, discipulado ou uma palavra geral" : "Ex.: graça, esperança ou shalom"} /></label>

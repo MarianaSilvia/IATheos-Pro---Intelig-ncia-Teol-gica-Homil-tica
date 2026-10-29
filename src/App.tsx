@@ -452,7 +452,8 @@ function Workspace({
           setModal(null);
           void generateXray(verse);
         }}
-        initialSearch={contextReference}
+        initialSearch=""
+        contextReference={contextReference}
       />
       {pulpit && sermon && (
         <PulpitModeModal sermon={sermon} onClose={() => setPulpit(false)} />
