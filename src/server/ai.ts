@@ -114,11 +114,17 @@ router.post("/theme-options", asyncRoute(async (req, res) => {
     const response = await client.models.generateContent({
       model: config.model,
       contents: `Crie quatro opções de preparação para o tema bíblico: ${data.theme}. Use exatamente os formatos Expositivo, Temático, Devocional e EBD/Pastoral. Só inclua referências bíblicas que você reconheça com segurança; se houver dúvida, escreva "Referência a confirmar" e não invente referências. ${local ? `O acervo local relaciona este tema a: ${local.primaryVerses.map((verse) => verse.reference).join(", ")}. Use-o como ponto de partida, mas amplie as opções.` : ""} Responda somente JSON com theme, source, needsReview e options; cada opção deve conter id, approach, title, biblicalText, objective, targetAudience e description.`,
-      config: { systemInstruction, responseMimeType: "application/json", maxOutputTokens: 4000, httpOptions: { timeout: 60000 } },
+      config: {
+        systemInstruction,
+        responseMimeType: "application/json",
+        responseJsonSchema: geminiSchema(z.toJSONSchema(themeOptionsSchema)),
+        maxOutputTokens: 4000,
+        httpOptions: { timeout: 60000 },
+      },
     });
     const parsed = themeOptionsSchema.parse(parseJsonText(response.text || ""));
     checked(await req.db.from("generation_events").insert({ user_id: req.user.uid, type: "theme-options" }));
-    res.json(parsed);
+    res.json({ ...parsed, source: "ai", needsReview: true });
   } catch (error) {
     console.error("Gemini theme options failed", error);
     if (local) { res.json({ theme: local.name, source: "catalog", needsReview: false, options: buildThemeApproaches(local) }); return; }
@@ -152,7 +158,13 @@ router.post("/dictionary", asyncRoute(async (req, res) => {
     const response = await client.models.generateContent({
       model: config.model,
       contents: `Defina o termo ${data.term} no modo ${data.mode === "biblical" ? "dicionário bíblico" : "dicionário geral"}. Não invente referências bíblicas, idiomas originais ou etimologias. Use uma lista vazia quando não houver segurança. Responda somente em JSON com term, mode, category, definition, synonyms, originalTerm opcional, scriptureReferences, source=ai e needsReview=true.`,
-      config: { systemInstruction, responseMimeType: "application/json", maxOutputTokens: 2500, httpOptions: { timeout: 60000 } },
+      config: {
+        systemInstruction,
+        responseMimeType: "application/json",
+        responseJsonSchema: geminiSchema(z.toJSONSchema(dictionaryResultSchema)),
+        maxOutputTokens: 2500,
+        httpOptions: { timeout: 60000 },
+      },
     });
     const parsed = dictionaryResultSchema.parse(parseJsonText(response.text || ""));
     checked(await req.db.from("generation_events").insert({ user_id: req.user.uid, type: "dictionary" }));
